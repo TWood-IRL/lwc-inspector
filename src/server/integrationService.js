@@ -30,6 +30,7 @@ module.exports = class IntegrationService {
             
             
         });
+        
     }
 
     getLightningComponentBundles(req,res) {
