@@ -26,6 +26,7 @@ const logger = winston.createLogger({
 
 // Import Salesforce Authentication modules
 const AuthenticationService = require('./authenticationService');
+const IntegrationService = require('./integrationService');
 
 // Load .env configuration file
 
@@ -46,10 +47,24 @@ const {
 } = process.env;
 
 // Initialize OAuth2 config
-//const oauth2 = {};
-
+const oauth2Prod = new jsforce.OAuth2({
+    loginUrl: LOGIN_URL_PROD,
+    clientId: SALESFORCE_CLIENT_ID,
+    clientSecret: SALESFORCE_CLIENT_SECRET,
+    redirectUri: SALESFORCE_CALLBACK_URL
+});
+const oauth2Sandbox = new jsforce.OAuth2({
+    loginUrl: LOGIN_URL_SANDBOX,
+    clientId: SALESFORCE_CLIENT_ID,
+    clientSecret: SALESFORCE_CLIENT_SECRET,
+    redirectUri: SALESFORCE_CALLBACK_URL
+});
 // Initialize Auth Services
-let authService = {};
+let authService = new AuthenticationService(logger, oauth2Prod);
+let authServiceSandbox = new AuthenticationService(logger, oauth2Sandbox);
+let loginType = "" ; 
+const integrationService = new IntegrationService(logger, authService);
+const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
 
 //Enable server-side sessions
 app.use(
@@ -66,37 +81,52 @@ app.get('/api/v1/endpoint', (req, res) => {
 });
 
 // Hook up REST endpoints with service calls
-
-// Login to Salesforce ///http://localhost:3002/oauth2/login
+ 
+// Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-    if (authService !== {}) {
         //spawn a new connection
-        let varLoginURL =
-            req.query.login_type === 'SANDBOX'
-                ? LOGIN_URL_SANDBOX
-                : LOGIN_URL_PROD; //defaulting to prod
-        authService = new AuthenticationService(
-            logger,
-            new jsforce.OAuth2({
-                loginUrl: varLoginURL,
-                clientId: SALESFORCE_CLIENT_ID,
-                clientSecret: SALESFORCE_CLIENT_SECRET,
-                redirectUri: SALESFORCE_CALLBACK_URL
-            })
-        );
-    }
 
-    authService.redirectToAuthUrl(res);
+      
+        // authService = new AuthenticationService(
+        //     logger,
+        //     new jsforce.OAuth2({
+        //         loginUrl: varLoginURL,
+        //         clientId: SALESFORCE_CLIENT_ID,
+        //         clientSecret: SALESFORCE_CLIENT_SECRET,
+        //         redirectUri: SALESFORCE_CALLBACK_URL
+
+        //     })
+        // );
+    
+
+     authService.redirectToAuthUrl(res);
 });
 
+
+
 // Callback function to get Auth Token
-app.get('/oauth2/callback', (req, res) => {
-    authService.doCallback(req, res);
+app.get('/auth/callback', (req, res) => {
+    switch(loginType){
+        case "SANDBOX": 
+         authServiceSandbox.doCallback(req, res);
+
+        break ; 
+        default: 
+        authService.doCallback(req, res);
+        break; 
+    }
 });
 
 // Get Logged In User Details
 app.get('/oauth2/whoami', (req, res) => {
-    authService.getLoggedInUserDetails(req, res);
+    switch(loginType){
+        case "SANDBOX": 
+         authServiceSandbox.getLoggedInUserDetails(req, res);
+        break ; 
+        default: 
+        authService.getLoggedInUserDetails(req, res);
+        break; 
+    }
 });
 
 // Logout from Salesforce
@@ -104,10 +134,10 @@ app.get('/oauth2/logout', (req, res) => {
     authService.doLogout(req, res);
 });
 
-// Get Conference-Session Details
-// app.get('/api/conference-sessions/:id?', (req, res) => {
-//     integrationService.getConferenceSessionDetails(req, res);
-// });
+//Get Conference-Session Details
+app.get('/api/LightningComponents', (req, res) => {
+    integrationService.getLightningComponentBundles(req, res);
+});
 
 app.listen(PORT, () =>
     console.log(

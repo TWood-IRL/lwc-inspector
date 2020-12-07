@@ -29,7 +29,7 @@
         "npm": ">=6.4.1",
         "yarn": ">=1.9.4"
     },
-    "homepage": "https://github.com/Thomas Woodhouse/lwc-inspector",
+    "homepage": "https://github.com/londoner1234/lwc-inspector",
     "husky": {
         "hooks": {
             "pre-commit": "lint-staged"
