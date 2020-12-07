@@ -13,5 +13,8 @@ module.exports = {
 
     devServer: {
         proxy: { '/': 'http://localhost:3002' }
+    },
+    server: {
+        customConfig: './src/server/index.js'
     }
 };
