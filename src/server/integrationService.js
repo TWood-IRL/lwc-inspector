@@ -2,11 +2,7 @@
 const jsforce = require('jsforce');
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
-    /**
-     * Builds the authentication service
-     * @param {winston.Logger} logger
-     * @param {AuthenticationService} authService
-     */
+  
     constructor(logger, authService) {
         this.logger = logger;
         this.authService = authService;
@@ -21,7 +17,7 @@ module.exports = class IntegrationService {
      */
     _runSoql(conn, soqlQuery) {
         return new Promise((resolve, reject) => {
-            conn.tooling.query(soqlQuery, (error, result) => {
+            conn.query(soqlQuery, (error, result) => {
                 if (error) {
                     this.logger.error(
                         `Failed to run SOQL query: ${soqlQuery}`,

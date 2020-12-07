@@ -56,7 +56,7 @@
             "src/**/*.spec.js",
             "src/**/*.test.js"
         ],
-        "exec": "node ./src/server/api.js"
+        "exec": "node ./scripts/server.js"
     },
     "repository": "Thomas Woodhouse/lwc-inspector",
     "scripts": {
@@ -65,8 +65,8 @@
         "lint": "eslint ./src/**/*.js",
         "prettier": "prettier --write \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
         "prettier:verify": "prettier --list-different \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
-        "serve": "node ./src/server/api.js",
-        "serve:api": "node ./src/server/api.js",
+        "serve": "node src/server/api.js",
+        "serve:api": "node src/server/api.js",
         "serve:client": "node ./scripts/server.js",
         "test:unit": "lwc-services test:unit",
         "test:unit:coverage": "lwc-services test:unit --coverage",

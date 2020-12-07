@@ -25,8 +25,8 @@ const logger = winston.createLogger({
 });
 
 // Import Salesforce Authentication modules
-const AuthenticationService = require('./authenticationService');
-const IntegrationService = require('./integrationService');
+const AuthenticationService = require('./AuthenticationService');
+const IntegrationService = require('./IntegrationService');
 
 // Load .env configuration file
 
