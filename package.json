@@ -60,7 +60,6 @@
     },
     "repository": "Thomas Woodhouse/lwc-inspector",
     "scripts": {
-        "start": "run-p serve",
         "build": "lwc-services build -m production",
         "build:development": "lwc-services build",
         "lint": "eslint ./src/**/*.js",
