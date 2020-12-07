@@ -62,11 +62,10 @@ const oauth2Sandbox = new jsforce.OAuth2({
 // Initialize Auth Services
 let authService = new AuthenticationService(logger, oauth2Prod);
 let authServiceSandbox = new AuthenticationService(logger, oauth2Sandbox);
-let loginType = "" ; 
+let loginType = '';
 const integrationService = new IntegrationService(logger, authService);
-const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
+//const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
 const DIST_DIR = './dist';
-
 
 //Enable server-side sessions
 app.use(
@@ -80,63 +79,59 @@ app.use(
 
 app.use(express.static(DIST_DIR));
 
-app.get('/', (req, res) => {
-    if(HOST==="localhost"){
-        res.redirect("http://localhost:3001") ; 
-    }
-    //res.json({ success: true });
-});
+// app.get('/', (req, res) => {
+//     if(HOST==="localhost"){
+//         res.redirect("http://localhost:3001") ;
+//     }
+//     //res.json({ success: true });
+// });
 
 app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
 });
 
 // Hook up REST endpoints with service calls
- 
+
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-        //spawn a new connection
+    //spawn a new connection
 
-      
-        // authService = new AuthenticationService(
-        //     logger,
-        //     new jsforce.OAuth2({
-        //         loginUrl: varLoginURL,
-        //         clientId: SALESFORCE_CLIENT_ID,
-        //         clientSecret: SALESFORCE_CLIENT_SECRET,
-        //         redirectUri: SALESFORCE_CALLBACK_URL
+    // authService = new AuthenticationService(
+    //     logger,
+    //     new jsforce.OAuth2({
+    //         loginUrl: varLoginURL,
+    //         clientId: SALESFORCE_CLIENT_ID,
+    //         clientSecret: SALESFORCE_CLIENT_SECRET,
+    //         redirectUri: SALESFORCE_CALLBACK_URL
 
-        //     })
-        // );
-    
+    //     })
+    // );
 
-     authService.redirectToAuthUrl(res);
+    authService.redirectToAuthUrl(res);
 });
-
-
 
 // Callback function to get Auth Token
 app.get('/auth/callback', (req, res) => {
-    switch(loginType){
-        case "SANDBOX": 
-         authServiceSandbox.doCallback(req, res);
+    switch (loginType) {
+        case 'SANDBOX':
+            authServiceSandbox.doCallback(req, res);
 
-        break ; 
-        default: 
-        authService.doCallback(req, res);
-        break; 
+            break;
+        default:
+            authService.doCallback(req, res);
+            break;
     }
 });
 
 // Get Logged In User Details
 app.get('/oauth2/whoami', (req, res) => {
-    switch(loginType){
-        case "SANDBOX": 
-         authServiceSandbox.getLoggedInUserDetails(req, res);
-        break ; 
-        default: 
-        authService.getLoggedInUserDetails(req, res);
-        break; 
+    switch (loginType) {
+        case 'SANDBOX':
+            authServiceSandbox.getLoggedInUserDetails(req, res);
+            break;
+        default:
+            authService.getLoggedInUserDetails(req, res);
+            break;
     }
 });
 
