@@ -80,6 +80,12 @@ app.use(
 
 app.use(express.static(DIST_DIR));
 
+app.get('/', (req, res) => {
+    if(HOST==="localhost"){
+        res.redirect("http://localhost:3001") ; 
+    }
+    //res.json({ success: true });
+});
 
 app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
