@@ -65,6 +65,8 @@ let authServiceSandbox = new AuthenticationService(logger, oauth2Sandbox);
 let loginType = "" ; 
 const integrationService = new IntegrationService(logger, authService);
 const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
+const DIST_DIR = './dist';
+
 
 //Enable server-side sessions
 app.use(
@@ -75,6 +77,9 @@ app.use(
         saveUninitialized: false
     })
 );
+
+app.use(express.static(DIST_DIR));
+
 
 app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
