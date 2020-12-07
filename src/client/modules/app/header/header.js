@@ -1,15 +1,17 @@
-import { LightningElement, api , track} from 'lwc';
+import { LightningElement, api } from 'lwc';
 
 export default class Header extends LightningElement {
-    @api loggedInUser = {}  ;
+    @api loggedInUser = {};
 
-    get getName(){
-        return this.loggedInUser.display_name ; 
+    isLoading = true;
+    get getName() {
+        return this.loggedInUser.display_name;
     }
-    get isLoggedIn(){
-        return (!! this.loggedInUser) ; 
+    get isLoggedIn() {
+        this.isLoading = false;
+        return !!this.loggedInUser;
     }
-    get getUsername(){
-        return this.loggedInUser.username  ; 
+    get getUsername() {
+        return this.loggedInUser.username;
     }
 }
