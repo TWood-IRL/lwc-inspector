@@ -26,6 +26,7 @@ module.exports = class AuthenticationService {
         }
         return session;
     }
+    
 
     /**
      * Redirects user to Salesforce login page for authorization
