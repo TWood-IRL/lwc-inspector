@@ -60,6 +60,7 @@
     },
     "repository": "Thomas Woodhouse/lwc-inspector",
     "scripts": {
+        "start": "lwc-services serve",
         "build": "lwc-services build -m production",
         "build:development": "lwc-services build",
         "lint": "eslint ./src/**/*.js",
@@ -74,5 +75,6 @@
         "test:unit:watch": "lwc-services test:unit --watch",
         "watch": "run-p watch:client watch:server",
         "watch:client": "lwc-services watch",
-        "watch:server": "nodemon"    }
+        "watch:server": "nodemon"
+    }
 }
