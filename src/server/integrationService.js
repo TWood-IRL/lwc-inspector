@@ -31,6 +31,7 @@ module.exports = class IntegrationService {
                 }
                 resolve(result.records);
             });
+            
         });
     }
 
