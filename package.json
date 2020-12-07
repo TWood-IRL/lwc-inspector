@@ -65,7 +65,7 @@
         "lint": "eslint ./src/**/*.js",
         "prettier": "prettier --write \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
         "prettier:verify": "prettier --list-different \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
-        "serve": "run-p serve:client serve:api",
+        "serve": "npm run serve:client & npm run serve:api",
         "serve:api": "node src/server/api.js",
         "serve:client": "node scripts/server.js",
         "test:unit": "lwc-services test:unit",
