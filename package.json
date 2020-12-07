@@ -74,6 +74,7 @@
         "test:unit:watch": "lwc-services test:unit --watch",
         "watch": "run-p watch:client watch:server",
         "watch:client": "lwc-services watch",
-        "watch:server": "nodemon"
+        "watch:server": "nodemon",
+        "start": "lwc-services serve"
     }
 }
