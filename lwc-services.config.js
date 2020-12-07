@@ -15,6 +15,6 @@ module.exports = {
         proxy: { '/': 'http://localhost:3002' }
     },
     server: {
-        customConfig: './src/server/index.js'
+        customConfig: './src/server/api.js'
     }
 };
