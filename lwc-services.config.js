@@ -3,9 +3,10 @@
 module.exports = {
     resources: [
         { from: 'src/client/resources/', to: 'dist/resources/' },
+
         {
-            from: 'node_modules/bootstrap/dist',
-            to: 'src/client/boostrap'
+            from: 'node_modules/@salesforce-ux/design-system/assets',
+            to: 'dist/resources/slds'
         }
     ],
 
