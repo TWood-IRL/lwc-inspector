@@ -1,13 +1,13 @@
-//Contain all our methods for the application ie. get bundles.. get resources etc . 
+//Contain all our methods for the application ie. get bundles.. get resources etc .
 const jsforce = require('jsforce');
+const https = require('https');
+
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
-  
     constructor(logger, authService) {
         this.logger = logger;
         this.authService = authService;
     }
-
 
     /**
      * Runs an SOQL query on Salesforce
@@ -17,7 +17,7 @@ module.exports = class IntegrationService {
      */
     _runSoql(conn, soqlQuery) {
         return new Promise((resolve, reject) => {
-            conn.query(soqlQuery, (error, result) => {
+            conn.tooling.query(soqlQuery, (error, result) => {
                 if (error) {
                     this.logger.error(
                         `Failed to run SOQL query: ${soqlQuery}`,
@@ -27,14 +27,12 @@ module.exports = class IntegrationService {
                 }
                 resolve(result.records);
             });
-            
-            
         });
-        
     }
 
-    getLightningComponentBundles(req,res) {
-        let query = "SELECT ID, DeveloperName from LightningComponentBundle order by lastmodifieddate desc" 
+    getLightningComponentBundles(req, res) {
+        //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
+        ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
         const session = this.authService.getSession(req, res);
         if (session === null) {
             return;
@@ -43,6 +41,30 @@ module.exports = class IntegrationService {
             accessToken: session.sfdcAccessToken,
             instanceUrl: session.sfdcInstanceUrl
         });
+        const options = {
+            hostname: "tomwoodhousegs0-dev-ed.my.salesforce.com",
+            path: '/services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc',
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer 00DB0000000cI0p!ARYAQLI3pHvShUGVcKlU4c8CNoQY8w1vjb3aCK_ubkb1yjEXat0PwqyYoh_byID__GEO6WncwEOpW94E1SgiZ3F56HI23J6f' // + session.sfdcAccessToken
+            }
+        };
+        const toolingRequest = https.request(options, toolingResponse => {
+            console.log(`statusCode: ${res.statusCode}`)
+          
+            toolingResponse.on('data', d => {
+                toolingResponse.json({ data: d });
+            })
+          })
+          
+          toolingRequest.on('error', error => {
+            console.error(error)
+          })
+          
+         
+
+        /*   
 
         // Prepare query
         let soqlQuery;
@@ -79,9 +101,6 @@ module.exports = class IntegrationService {
                     error
                 );
                 res.status(500).send(error);
-            });
+            }); */
     }
-    
-
-    
 };

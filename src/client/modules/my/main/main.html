@@ -1,6 +1,6 @@
 <template>
     <c-spinner if:true={isLoading}></c-spinner>
-    <app-header></app-header>
+    <my-header></my-header>
     <div class="main-html">
         <template if:true={isLoggedIn}>
             <div>
@@ -20,7 +20,7 @@
             >
             <br />
             <a
-            href="/oauth2/login?login_type=PRODUCTION"
+            href="/oauth2/login?login_type=SANDBOX"
             class="loginButton"
         >
             Log In Sandbox</a

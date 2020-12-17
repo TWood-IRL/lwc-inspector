@@ -94,45 +94,17 @@ app.get('/api/v1/endpoint', (req, res) => {
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-    //spawn a new connection
-
-    // authService = new AuthenticationService(
-    //     logger,
-    //     new jsforce.OAuth2({
-    //         loginUrl: varLoginURL,
-    //         clientId: SALESFORCE_CLIENT_ID,
-    //         clientSecret: SALESFORCE_CLIENT_SECRET,
-    //         redirectUri: SALESFORCE_CALLBACK_URL
-
-    //     })
-    // );
-
     authService.redirectToAuthUrl(res);
 });
 
 // Callback function to get Auth Token
 app.get('/auth/callback', (req, res) => {
-    switch (loginType) {
-        case 'SANDBOX':
-            authServiceSandbox.doCallback(req, res);
-
-            break;
-        default:
-            authService.doCallback(req, res);
-            break;
-    }
+    authService.doCallback(req, res);
 });
 
 // Get Logged In User Details
 app.get('/oauth2/whoami', (req, res) => {
-    switch (loginType) {
-        case 'SANDBOX':
-            authServiceSandbox.getLoggedInUserDetails(req, res);
-            break;
-        default:
-            authService.getLoggedInUserDetails(req, res);
-            break;
-    }
+    authService.getLoggedInUserDetails(req, res);
 });
 
 // Logout from Salesforce

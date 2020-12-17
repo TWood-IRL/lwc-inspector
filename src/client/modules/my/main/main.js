@@ -4,7 +4,7 @@ import { getLoggedInUser } from 'data/authService';
 export default class Main extends LightningElement {
     @track loggedInUser = undefined;
     @track state;
-    isLoading = true;
+    loading = true;
 
     connectedCallback() {
         getLoggedInUser().then((response) => {
@@ -15,7 +15,12 @@ export default class Main extends LightningElement {
                 this.loggedInUser = response;
                 this.state = 'list';
             }
+            this.loading = false;
+
         });
+    }
+    get isLoading(){
+        return this.loading ; 
     }
     get isLoggedIn() {
         return this.loggedInUser ;  
@@ -24,8 +29,7 @@ export default class Main extends LightningElement {
     get getName() {
         return this.loggedInUser.display_name;
     }
-    get isLoggedIn() {
-        this.isLoading = false;
+    get getIsLoggedIn() {
         return !!this.loggedInUser;
     }
     get getUsername() {
