@@ -86,6 +86,7 @@ module.exports = class IntegrationService {
             });
     }
     getLightningComponent(req, res) {
+        let bundleId = req.params.id;
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
@@ -100,8 +101,7 @@ module.exports = class IntegrationService {
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
-                q:
-                    'SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by lastmodifieddate desc'
+                q: `select id, Source,  FilePath,Format  from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -110,17 +110,15 @@ module.exports = class IntegrationService {
         };
         this._performGet(options)
             .then((response) => {
-                const formattedData = response.data.records.map(
-                    (componentBundle) => {
-                        return {
-                            id: componentBundle.Id,
-                            DeveloperName: componentBundle.DeveloperName,
-                            ManageableState: componentBundle.ManageableState,
-                            IsExposed: componentBundle.IsExposed,
-                            ApiVersion: componentBundle.ApiVersion
-                        };
-                    }
-                );
+                const formattedData = response.data.records.map((component) => {
+                    return {
+                        id: component.Id,
+                        Source: component.Source,
+                        FilePath: component.FilePath,
+                        attributes: component.attributes,
+                        Format: component.Format
+                    };
+                });
                 res.json({ data: formattedData });
             })
             .catch((error) => {

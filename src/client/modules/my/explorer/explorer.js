@@ -7,6 +7,6 @@ export default class Explorer extends LightningElement {
     }
     compSelected(event) {
         let id = event.target.dataset.id;
-        this.dispatchEvent(new CustomEvent('selected', { detail: id }));
+        this.dispatchEvent(new CustomEvent('selected', { detail: { id: id } }));
     }
 }

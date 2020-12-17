@@ -13,6 +13,6 @@ export default class App extends LightningElement {
     }
     setComponent(event) {
         event.stopPropagation();
-        this.displayCompId = event.detail;
+        this.displayCompId = event.detail.id;
     }
 }

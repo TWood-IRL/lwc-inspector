@@ -89,8 +89,8 @@ app.get('/api/v1/endpoint', (req, res) => {
 
 app.post('/api/v1/sessionId', (req, res) => {
     try {
-        this.sessionId = req.query.sessionId;
-        this.myDomainURL = req.query.myDomainURL;
+        //this.sessionId = req.query.sessionId;
+        //  this.myDomainURL = req.query.myDomainURL;
         res.json({ success: true });
     } catch (err) {
         res.status(500).send(err);
@@ -129,10 +129,10 @@ app.get('/api/LightningComponents', (req, res) => {
     integrationService.getLightningComponentBundles(req, res);
 });
 //Get LightningComponents Contents
-app.get('/api/LightningComponent/:lwcId', (req, res) => {
-    res.json({ data: 'In Progress' });
+app.get('/api/LightningComponent/:id', (req, res) => {
+    //res.json({ data: 'In Progress' });
 
-    //  integrationService.getLightningComponent(req, res);
+    integrationService.getLightningComponent(req, res);
 });
 
 app.listen(PORT, () =>
