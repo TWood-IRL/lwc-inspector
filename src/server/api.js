@@ -88,34 +88,30 @@ app.get('/api/v1/endpoint', (req, res) => {
 });
 
 app.post('/api/v1/sessionId', (req, res) => {
-    try{ 
-        this.sessionId = req.query.sessionId ; 
-        this.myDomainURL = req.query.myDomainURL
+    try {
+        this.sessionId = req.query.sessionId;
+        this.myDomainURL = req.query.myDomainURL;
         res.json({ success: true });
-
-    }catch(err){
+    } catch (err) {
         res.status(500).send(err);
     }
 });
 
-
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-        let login_type = req.query.login_type ; 
-        if(login_type === "SANDBOX" ){ //reinitialize with test url .. .
-            authService= new AuthenticationService(logger, oauth2Sandbox);
-        }
-        else{
-            authService= new AuthenticationService(logger, oauth2Prod);
-        }
-        authService.redirectToAuthUrl(res);
+    let login_type = req.query.login_type;
+    if (login_type === 'SANDBOX') {
+        //reinitialize with test url .. .
+        authService = new AuthenticationService(logger, oauth2Sandbox);
+    } else {
+        authService = new AuthenticationService(logger, oauth2Prod);
+    }
+    authService.redirectToAuthUrl(res);
 });
-
 
 // Callback function to get Auth Token
 app.get('/auth/callback', (req, res) => {
-        authService.doCallback(req, res);
-   
+    authService.doCallback(req, res);
 });
 
 // Get Logged In User Details
@@ -128,9 +124,15 @@ app.get('/oauth2/logout', (req, res) => {
     authService.doLogout(req, res);
 });
 
-//Get Conference-Session Details
+//Get LightningComponents
 app.get('/api/LightningComponents', (req, res) => {
     integrationService.getLightningComponentBundles(req, res);
+});
+//Get LightningComponents Contents
+app.get('/api/LightningComponent/:lwcId', (req, res) => {
+    res.json({ data: 'In Progress' });
+
+    //  integrationService.getLightningComponent(req, res);
 });
 
 app.listen(PORT, () =>

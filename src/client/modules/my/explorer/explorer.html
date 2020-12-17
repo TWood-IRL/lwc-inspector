@@ -10,7 +10,12 @@
                     padding="around-small"
                 >
                     <!--Onclick we'll retrieve the contents-->
-                    <c-card variant="narrow" title={component.DeveloperName}>
+                    <c-card
+                        variant="narrow"
+                        title={component.DeveloperName}
+                        data-id={component.id}
+                        onclick={compSelected}
+                    >
                     </c-card>
                 </c-layout-item>
             </template>

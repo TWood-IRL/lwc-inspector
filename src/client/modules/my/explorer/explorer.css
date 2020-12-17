@@ -1,0 +1,8 @@
+c-layout-item:hover {
+    outline: 0;
+    border-color: #1589ee;
+    background-color: #1589ee;
+    -webkit-box-shadow: 0 0 3px #0070d2;
+    box-shadow: 0 0 3px #0070d2;
+    cursor: pointer;
+}

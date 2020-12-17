@@ -22,17 +22,45 @@
             <br />
         </template>
         <template if:false={isLoggedIn}>
-            <a onclick={setDisplayInputs} class="loginButton" target="_blank"> Use SessionId</a>
+            <a onclick={setDisplayInputs} class="loginButton" target="_blank">
+                Use SessionId</a
+            >
             <br />
             <template if:true={displayInputs}>
-                Note: WIP 
-                <c-input type="text" data-id="sessionId" label="Enter SessionId String" value=""></c-input>
-                <c-input type="text" data-id="myDomainURL" label="Enter MyDomainURL" value=""></c-input>
-                <br/>
-                <c-button label="Set Session Information" onclick={setSessionInfo} ></c-button>
+                Note: WIP
+                <c-input
+                    type="text"
+                    data-id="sessionId"
+                    label="Enter SessionId String"
+                    value=""
+                ></c-input>
+                <c-input
+                    type="text"
+                    data-id="myDomainURL"
+                    label="Enter MyDomainURL"
+                    value=""
+                ></c-input>
+                <br />
+                <c-button
+                    label="Set Session Information"
+                    onclick={setSessionInfo}
+                ></c-button>
             </template>
         </template>
     </div>
-    <br/>
+    <br />
     <my-app lightning-component-bundles={lightningComponentBundles}></my-app>
+
+    <template if:false={isLoggedIn}>
+        <!-- LWC sample component <my-greeting> -->
+        <div class="center greeting">
+            <!-- <my-greeting speed="slow"></my-greeting> -->
+            <my-greeting speed="medium"></my-greeting>
+            <!-- <my-greeting speed="fast"></my-greeting> -->
+        </div>
+
+        <div class="center">
+            <img src="resources/lwc.png" />
+        </div>
+    </template>
 </template>
