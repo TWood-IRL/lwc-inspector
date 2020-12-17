@@ -17,10 +17,8 @@ export function getLoggedInUser() {
             });
     });
 }
-export function setSessionInformation(inputs) { ///api/v1/sessionId
-    debugger;  
+/* export function setSessionInformation(inputs) { ///api/v1/sessionId
     return new Promise((resolve, reject) => {
-        debugger;  
         fetch('/api/v1/sessionId')
             .then((response) => {
                 if (!response.ok) {
@@ -33,4 +31,4 @@ export function setSessionInformation(inputs) { ///api/v1/sessionId
                 reject(error);
             });
     });
-}
+} */

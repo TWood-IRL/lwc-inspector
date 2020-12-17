@@ -105,6 +105,9 @@ app.get('/oauth2/login', (req, res) => {
         if(login_type === "SANDBOX" ){ //reinitialize with test url .. .
             authService= new AuthenticationService(logger, oauth2Sandbox);
         }
+        else{
+            authService= new AuthenticationService(logger, oauth2Prod);
+        }
         authService.redirectToAuthUrl(res);
 });
 

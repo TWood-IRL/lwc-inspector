@@ -1,4 +1,4 @@
-header {
+.header-banner {
     padding: 1rem;
     display: flex;
     color: #ffffff;
@@ -10,11 +10,11 @@ header {
     text-align:center ; 
 }
 
-header img {
+.header-banner img {
     height: 3rem;
     margin-right: 0.3rem;
 }
-header h2 {
+.header-banner h2 {
     font-size: 1.75rem;
     font-weight: 300;
 }
