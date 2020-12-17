@@ -1,13 +1,19 @@
 <template>
-    TODO: Click on card will bring the contents of the component <br/> 
+    TODO: Click on card will bring the contents of the component <br />
 
-    <c-layout multiple-rows	>
-        <template for:each={lightningComponentBundles} for:item="component">
-            <c-layout-item size="3" key={component.Id} padding="around-small" > <!--Onclick we'll retrieve the contents-->
-                <c-card variant="narrow" title={component.DeveloperName} >
-                    
-                </c-card>
-            </c-layout-item>
-        </template>
-    </c-layout>
+    <template if:true={isComponents}>
+        <c-layout multiple-rows>
+            <template for:each={lightningComponentBundles} for:item="component">
+                <c-layout-item
+                    size="3"
+                    key={component.id}
+                    padding="around-small"
+                >
+                    <!--Onclick we'll retrieve the contents-->
+                    <c-card variant="narrow" title={component.DeveloperName}>
+                    </c-card>
+                </c-layout-item>
+            </template>
+        </c-layout>
+    </template>
 </template>
