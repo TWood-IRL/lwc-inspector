@@ -12,21 +12,26 @@
             </div>
         </template>
         <template if:false={isLoggedIn}>
-            <a
-                href="/oauth2/login?login_type=PRODUCTION"
-                class="loginButton"
-            >
+            <a href="/oauth2/login?login_type=PRODUCTION" class="loginButton">
                 Log In production</a
             >
             <br />
-            <a
-            href="/oauth2/login?login_type=SANDBOX"
-            class="loginButton"
-        >
-            Log In Sandbox</a
-        >
-        <br />
+            <a href="/oauth2/login?login_type=SANDBOX" class="loginButton">
+                Log In Sandbox</a
+            >
+            <br />
+        </template>
+        <template if:false={isLoggedIn}>
+            <a onclick={setDisplayInputs} class="loginButton" target="_blank"> Use SessionId</a>
+            <br />
+            <template if:true={displayInputs}>
+                <c-input type="text" data-id="sessionId" label="Enter SessionId String" value=""></c-input>
+                <c-input type="text" data-id="myDomainURL" label="Enter MyDomainURL" value=""></c-input>
+                <br/>
+                <c-button label="Set Session Information" onclick={setSessionInfo} ></c-button>
+            </template>
         </template>
     </div>
-    <my-app></my-app>
+    <br/>
+    <my-app lightning-component-bundles={lightningComponentBundles}></my-app>
 </template>

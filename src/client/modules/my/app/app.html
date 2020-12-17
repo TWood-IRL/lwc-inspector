@@ -1,17 +1,22 @@
 <template>
 
+    <template if:true={isComponents}> 
+        <my-explorer lightning-component-bundles={lightningComponentBundles}></my-explorer>
+    </template>
+    <template if:false={isComponents}> 
+        <!-- LWC sample component <my-greeting> -->
+        <div class="center greeting">
+            <!-- <my-greeting speed="slow"></my-greeting> -->
+            <my-greeting speed="medium"></my-greeting>
+            <!-- <my-greeting speed="fast"></my-greeting> -->
+        </div>
     
-    <!-- LWC sample component <my-greeting> -->
-    <div class="center greeting">
-        <!-- <my-greeting speed="slow"></my-greeting> -->
-        <my-greeting speed="medium"></my-greeting>
-        <!-- <my-greeting speed="fast"></my-greeting> -->
-    </div>
-
-    <div class="center">
-        <img src="resources/lwc.png" />
-    </div>
-
-    <!-- Page code -->
-    <div class="center"></div>
+        <div class="center">
+            <img src="resources/lwc.png" />
+        </div>
+    
+        <!-- Page code -->
+        <div class="center"></div> 
+    </template>
+   
 </template>

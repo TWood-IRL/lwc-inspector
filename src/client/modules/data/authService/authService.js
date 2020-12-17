@@ -17,3 +17,20 @@ export function getLoggedInUser() {
             });
     });
 }
+export function setSessionInformation(inputs) { ///api/v1/sessionId
+    debugger;  
+    return new Promise((resolve, reject) => {
+        debugger;  
+        fetch('/api/v1/sessionId')
+            .then((response) => {
+                if (!response.ok) {
+                    reject(response);
+                }
+                return response.json();
+            })
+            .then((jsonResponse) => resolve(jsonResponse))
+            .catch((error) => {
+                reject(error);
+            });
+    });
+}

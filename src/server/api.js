@@ -36,7 +36,7 @@ app.use(compression());
 
 //Retrieve Configuration
 const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const {
     SALESFORCE_CLIENT_ID,
     SALESFORCE_CLIENT_SECRET,
@@ -85,6 +85,17 @@ app.use(express.static(DIST_DIR));
 
 app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
+});
+
+app.post('/api/v1/sessionId', (req, res) => {
+    try{ 
+        this.sessionId = req.query.sessionId ; 
+        this.myDomainURL = req.query.myDomainURL
+        res.json({ success: true });
+
+    }catch(err){
+        res.status(500).send(err);
+    }
 });
 
 
