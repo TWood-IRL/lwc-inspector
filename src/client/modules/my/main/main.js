@@ -1,5 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import { getLoggedInUser, setSessionInformation } from 'data/authService';
+import { LABELS } from 'data/labelService';
 import { getLightningComponentBundles } from 'data/dataService';
 
 export default class Main extends LightningElement {
@@ -7,6 +8,7 @@ export default class Main extends LightningElement {
     @track state;
     loading = true;
     displayInputs = false ; 
+    LABEL = LABELS
     lightningComponentBundles = []  ; 
     connectedCallback() {
         getLoggedInUser().then((response) => {

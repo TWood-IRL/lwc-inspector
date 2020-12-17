@@ -4,26 +4,26 @@
     <div class="main-html" >
         <template if:true={isLoggedIn}>
             <div>
-                Hello <br />
+                {LABEL.WELCOME_HELLO} <br />
                 {getName}
                 <br />
-                Currently Logged in as: <br />
+                {LABEL.LOGGED_IN_AS} <br />
                 <a href="/oauth2/logout" title="Logout">{getUsername}</a>
             </div>
         </template>
         <template if:false={isLoggedIn}>
             <a href="/oauth2/login?login_type=PRODUCTION" class="loginButton">
-                Log In production</a
+                {LABEL.LOGIN_PROD}</a
             >
             <br />
             <a href="/oauth2/login?login_type=SANDBOX" class="loginButton">
-                Log In Sandbox</a
+                {LABEL.LOGIN_SANDBOX}</a
             >
             <br />
         </template>
         <template if:false={isLoggedIn}>
             <a onclick={setDisplayInputs} class="loginButton" target="_blank">
-                Use SessionId</a
+                {LABEL.LOGIN_SESSIONID}</a
             >
             <br />
             <template if:true={displayInputs}>
@@ -31,18 +31,18 @@
                 <c-input
                     type="text"
                     data-id="sessionId"
-                    label="Enter SessionId String"
+                    label={LABEL.ENTER_SESSION}
                     value=""
                 ></c-input>
                 <c-input
                     type="text"
                     data-id="myDomainURL"
-                    label="Enter MyDomainURL"
+                    label={LABEL.ENTER_MY_DOMAIN}
                     value=""
                 ></c-input>
                 <br />
                 <c-button
-                    label="Set Session Information"
+                    label={LABEL.SET_SESSION} 
                     onclick={setSessionInfo}
                 ></c-button>
             </template>
