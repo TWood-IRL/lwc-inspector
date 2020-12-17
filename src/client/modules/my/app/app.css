@@ -36,3 +36,6 @@ img {
 .greeting {
     height: 75px;
 }
+.content {
+    padding: 0 3rem;
+}

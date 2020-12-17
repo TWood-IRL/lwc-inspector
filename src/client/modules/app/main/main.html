@@ -1,8 +1,29 @@
 <template>
+    Spinner
+    <c-spinner if:true={getIsLoggedIn}></c-spinner>
     <!-- todo: spinner while waiting for login-->
 
-    <app-header logged-in-user={isLoggedIn}></app-header>
+    <app-header></app-header>
     Main HTML
-
+    <div >
+        <template if:true={isLoggedIn}>
+            <div>
+                Hello <br />
+                {getName}
+                <br />
+                Currently Logged in as: <br />
+                <a href="/oauth2/logout" title="Logout">{getUsername}</a>
+            </div>
+        </template>
+        <template if:false={isLoggedIn}>
+            <a
+                href="/oauth2/login?login_type=PRODUCTION"
+                class="loginButton"
+            >
+                Log In production</a
+            >
+            <br />
+        </template>
+    </div>
     <my-app></my-app>
 </template>
