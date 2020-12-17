@@ -36,7 +36,7 @@ app.use(compression());
 
 //Retrieve Configuration
 const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 const {
     SALESFORCE_CLIENT_ID,
     SALESFORCE_CLIENT_SECRET,
@@ -61,10 +61,7 @@ const oauth2Sandbox = new jsforce.OAuth2({
 });
 // Initialize Auth Services
 let authService = new AuthenticationService(logger, oauth2Prod);
-let authServiceSandbox = new AuthenticationService(logger, oauth2Sandbox);
-let loginType = '';
 const integrationService = new IntegrationService(logger, authService);
-//const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
 const DIST_DIR = './dist';
 
 //Enable server-side sessions
@@ -90,16 +87,21 @@ app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
 });
 
-// Hook up REST endpoints with service calls
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-    authService.redirectToAuthUrl(res);
+        let login_type = req.query.login_type ; 
+        if(login_type === "SANDBOX" ){ //reinitialize with test url .. .
+            authService= new AuthenticationService(logger, oauth2Sandbox);
+        }
+        authService.redirectToAuthUrl(res);
 });
+
 
 // Callback function to get Auth Token
 app.get('/auth/callback', (req, res) => {
-    authService.doCallback(req, res);
+        authService.doCallback(req, res);
+   
 });
 
 // Get Logged In User Details

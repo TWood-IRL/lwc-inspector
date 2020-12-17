@@ -1,6 +1,7 @@
 //Contain all our methods for the application ie. get bundles.. get resources etc .
 const jsforce = require('jsforce');
-const https = require('https');
+
+const axios = require('axios');
 
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
@@ -29,78 +30,50 @@ module.exports = class IntegrationService {
             });
         });
     }
+    _performGet(urlOptions) {
+        //using https://github.com/axios/axios#features
+        return new Promise((resolve, reject) => {
+            axios.request(urlOptions).then((response) => {
+                resolve(response); 
+            }).catch((error) => {
+                reject(error)
+            });
+        });
+    }
 
     getLightningComponentBundles(req, res) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
+
         const session = this.authService.getSession(req, res);
         if (session === null) {
-            return;
+           return;
         }
-        const conn = new jsforce.Connection({
-            accessToken: session.sfdcAccessToken,
-            instanceUrl: session.sfdcInstanceUrl
-        });
-        const options = {
-            hostname: "tomwoodhousegs0-dev-ed.my.salesforce.com",
-            path: '/services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc',
-            method: 'GET',
+        
+        let options = {
+            url: "/services/data/v49.0/tooling/query", 
+            baseURL: session.sfdcInstanceUrl , 
+            method: 'get', 
+            params: {q : "SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by lastmodifieddate desc"}, 
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: 'Bearer 00DB0000000cI0p!ARYAQLI3pHvShUGVcKlU4c8CNoQY8w1vjb3aCK_ubkb1yjEXat0PwqyYoh_byID__GEO6WncwEOpW94E1SgiZ3F56HI23J6f' // + session.sfdcAccessToken
+                Authorization: 'Bearer ' + session.sfdcAccessToken
             }
-        };
-        const toolingRequest = https.request(options, toolingResponse => {
-            console.log(`statusCode: ${res.statusCode}`)
-          
-            toolingResponse.on('data', d => {
-                toolingResponse.json({ data: d });
-            })
-          })
-          
-          toolingRequest.on('error', error => {
-            console.error(error)
-          })
-          
-         
-
-        /*   
-
-        // Prepare query
-        let soqlQuery;
-        if (req.params.queryString) {
-            // Retrieve details of a specific session with a given id
-          
-        } else {
-            // Retrieve all sessions
-            // In production, this should be paginated
-            soqlQuery = 'SELECT ID, DeveloperName from LightningComponentBundle order by lastmodifieddate desc';
         }
+        this._performGet(options ).then( (response) => {
+            const formattedData = response.data.records.map((componentBundle) => {     
+                return {
+                    id: componentBundle.Id,
+                    DeveloperName: componentBundle.DeveloperName,
+                    ManageableState: componentBundle.ManageableState,
+                    IsExposed: componentBundle.IsExposed,
+                    ApiVersion: componentBundle.ApiVersion
+                };
+            });
+            res.json({ data: formattedData });
+        }).catch((error) => {
+            res.status(500).send(error);
 
-        // Execute query and respond with result or error
-        //https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/tooling_api_objects_lightningcomponentbundle.htm
-        this._runSoql(conn, soqlQuery) 
-            .then((records) => {
-                // Format data
-                const formattedData = records.map((componentBundle) => {
-                    
-                    return {
-                        id: componentBundle.Id,
-                        DeveloperName: componentBundle.DeveloperName,
-                        ManageableState: componentBundle.ManageableState,
-                        IsExposed: componentBundle.IsExposed,
-                        ApiVersion: componentBundle.ApiVersion
-                    };
-                });
-
-                res.json({ data: formattedData });
-            })
-            .catch((error) => {
-                this.logger.error(
-                    'Failed to retrieve conference session(s)',
-                    error
-                );
-                res.status(500).send(error);
-            }); */
+        })
     }
 };
