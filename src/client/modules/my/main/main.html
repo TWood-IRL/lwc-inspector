@@ -1,7 +1,7 @@
 <template>
     <c-spinner if:true={isLoading}></c-spinner>
     <my-header></my-header>
-    <div class="main-html">
+    <div class="main-html" >
         <template if:true={isLoggedIn}>
             <div>
                 Hello <br />
@@ -49,7 +49,7 @@
         </template>
     </div>
     <br />
-    <my-app lightning-component-bundles={lightningComponentBundles}></my-app>
+    <my-app lightning-component-bundles={lightningComponentBundles} ></my-app>
 
     <template if:false={isLoggedIn}>
         <!-- LWC sample component <my-greeting> -->

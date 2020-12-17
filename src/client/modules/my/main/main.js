@@ -39,7 +39,9 @@ export default class Main extends LightningElement {
     }
 
     getLightningComponents(){
+     //   this.dispatchEvent(new CustomEvent('loading'));
         getLightningComponentBundles().then((resp)=> {
+         //   this.dispatchEvent(new CustomEvent('doneloading'));
             this.lightningComponentBundles = resp.data ; 
         })
     }
@@ -65,5 +67,6 @@ export default class Main extends LightningElement {
             this.loading = false;
         });   */
     }
+   
 
 }
