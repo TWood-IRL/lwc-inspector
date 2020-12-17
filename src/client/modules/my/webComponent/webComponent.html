@@ -1,0 +1,13 @@
+<template>
+    <template if:true={displayContent}>
+        <template for:each={componentBundle} for:item="file">
+            <div class="file" key={file.id}>
+                <br />
+
+                <div class="fileName">{file.FilePath}</div>
+                <br />
+                <div class="sourceCode">{file.Source}</div>
+            </div>
+        </template>
+    </template>
+</template>

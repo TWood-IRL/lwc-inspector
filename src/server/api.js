@@ -61,10 +61,7 @@ const oauth2Sandbox = new jsforce.OAuth2({
 });
 // Initialize Auth Services
 let authService = new AuthenticationService(logger, oauth2Prod);
-let authServiceSandbox = new AuthenticationService(logger, oauth2Sandbox);
-let loginType = '';
 const integrationService = new IntegrationService(logger, authService);
-//const integrationServiceSandbox = new IntegrationService(logger, authServiceSandbox);
 const DIST_DIR = './dist';
 
 //Enable server-side sessions
@@ -90,10 +87,25 @@ app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
 });
 
-// Hook up REST endpoints with service calls
+app.post('/api/v1/sessionId', (req, res) => {
+    try {
+        //this.sessionId = req.query.sessionId;
+        //  this.myDomainURL = req.query.myDomainURL;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
+    let login_type = req.query.login_type;
+    if (login_type === 'SANDBOX') {
+        //reinitialize with test url .. .
+        authService = new AuthenticationService(logger, oauth2Sandbox);
+    } else {
+        authService = new AuthenticationService(logger, oauth2Prod);
+    }
     authService.redirectToAuthUrl(res);
 });
 
@@ -112,9 +124,15 @@ app.get('/oauth2/logout', (req, res) => {
     authService.doLogout(req, res);
 });
 
-//Get Conference-Session Details
+//Get LightningComponents
 app.get('/api/LightningComponents', (req, res) => {
     integrationService.getLightningComponentBundles(req, res);
+});
+//Get LightningComponents Contents
+app.get('/api/LightningComponent/:id', (req, res) => {
+    //res.json({ data: 'In Progress' });
+
+    integrationService.getLightningComponent(req, res);
 });
 
 app.listen(PORT, () =>

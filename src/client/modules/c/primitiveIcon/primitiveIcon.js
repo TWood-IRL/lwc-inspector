@@ -10,7 +10,7 @@ import { classSet } from 'c/utils';
 import { normalizeString as normalize } from 'c/utilsPrivate';
 import * as iconUtils from 'c/iconUtils';
 import standardTemplate from './primitiveIcon.html';
-import { getIconSvgTemplates } from 'lightning/configProvider';
+import { getIconSvgTemplates } from 'c/configProvider';
 
 export default class cPrimitiveIcon extends LightningElement {
     @api iconName;
