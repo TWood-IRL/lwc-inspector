@@ -59,6 +59,7 @@ const oauth2Sandbox = new jsforce.OAuth2({
     clientSecret: SALESFORCE_CLIENT_SECRET,
     redirectUri: SALESFORCE_CALLBACK_URL
 });
+let sessionInfo = null ; 
 // Initialize Auth Services
 let authService = new AuthenticationService(logger, oauth2Prod);
 const integrationService = new IntegrationService(logger, authService);
@@ -89,8 +90,11 @@ app.get('/api/v1/endpoint', (req, res) => {
 
 app.post('/api/v1/sessionId', (req, res) => {
     try {
-        //this.sessionId = req.query.sessionId;
-        //  this.myDomainURL = req.query.myDomainURL;
+        this.sessionInfo = {
+            sfdcAccessToken: req.query.sessionId, 
+            sfdcInstanceUrl: req.query.myDomainURL
+        }  
+       
         res.json({ success: true });
     } catch (err) {
         res.status(500).send(err);
@@ -99,6 +103,7 @@ app.post('/api/v1/sessionId', (req, res) => {
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
+    this.sessionInfo = null ; 
     let login_type = req.query.login_type;
     if (login_type === 'SANDBOX') {
         //reinitialize with test url .. .
@@ -126,13 +131,13 @@ app.get('/oauth2/logout', (req, res) => {
 
 //Get LightningComponents
 app.get('/api/LightningComponents', (req, res) => {
-    integrationService.getLightningComponentBundles(req, res);
+    integrationService.getLightningComponentBundles(req, res, this.sessionInfo);
 });
 //Get LightningComponents Contents
 app.get('/api/LightningComponent/:id', (req, res) => {
     //res.json({ data: 'In Progress' });
 
-    integrationService.getLightningComponent(req, res);
+    integrationService.getLightningComponent(req, res, this.sessionInfo);
 });
 
 app.listen(PORT, () =>

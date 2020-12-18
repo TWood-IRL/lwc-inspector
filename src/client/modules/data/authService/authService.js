@@ -17,9 +17,9 @@ export function getLoggedInUser() {
             });
     });
 }
-/* export function setSessionInformation(inputs) { ///api/v1/sessionId
+ export function setSessionInformation(inputs) { ///api/v1/sessionId
     return new Promise((resolve, reject) => {
-        fetch('/api/v1/sessionId')
+        fetch(`/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`)
             .then((response) => {
                 if (!response.ok) {
                     reject(response);
@@ -31,4 +31,4 @@ export function getLoggedInUser() {
                 reject(error);
             });
     });
-} */
+} 

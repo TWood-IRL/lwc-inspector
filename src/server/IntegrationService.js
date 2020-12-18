@@ -44,13 +44,19 @@ module.exports = class IntegrationService {
         });
     }
 
-    getLightningComponentBundles(req, res) {
+    getLightningComponentBundles(req, res, sessionInfo) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
 
-        const session = this.authService.getSession(req, res);
+        let session = this.authService.getSession(req, res);
         if (session === null) {
-            return;
+            if (sessionInfo !== null) {
+                session = sessionInfo;
+            }
+            else{
+                res.status(401).send('Unauthorized');
+                return ; 
+            }
         }
 
         let options = {
@@ -85,15 +91,20 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
-    getLightningComponent(req, res) {
+    getLightningComponent(req, res, sessionInfo) {
         let bundleId = req.params.id;
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
-
         const session = this.authService.getSession(req, res);
+
         if (session === null) {
-            return;
+            if (sessionInfo !== null) {
+                session = sessionInfo;
+            }else{
+                res.status(401).send('Unauthorized');
+                return ; 
+            }
         }
 
         let options = {

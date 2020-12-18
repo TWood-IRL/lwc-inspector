@@ -21,7 +21,7 @@ module.exports = class AuthenticationService {
     getSession(req, res) {
         const { session } = req;
         if (session.sfdcAccessToken === undefined) {
-            res.status(401).send('Unauthorized');
+           //res.status(401).send('Unauthorized');
             return null;
         }
         return session;
@@ -95,6 +95,35 @@ module.exports = class AuthenticationService {
                 return;
             }
             res.json(data);
+            /*active: true
+addr_city: "San Francisco"
+addr_country: "US"
+addr_state: "CA"
+addr_street: "1 Market St"
+addr_zip: "94105"
+asserted_user: true
+display_name: "Thomas Woodhouse"
+email: "twoodhouse+gs0@salesforce.com"
+email_verified: true
+first_name: "Thomas"
+id: "https://login.salesforce.com/id/00DB0000000cI0pMAE/005B0000006FVL4IAO"
+is_app_installed: true
+is_lightning_login_user: false
+language: "en_US"
+last_modified_date: "2020-12-17T01:38:19Z"
+last_name: "Woodhouse"
+locale: "en_IE"
+mobile_phone: "+353 0870659255"
+mobile_phone_verified: true
+nick_name: "User15677749680611746479"
+organization_id: "00DB0000000cI0pMAE"
+photos: {picture: "https://tomwoodhousegs0-dev-ed--c.documentforce.com/profilephoto/005/F", thumbnail: "https://tomwoodhousegs0-dev-ed--c.documentforce.com/profilephoto/005/T"}
+status: {created_date: null, body: null}
+timezone: "America/New_York"
+urls: {enterprise: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/c/{version}/00DB0000000cI0p", metadata: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/m/{version}/00DB0000000cI0p", partner: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/u/{version}/00DB0000000cI0p", rest: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/data/v{version}/", sobjects: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/data/v{version}/sobjects/", …}
+user_id: "005B0000006FVL4IAO"
+user_type: "STANDARD"
+username: "twoodhouse+gs0@salesforce.com" */
         });
     }
 

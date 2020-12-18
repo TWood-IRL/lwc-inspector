@@ -54,20 +54,19 @@ export default class Main extends LightningElement {
     setSessionInfo(){
         //read inputs then post to server to cache it.
        /*  
-       under construction 
+       under construction*/ 
        let elements = this.template.querySelectorAll('c-input') ; 
         let inputs = {
             "sessionId" : elements[0].getValue().value ,  
             "myDomainURL" : elements[1].getValue().value  
         } ; 
-        elements.forEach((ele) => {
-            inputs.push(ele.getValue().value) ; 
-        })
+        debugger;  
+        
             //first pos = sessionId, second pos = myDomainURL
         setSessionInformation(inputs).then((res) => {
             console.log(res)
             this.loading = false;
-        });   */
+        });   
     }
    
 
