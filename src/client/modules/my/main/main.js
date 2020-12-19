@@ -1,7 +1,7 @@
 import { LightningElement, track } from 'lwc';
 import { getLoggedInUser, setSessionInformation } from 'data/authService';
 import { LABELS } from 'data/labelService';
-import { getLightningComponentBundles } from 'data/dataService';
+import { getLightningComponentBundles } from  'data/dataService';
 
 export default class Main extends LightningElement {
     @track loggedInUser = undefined;
@@ -67,6 +67,10 @@ export default class Main extends LightningElement {
             this.loading = false;
             window.location.reload(); //reload
         });   
+    }
+    toggleLoading(event){//        this.dispatchEvent(new CustomEvent('selected', { detail: { loading: true } }));
+        event.stopPropagation(); 
+        this.loading =  event.detail.loading ; 
     }
    
 

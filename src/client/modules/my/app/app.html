@@ -1,11 +1,11 @@
 <template>
     <template if:true={isDisplayList}>
-        <my-explorer
+        <my-web-explorer
             lightning-component-bundles={lightningComponentBundles}
             onselected={setComponent}
-        ></my-explorer>
+        ></my-web-explorer>
     </template>
     <template if:true={isDisplayComp}>
-        <my-web-component id={displayCompId}></my-web-component>
+        <my-web-component id={displayCompId} onbackselected={resetId}></my-web-component>
     </template>
 </template>

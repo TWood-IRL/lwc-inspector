@@ -47,7 +47,7 @@
         </template>
     </div>
     <br />
-    <my-app lightning-component-bundles={lightningComponentBundles} ></my-app>
+    <my-app lightning-component-bundles={lightningComponentBundles} onloading={toggleLoading} ></my-app>
 
     <template if:false={isLoggedIn}>
         <!-- LWC sample component <my-greeting> -->

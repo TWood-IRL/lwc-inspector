@@ -16,16 +16,27 @@ export default class WebComponent extends LightningElement {
                             */
 
     connectedCallback() {
+        this.fireLoading(true) ; 
         if (this.id.split('-').length > 1) {
             this.componentId = this.id.split('-')[0];
         } else if (this.id) {
             this.componentId = this.id;
         }
         getLightningComponentBundle(this.componentId).then((resp) => {
+            this.fireLoading(false) ; 
+
             this.componentBundle = resp.data;
         });
     }
     get displayContent() {
         return this.id === null ? false : true;
+    }
+    
+    handleBack(event){
+        this.dispatchEvent(new CustomEvent('backselected'));
+    }
+    fireLoading(loading){
+        this.dispatchEvent(new CustomEvent('loading', {bubbles: true , composed:true, detail: { loading: loading } }));
+
     }
 }

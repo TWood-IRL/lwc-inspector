@@ -15,4 +15,7 @@ export default class App extends LightningElement {
         event.stopPropagation();
         this.displayCompId = event.detail.id;
     }
+    resetId(){
+        this.displayCompId = null ; 
+    }
 }
