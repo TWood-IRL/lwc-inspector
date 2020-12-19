@@ -11,6 +11,7 @@ const LABELS = {
     PLACEHOLDER_SESSION: "12345678..",
     PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com/", 
     FOOTER_NOTE:"Created by: Thomas Woodhouse (thomaswoodhouse93@gmail.com", 
+    GITHUB_FEEDBACK: "https://github.com/londoner1234/feedback-lwc-inspector" ,
     GITHUB_URL:"https://github.com/londoner1234/lwc-inspector"
 };
 export { LABELS };

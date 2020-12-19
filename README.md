@@ -1,6 +1,6 @@
 # lwc-inspector
 
-Heroku app to view lwc components in a given org. 
+LWC app to view lwc components in a given org. 
 
 Live site. 
 
