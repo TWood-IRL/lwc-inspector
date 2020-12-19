@@ -7,6 +7,8 @@ const LABELS = {
     ENTER_MY_DOMAIN: "Enter MyDomainURL", 
     SET_SESSION: "Set Session Information", 
     LOGGED_IN_AS: "Currently Logged in as:",
-    WELCOME_HELLO: "Hello "
+    WELCOME_HELLO: "Hello ",
+    PLACEHOLDER_SESSION: "12345678..",
+    PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com"
 };
 export { LABELS };
