@@ -60,12 +60,12 @@ export default class Main extends LightningElement {
             "sessionId" : elements[0].getValue().value ,  
             "myDomainURL" : elements[1].getValue().value  
         } ; 
-        debugger;  
         
             //first pos = sessionId, second pos = myDomainURL
         setSessionInformation(inputs).then((res) => {
             console.log(res)
             this.loading = false;
+            window.location.reload(); //reload
         });   
     }
    

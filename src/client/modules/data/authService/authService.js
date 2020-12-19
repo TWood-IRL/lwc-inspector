@@ -19,14 +19,17 @@ export function getLoggedInUser() {
 }
  export function setSessionInformation(inputs) { ///api/v1/sessionId
     return new Promise((resolve, reject) => {
-        fetch(`/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`)
+        fetch(`/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`) /* , {
+            method: 'post',
+            body: inputs
+          } */
             .then((response) => {
                 if (!response.ok) {
                     reject(response);
                 }
                 return response.json();
             })
-            .then((jsonResponse) => resolve(jsonResponse))
+            .then((responsePost) => resolve(responsePost))
             .catch((error) => {
                 reject(error);
             });

@@ -9,6 +9,7 @@ module.exports = class AuthenticationService {
     constructor(logger, oauth2) {
         this.logger = logger;
         this.oauth2 = oauth2;
+        this.sessionInfo = null ; 
     }
 
     /**
@@ -26,6 +27,14 @@ module.exports = class AuthenticationService {
         }
         return session;
     }
+
+    setSession(req,res, session){
+        this.oauth2 = null ; 
+        this.sessionInfo = session ; 
+        req.session.sfdcAccessToken = this.sessionInfo.sfdcAccessToken ;
+        req.session.spoofed = this.sessionInfo.spoofed ;
+        req.session.sfdcInstanceUrl = this.sessionInfo.sfdcInstanceUrl ;
+    }
     
 
     /**
@@ -35,6 +44,7 @@ module.exports = class AuthenticationService {
     redirectToAuthUrl(res) {
         res.redirect(this.oauth2.getAuthorizationUrl({ scope: 'api' }));
     }
+
 
     /**
      * Retrieves and stores OAuth2 token from authentication callback
@@ -80,6 +90,10 @@ module.exports = class AuthenticationService {
             res.status(200).send({});
             return;
         }
+         else  if (session.spoofed) {
+            res.json({user_id:session.sfdcAccessToken,display_name:session.sfdcAccessToken, username: "Logout"  });
+            return;
+        }
         // Connect to Salesforce and fetch user info
         const conn = new jsforce.Connection({
             accessToken: session.sfdcAccessToken,
@@ -95,35 +109,6 @@ module.exports = class AuthenticationService {
                 return;
             }
             res.json(data);
-            /*active: true
-addr_city: "San Francisco"
-addr_country: "US"
-addr_state: "CA"
-addr_street: "1 Market St"
-addr_zip: "94105"
-asserted_user: true
-display_name: "Thomas Woodhouse"
-email: "twoodhouse+gs0@salesforce.com"
-email_verified: true
-first_name: "Thomas"
-id: "https://login.salesforce.com/id/00DB0000000cI0pMAE/005B0000006FVL4IAO"
-is_app_installed: true
-is_lightning_login_user: false
-language: "en_US"
-last_modified_date: "2020-12-17T01:38:19Z"
-last_name: "Woodhouse"
-locale: "en_IE"
-mobile_phone: "+353 0870659255"
-mobile_phone_verified: true
-nick_name: "User15677749680611746479"
-organization_id: "00DB0000000cI0pMAE"
-photos: {picture: "https://tomwoodhousegs0-dev-ed--c.documentforce.com/profilephoto/005/F", thumbnail: "https://tomwoodhousegs0-dev-ed--c.documentforce.com/profilephoto/005/T"}
-status: {created_date: null, body: null}
-timezone: "America/New_York"
-urls: {enterprise: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/c/{version}/00DB0000000cI0p", metadata: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/m/{version}/00DB0000000cI0p", partner: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/Soap/u/{version}/00DB0000000cI0p", rest: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/data/v{version}/", sobjects: "https://tomwoodhousegs0-dev-ed.my.salesforce.com/services/data/v{version}/sobjects/", …}
-user_id: "005B0000006FVL4IAO"
-user_type: "STANDARD"
-username: "twoodhouse+gs0@salesforce.com" */
         });
     }
 
@@ -136,6 +121,23 @@ username: "twoodhouse+gs0@salesforce.com" */
         const session = this.getSession(req, res);
         if (session === null) {
             return;
+        }
+        else if(session.spoofed){
+            req.session = null ; 
+            this.sessionInfo = null ; 
+            session.destroy((err) => {
+                if (err) {
+                    this.logger.error(
+                        'Failed to destroy server session',
+                        err
+                    );
+                    res.status(500).send(
+                        'Failed to destroy server session'
+                    );
+                } else {
+                    res.redirect('/');
+                }
+            });
         }
 
         const conn = new jsforce.Connection({
@@ -168,3 +170,4 @@ username: "twoodhouse+gs0@salesforce.com" */
         });
     }
 };
+

@@ -44,19 +44,14 @@ module.exports = class IntegrationService {
         });
     }
 
-    getLightningComponentBundles(req, res, sessionInfo) {
+    getLightningComponentBundles(req, res) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
 
         let session = this.authService.getSession(req, res);
         if (session === null) {
-            if (sessionInfo !== null) {
-                session = sessionInfo;
-            }
-            else{
-                res.status(401).send('Unauthorized');
-                return ; 
-            }
+            res.status(401).send('Unauthorized');
+            return;
         }
 
         let options = {
@@ -91,7 +86,7 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
-    getLightningComponent(req, res, sessionInfo) {
+    getLightningComponent(req, res) {
         let bundleId = req.params.id;
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
@@ -101,9 +96,9 @@ module.exports = class IntegrationService {
         if (session === null) {
             if (sessionInfo !== null) {
                 session = sessionInfo;
-            }else{
+            } else {
                 res.status(401).send('Unauthorized');
-                return ; 
+                return;
             }
         }
 

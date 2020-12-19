@@ -59,10 +59,9 @@ const oauth2Sandbox = new jsforce.OAuth2({
     clientSecret: SALESFORCE_CLIENT_SECRET,
     redirectUri: SALESFORCE_CALLBACK_URL
 });
-let sessionInfo = null ; 
 // Initialize Auth Services
 let authService = new AuthenticationService(logger, oauth2Prod);
-const integrationService = new IntegrationService(logger, authService);
+let integrationService = new IntegrationService(logger, authService);
 const DIST_DIR = './dist';
 
 //Enable server-side sessions
@@ -88,22 +87,23 @@ app.get('/api/v1/endpoint', (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/v1/sessionId', (req, res) => {
+app.get('/api/v1/sessionId', (req, res) => {
     try {
-        this.sessionInfo = {
+        sessionInfo = {
+            spoofed: true, 
             sfdcAccessToken: req.query.sessionId, 
             sfdcInstanceUrl: req.query.myDomainURL
         }  
-       
-        res.json({ success: true });
-    } catch (err) {
+        authService.setSession(req,res, sessionInfo);
+      
+        res.json( sessionInfo );
+         } catch (err) {
         res.status(500).send(err);
     }
 });
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-    this.sessionInfo = null ; 
     let login_type = req.query.login_type;
     if (login_type === 'SANDBOX') {
         //reinitialize with test url .. .
@@ -111,6 +111,7 @@ app.get('/oauth2/login', (req, res) => {
     } else {
         authService = new AuthenticationService(logger, oauth2Prod);
     }
+    integrationService = new IntegrationService(logger, authService);
     authService.redirectToAuthUrl(res);
 });
 
@@ -131,13 +132,12 @@ app.get('/oauth2/logout', (req, res) => {
 
 //Get LightningComponents
 app.get('/api/LightningComponents', (req, res) => {
-    integrationService.getLightningComponentBundles(req, res, this.sessionInfo);
+    integrationService.getLightningComponentBundles(req, res);
 });
 //Get LightningComponents Contents
 app.get('/api/LightningComponent/:id', (req, res) => {
     //res.json({ data: 'In Progress' });
-
-    integrationService.getLightningComponent(req, res, this.sessionInfo);
+    integrationService.getLightningComponent(req, res );
 });
 
 app.listen(PORT, () =>

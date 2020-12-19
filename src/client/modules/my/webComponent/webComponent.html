@@ -3,8 +3,7 @@
         <template for:each={componentBundle} for:item="file">
             <div class="file" key={file.id}>
                 <br />
-
-                <div class="fileName">{file.FilePath}</div>
+                <c-card  class="fileName" title={file.FilePath}> </c-card>
                 <br />
                 <div class="sourceCode">{file.Source}</div>
             </div>
