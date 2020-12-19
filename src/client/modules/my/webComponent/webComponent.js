@@ -32,7 +32,7 @@ export default class WebComponent extends LightningElement {
         return this.id === null ? false : true;
     }
     
-    handleBack(event){
+    handleBack(){
         this.dispatchEvent(new CustomEvent('backselected'));
     }
     fireLoading(loading){

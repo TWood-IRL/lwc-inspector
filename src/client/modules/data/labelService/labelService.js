@@ -9,6 +9,8 @@ const LABELS = {
     LOGGED_IN_AS: "Currently Logged in as:",
     WELCOME_HELLO: "Hello ",
     PLACEHOLDER_SESSION: "12345678..",
-    PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com/"
+    PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com/", 
+    FOOTER_NOTE:"Created by: Thomas Woodhouse (thomaswoodhouse93@gmail.com", 
+    GITHUB_URL:"https://github.com/londoner1234/lwc-inspector"
 };
 export { LABELS };
