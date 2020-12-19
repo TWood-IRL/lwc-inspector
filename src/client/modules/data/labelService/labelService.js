@@ -9,6 +9,6 @@ const LABELS = {
     LOGGED_IN_AS: "Currently Logged in as:",
     WELCOME_HELLO: "Hello ",
     PLACEHOLDER_SESSION: "12345678..",
-    PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com"
+    PLACEHOLDER_MYDOMAIN: "https://mydomain.salesforce.com/"
 };
 export { LABELS };
