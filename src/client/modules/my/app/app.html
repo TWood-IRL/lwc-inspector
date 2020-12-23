@@ -1,7 +1,6 @@
 <template>
-    <template if:true={isDisplayList}>
+    <template if:false={isDisplayComp}>
         <my-web-explorer
-            lightning-component-bundles={lightningComponentBundles}
             onselected={setComponent}
         ></my-web-explorer>
     </template>

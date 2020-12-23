@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
-import { getLightningComponentBundle } from 'data/dataService';
+import { getLightningComponentBundleById } from 'data/dataService';
 
 export default class WebComponent extends LightningElement {
     //here we'll get the information for the resource. , when clicking
@@ -22,7 +22,7 @@ export default class WebComponent extends LightningElement {
         } else if (this.id) {
             this.componentId = this.id;
         }
-        getLightningComponentBundle(this.componentId).then((resp) => {
+        getLightningComponentBundleById(this.componentId).then((resp) => {
             this.fireLoading(false) ; 
 
             this.componentBundle = resp.data;

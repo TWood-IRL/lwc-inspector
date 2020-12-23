@@ -65,4 +65,29 @@ export default class cInput extends LightningElement {
             value: this.template.querySelector(`[data-element="input"]`).value
         };
     }
+    handleChange(event) {
+        event.stopPropagation();
+
+
+        if ( this.value === event.target.value) {
+            return;
+        }
+
+        this._dispatchChangeEvent();
+    }
+
+    _dispatchChangeEvent() {
+        const detail = {}  ; 
+        detail.value = this.template.querySelector("input").value ; 
+
+        this.dispatchEvent(
+            new CustomEvent('change', {
+                composed: true,
+                bubbles: true,
+                detail,
+            })
+        );
+    }
+
+  
 }

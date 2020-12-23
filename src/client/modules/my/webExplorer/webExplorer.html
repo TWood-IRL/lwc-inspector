@@ -1,5 +1,5 @@
 <template>
-
+    <c-input label="Search" value={searchKey} onchange={executeSearch} ></c-input> 
     <template if:true={isComponents}>
         <c-layout multiple-rows>
             <template for:each={lightningComponentBundles} for:item="component">
