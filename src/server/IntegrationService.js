@@ -60,7 +60,7 @@ module.exports = class IntegrationService {
             method: 'get',
             params: {
                 q:
-                    'SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by lastmodifieddate desc'
+                    'SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc'
             },
             headers: {
                 'Content-Type': 'application/json',
