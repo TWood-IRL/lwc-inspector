@@ -32,3 +32,4 @@ src/client/boostrap/*
 .env
 
 /.sfdx
+/.sfdx/indexes/lwc
