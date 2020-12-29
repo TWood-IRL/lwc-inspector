@@ -132,4 +132,47 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
+
+    getDownloadLightningComponent(req, res) {
+        // need to use the metadata api and generate a package.xml to pass in the request.. then return to the client
+
+        let bundleName = req.query.q;
+
+        let session = this.authService.getSession(req, res);
+        if (session === null) {
+            res.status(401).send('Unauthorized');
+            return;
+        }
+
+        let options = {
+            url: '/services/data/v49.0/tooling/query',
+            baseURL: session.sfdcInstanceUrl,
+            method: 'get',
+            params: {
+                q: bundleName
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + session.sfdcAccessToken
+            }
+        };
+        this._performGet(options)
+            .then((response) => {
+                const formattedData = response.data.records.map(
+                    (componentBundle) => {
+                        return {
+                            id: componentBundle.Id,
+                            DeveloperName: componentBundle.DeveloperName,
+                            ManageableState: componentBundle.ManageableState,
+                            IsExposed: componentBundle.IsExposed,
+                            ApiVersion: componentBundle.ApiVersion
+                        };
+                    }
+                );
+                res.json({ data: formattedData });
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
+    }
 };

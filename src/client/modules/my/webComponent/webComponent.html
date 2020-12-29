@@ -1,12 +1,24 @@
 <template>
     <template if:true={displayContent}>
-        <c-button variant="brand" label="Back" title="Back" onclick={handleBack} ></c-button>
+        <c-button
+            variant="brand"
+            label="Back"
+            title="Back"
+            onclick={handleBack}
+        ></c-button>
+        <c-button
+            variant="neutral"
+            label="Download"
+            title="Download"
+            onclick={handleDownload}
+        ></c-button>
+
         <template for:each={componentBundle} for:item="file">
             <div class="file" key={file.id}>
                 <br />
-                <c-card  class="fileName" title={file.FilePath}> </c-card>
+                <c-card class="fileName" title={file.FilePath}> </c-card>
                 <br />
-                <div class="sourceCode"><code >{file.Source}</code></div>
+                <div class="sourceCode"><code>{file.Source}</code></div>
             </div>
         </template>
     </template>
