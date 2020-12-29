@@ -42,7 +42,10 @@ export default class WebComponent extends LightningElement {
     handleDownload() {
         //get the component name pass to the below function
         var zipFile = new JSZip();
-
+        if (this.componentBundle.length > 0) {
+            console.log('Could not identify component');
+            return;
+        }
         this.componentBundle.forEach((component) => {
             zipFile.file(component.FilePath, component.Source);
         });
