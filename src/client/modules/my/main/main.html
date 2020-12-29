@@ -1,11 +1,16 @@
 <template>
-    <c-spinner if:true={isLoading}></c-spinner>
+    <c-spinner
+        if:true={isLoading}
+        alternative-text={LABEL.LOADING_SPINNER}
+    ></c-spinner>
     <my-header></my-header>
-    <div class="main-html" >
+    <div class="main-html">
         <template if:true={isLoggedIn}>
             <div>
                 {LABEL.LOGGED_IN_AS} <br />
-                <a href="/oauth2/logout" title="Logout"> {getName} {getUsername}</a>
+                <a href="/oauth2/logout" title="Logout">
+                    {getName} {getUsername}</a
+                >
             </div>
         </template>
         <template if:false={isLoggedIn}>
@@ -40,14 +45,13 @@
                 ></c-input>
                 <br />
                 <c-button
-                    label={LABEL.SET_SESSION} 
+                    label={LABEL.SET_SESSION}
                     onclick={setSessionInfo}
                 ></c-button>
             </template>
         </template>
     </div>
     <br />
-    <my-app  onloading={toggleLoading} ></my-app>
 
     <template if:false={isLoggedIn}>
         <!-- LWC sample component <my-greeting> -->
@@ -58,11 +62,12 @@
         </div>
 
         <div class="center">
-            <img src="resources/lwc.png" />
+            <img src="resources/lwc.png" class="img-lwc-icon" />
         </div>
     </template>
-
-
+    <template if:true={isLoggedIn}>
+        <my-app onloading={toggleLoading}></my-app>
+    </template>
 
     <my-footer></my-footer>
 </template>
