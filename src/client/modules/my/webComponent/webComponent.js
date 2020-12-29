@@ -1,8 +1,9 @@
 import { LightningElement, api, track } from 'lwc';
-import {
-    getLightningComponentBundleById,
-    downloadLightningComponent
-} from 'data/dataService';
+import { getLightningComponentBundleById } from 'data/dataService';
+
+//Do zipping in client
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 export default class WebComponent extends LightningElement {
     //here we'll get the information for the resource. , when clicking
@@ -40,7 +41,21 @@ export default class WebComponent extends LightningElement {
     }
     handleDownload() {
         //get the component name pass to the below function
-        downloadLightningComponent();
+        var zipFile = new JSZip();
+
+        this.componentBundle.forEach((component) => {
+            zipFile.file(component.FilePath, component.Source);
+        });
+        zipFile.generateAsync({ type: 'blob' }).then(
+            (blob) => {
+                saveAs(blob, this.componentBundle[0].ComponentName);
+            },
+            (err) => {
+                console.error('error generating zip', err);
+            }
+        );
+
+        // zipLightningComponentBundle(this.componentBundle) ;
     }
     fireLoading(loading) {
         this.dispatchEvent(

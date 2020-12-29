@@ -2,8 +2,9 @@
 //const jsforce = require('jsforce');
 
 const axios = require('axios');
-const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
 
+const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
+const VERSION_API = '49.0';
 // eslint-disable-next-line inclusive-language/use-inclusive-words
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
@@ -61,7 +62,7 @@ module.exports = class IntegrationService {
         }
 
         let options = {
-            url: '/services/data/v49.0/tooling/query',
+            url: `/services/data/v${VERSION_API}/tooling/query`,
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
@@ -104,11 +105,11 @@ module.exports = class IntegrationService {
         }
 
         let options = {
-            url: '/services/data/v49.0/tooling/query',
+            url: `/services/data/v${VERSION_API}/tooling/query`,
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
-                q: `select id, Source,  FilePath,Format  from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
+                q: `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -123,52 +124,11 @@ module.exports = class IntegrationService {
                         Source: component.Source,
                         FilePath: component.FilePath,
                         attributes: component.attributes,
-                        Format: component.Format
+                        Format: component.Format,
+                        ComponentName:
+                            component.LightningComponentBundle.DeveloperName
                     };
                 });
-                res.json({ data: formattedData });
-            })
-            .catch((error) => {
-                res.status(500).send(error);
-            });
-    }
-
-    getDownloadLightningComponent(req, res) {
-        // need to use the metadata api and generate a package.xml to pass in the request.. then return to the client
-
-        let bundleName = req.query.q;
-
-        let session = this.authService.getSession(req, res);
-        if (session === null) {
-            res.status(401).send('Unauthorized');
-            return;
-        }
-
-        let options = {
-            url: '/services/data/v49.0/tooling/query',
-            baseURL: session.sfdcInstanceUrl,
-            method: 'get',
-            params: {
-                q: bundleName
-            },
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + session.sfdcAccessToken
-            }
-        };
-        this._performGet(options)
-            .then((response) => {
-                const formattedData = response.data.records.map(
-                    (componentBundle) => {
-                        return {
-                            id: componentBundle.Id,
-                            DeveloperName: componentBundle.DeveloperName,
-                            ManageableState: componentBundle.ManageableState,
-                            IsExposed: componentBundle.IsExposed,
-                            ApiVersion: componentBundle.ApiVersion
-                        };
-                    }
-                );
                 res.json({ data: formattedData });
             })
             .catch((error) => {

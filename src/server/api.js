@@ -139,11 +139,6 @@ app.get('/api/LightningComponent/:id', (req, res) => {
     //res.json({ data: 'In Progress' });
     integrationService.getLightningComponent(req, res);
 });
-//Get LightningComponents Retrieve
-app.get('/api/DownloadLightningComponents/', (req, res) => {
-    //res.json({ data: 'In Progress' });
-    integrationService.getDownloadLightningComponent(req, res);
-});
 
 app.listen(PORT, () =>
     console.log(
