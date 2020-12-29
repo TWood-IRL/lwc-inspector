@@ -96,7 +96,7 @@ app.get('/api/v1/sessionId', (req, res) => {
         };
         authService.setSession(req, res, sessionInfo);
 
-        res.json(sessionInfo);
+        res.redirect('/');
     } catch (err) {
         res.status(500).send(err);
     }

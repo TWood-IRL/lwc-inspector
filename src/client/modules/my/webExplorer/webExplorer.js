@@ -50,7 +50,12 @@ export default class WebExplorer extends LightningElement {
 
         searchLightningComponentBundle(searchTerm)
             .then((resp) => {
-                this.lightningComponentBundles = resp.data;
+                if (resp.data.length === 0) {
+                    //we didnt get any results just reset. Prompt to user
+                    this.getLightningComponents();
+                } else {
+                    this.lightningComponentBundles = resp.data;
+                }
             })
             .finally(() => {
                 this.fireLoading(false);

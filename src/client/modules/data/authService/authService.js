@@ -17,9 +17,12 @@ export function getLoggedInUser() {
             });
     });
 }
- export function setSessionInformation(inputs) { ///api/v1/sessionId
+export function setSessionInformation(inputs) {
+    ///api/v1/sessionId
     return new Promise((resolve, reject) => {
-        fetch(`/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`) /* , {
+        fetch(
+            `/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`
+        ) /* , {
             method: 'post',
             body: inputs
           } */
@@ -27,11 +30,12 @@ export function getLoggedInUser() {
                 if (!response.ok) {
                     reject(response);
                 }
-                return response.json();
+                resolve();
+                //return response.json();
             })
-            .then((responsePost) => resolve(responsePost))
+            //  .then((responsePost) => resolve(responsePost))
             .catch((error) => {
                 reject(error);
             });
     });
-} 
+}
