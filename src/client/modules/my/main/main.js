@@ -1,7 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import { getLoggedInUser, setSessionInformation } from 'data/authService';
 import { LABELS } from 'data/labelService';
-import { getLightningComponentBundles } from  'data/dataService';
 
 export default class Main extends LightningElement {
     @track loggedInUser = undefined;
@@ -18,7 +17,7 @@ export default class Main extends LightningElement {
             } else {
                 this.loggedInUser = response;
                 this.state = 'list';
-                this.getLightningComponents() ; 
+            //    this.getLightningComponents() ; 
             }
             this.loading = false;
         });
@@ -40,13 +39,7 @@ export default class Main extends LightningElement {
         return this.loggedInUser.username;
     }
 
-    getLightningComponents(){
-     //   this.dispatchEvent(new CustomEvent('loading'));
-        getLightningComponentBundles().then((resp)=> {
-         //   this.dispatchEvent(new CustomEvent('doneloading'));
-            this.lightningComponentBundles = resp.data ; 
-        })
-    }
+  
     setDisplayInputs() {
         this.displayInputs = !this.displayInputs;
     }
@@ -72,6 +65,7 @@ export default class Main extends LightningElement {
         event.stopPropagation(); 
         this.loading =  event.detail.loading ; 
     }
+  
    
 
 }

@@ -5,23 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import { LightningElement, api, track } from 'lwc';
-import {
-    normalizeBoolean,
-    synchronizeAttrs,
-    getRealDOMId,
-    normalizeString as normalize,
-    classListMutation
-} from 'c/utilsPrivate';
-import {
-    isEmptyString,
-    InteractingState,
-    FieldConstraintApi,
-    generateUniqueId,
-    normalizeVariant,
-    VARIANT
-} from 'c/inputUtils';
-import { classSet } from 'c/utils';
+import { LightningElement, api } from 'lwc';
+import { generateUniqueId } from 'c/inputUtils';
 
 export default class cInput extends LightningElement {
     @api type;
@@ -38,7 +23,7 @@ export default class cInput extends LightningElement {
 
     @api value;
 
-    @api disabled = false ;
+    @api disabled = false;
 
     @api messageWhenValueMissing;
 
@@ -54,8 +39,8 @@ export default class cInput extends LightningElement {
     @api
     getElement() {
         return {
-            id: this.getId(), 
-            element: this.template.querySelector(`[data-element="input"]`), 
+            id: this.getId(),
+            element: this.template.querySelector(`[data-element="input"]`),
             value: this.template.querySelector(`[data-element="input"]`).value
         };
     }
@@ -64,5 +49,24 @@ export default class cInput extends LightningElement {
         return {
             value: this.template.querySelector(`[data-element="input"]`).value
         };
+    }
+    handleChange(event) {
+        event.stopPropagation();
+        if (this.value === event.target.value && !!this.value) {
+            return;
+        }
+        this._dispatchChangeEvent();
+    }
+    _dispatchChangeEvent() {
+        const detail = {};
+        detail.value = this.template.querySelector('input').value;
+
+        this.dispatchEvent(
+            new CustomEvent('change', {
+                composed: true,
+                bubbles: true,
+                detail
+            })
+        );
     }
 }

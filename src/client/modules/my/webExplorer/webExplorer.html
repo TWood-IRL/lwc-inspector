@@ -1,6 +1,11 @@
 <template>
-
     <template if:true={isComponents}>
+        <c-input
+            label="Search"
+            value={searchKey}
+            onchange={executeSearch}
+        ></c-input>
+
         <c-layout multiple-rows>
             <template for:each={lightningComponentBundles} for:item="component">
                 <c-layout-item
