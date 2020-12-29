@@ -89,15 +89,15 @@ app.get('/api/v1/endpoint', (req, res) => {
 
 app.get('/api/v1/sessionId', (req, res) => {
     try {
-        sessionInfo = {
-            spoofed: true, 
-            sfdcAccessToken: req.query.sessionId, 
+        let sessionInfo = {
+            spoofed: true,
+            sfdcAccessToken: req.query.sessionId,
             sfdcInstanceUrl: req.query.myDomainURL
-        }  
-        authService.setSession(req,res, sessionInfo);
-      
-        res.json( sessionInfo );
-         } catch (err) {
+        };
+        authService.setSession(req, res, sessionInfo);
+
+        res.json(sessionInfo);
+    } catch (err) {
         res.status(500).send(err);
     }
 });
@@ -137,7 +137,7 @@ app.get('/api/LightningComponents', (req, res) => {
 //Get LightningComponents Contents
 app.get('/api/LightningComponent/:id', (req, res) => {
     //res.json({ data: 'In Progress' });
-    integrationService.getLightningComponent(req, res );
+    integrationService.getLightningComponent(req, res);
 });
 
 app.listen(PORT, () =>

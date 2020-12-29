@@ -2,8 +2,9 @@
 //const jsforce = require('jsforce');
 
 const axios = require('axios');
-const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
 
+const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
+const VERSION_API = '49.0';
 // eslint-disable-next-line inclusive-language/use-inclusive-words
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
@@ -61,7 +62,7 @@ module.exports = class IntegrationService {
         }
 
         let options = {
-            url: '/services/data/v49.0/tooling/query',
+            url: `/services/data/v${VERSION_API}/tooling/query`,
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
@@ -104,11 +105,11 @@ module.exports = class IntegrationService {
         }
 
         let options = {
-            url: '/services/data/v49.0/tooling/query',
+            url: `/services/data/v${VERSION_API}/tooling/query`,
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
-                q: `select id, Source,  FilePath,Format  from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
+                q: `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -123,7 +124,9 @@ module.exports = class IntegrationService {
                         Source: component.Source,
                         FilePath: component.FilePath,
                         attributes: component.attributes,
-                        Format: component.Format
+                        Format: component.Format,
+                        ComponentName:
+                            component.LightningComponentBundle.DeveloperName
                     };
                 });
                 res.json({ data: formattedData });
