@@ -1,12 +1,7 @@
-
-
-
 export function getLightningComponentBundles() {
-  
     return new Promise((resolve, reject) => {
         fetch('/api/LightningComponents')
             .then((response) => {
-
                 if (!response.ok) {
                     reject(response);
                 }
@@ -14,14 +9,12 @@ export function getLightningComponentBundles() {
             })
             .then((jsonResponse) => resolve(jsonResponse))
             .catch((error) => {
-
                 reject(error);
             });
     });
 }
 
 export function getLightningComponentBundleById(id) {
-
     // pass the Id, get the contents of the bundle
     return new Promise((resolve, reject) => {
         fetch('/api/LightningComponent/' + id)
@@ -38,7 +31,6 @@ export function getLightningComponentBundleById(id) {
     });
 }
 export function searchLightningComponentBundle(searchTerm) {
-
     // pass the Id, get the contents of the bundle
     return new Promise((resolve, reject) => {
         fetch('/api/LightningComponents?q=' + searchTerm)

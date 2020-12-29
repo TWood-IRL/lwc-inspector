@@ -2,6 +2,8 @@
 //const jsforce = require('jsforce');
 
 const axios = require('axios');
+const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
+
 // eslint-disable-next-line inclusive-language/use-inclusive-words
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
@@ -47,7 +49,11 @@ module.exports = class IntegrationService {
     getLightningComponentBundles(req, res) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
+        let queryTerm = req.query.q;
 
+        let query = !queryTerm
+            ? LIGHTNING_COMPONENT_QUERY
+            : `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle where DeveloperName like '%${queryTerm}%' order by developername asc`;
         let session = this.authService.getSession(req, res);
         if (session === null) {
             res.status(401).send('Unauthorized');
@@ -59,8 +65,7 @@ module.exports = class IntegrationService {
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
-                q:
-                    'SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc'
+                q: query
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -91,15 +96,11 @@ module.exports = class IntegrationService {
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
-        const session = this.authService.getSession(req, res);
+        let session = this.authService.getSession(req, res);
 
         if (session === null) {
-            if (sessionInfo !== null) {
-                session = sessionInfo;
-            } else {
-                res.status(401).send('Unauthorized');
-                return;
-            }
+            res.status(401).send('Unauthorized');
+            return;
         }
 
         let options = {
