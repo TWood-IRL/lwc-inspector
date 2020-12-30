@@ -79,7 +79,7 @@ app.use(function (req, res, next) {
     //Updating csp headers sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ=
     res.setHeader(
         'Content-Security-Policy-Report-Only',
-        "default-src 'self'; font-src 'self' ; img-src 'self' ; script-src 'self' https://www.googletagmanager.com 'sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ='; style-src 'self'  ; frame-src 'self' ;"
+        "default-src 'self'; font-src 'self' ; img-src 'self' ; script-src 'self' https://www.googletagmanager.com/ 'sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ='; style-src 'self'  ; frame-src 'self' ;"
     );
     next();
 });
