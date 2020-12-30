@@ -31,7 +31,21 @@ const IntegrationService = require('./IntegrationService');
 // Load .env configuration file
 
 const app = express();
-app.use(helmet());
+//        "default-src 'self'; font-src 'self' ; img-src 'self' ; script-src 'self' https://www.googletagmanager.com/ 'sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ='; style-src 'self'  ; frame-src 'self' https://www.googletagmanager.com/ ;"
+
+app.use(
+    //https://www.npmjs.com/package/helmet
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+
+            scriptSrc: ["'self'", 'googletagmanager.com'],
+            objectSrc: ["'none'"],
+            frameSrc: ["'self'", 'googletagmanager.com'],
+            upgradeInsecureRequests: []
+        }
+    })
+);
 app.use(compression());
 
 //Retrieve Configuration
@@ -75,15 +89,7 @@ app.use(
 );
 
 app.use(express.static(DIST_DIR));
-app.use(function (req, res, next) {
-    //https://www.digitalocean.com/community/tutorials/how-to-secure-node-js-applications-with-a-content-security-policy
 
-    res.setHeader(
-        'Content-Security-Policy-Report-Only',
-        "default-src 'self'; font-src 'self' ; img-src 'self' ; script-src 'self' https://www.googletagmanager.com/ 'sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ='; style-src 'self'  ; frame-src 'self' ;"
-    );
-    next();
-});
 // app.get('/', (req, res) => {
 //     if(HOST==="localhost"){
 //         res.redirect("http://localhost:3001") ;
