@@ -38,9 +38,12 @@ app.use(
     helmet.contentSecurityPolicy({
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            'script-src': ["'self'", 'googletagmanager.com'],
-            'object-src': ["'none'"],
-            'frame-src': ["'self'", 'googletagmanager.com']
+            'script-src': [
+                "'self'",
+                'googletagmanager.com/*',
+                '*.herokuapp.com'
+            ],
+            'frame-src': ["'self'", 'googletagmanager.com/*', '*.herokuapp.com']
         }
     })
 );
