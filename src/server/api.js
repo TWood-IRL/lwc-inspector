@@ -71,6 +71,7 @@ app.use(
                 "'unsafe-inline'",
                 "'unsafe-eval'",
                 'https://www.googletagmanager.com',
+                'https://www.google-analytics.com',
                 '*.herokuapp.com',
                 'https://*.google.com'
             ],
