@@ -68,8 +68,7 @@ app.use(
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             'script-src': [
-                "'unsafe-inline'",
-                "'unsafe-eval'",
+                "'self'",
                 'googletagmanager.com/*',
                 '*.herokuapp.com',
                 'https://*.google.com'
