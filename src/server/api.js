@@ -32,7 +32,7 @@ const IntegrationService = require('./IntegrationService');
 
 //Retrieve Configuration
 const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const {
     SALESFORCE_CLIENT_ID,
     SALESFORCE_CLIENT_SECRET,
