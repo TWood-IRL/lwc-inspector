@@ -30,28 +30,9 @@ const IntegrationService = require('./IntegrationService');
 
 // Load .env configuration file
 
-const app = express();
-//        "default-src 'self'; font-src 'self' ; img-src 'self' ; script-src 'self' https://www.googletagmanager.com/ 'sha256-R2sgUB2K/fMRAYLzVS86WdscTu/ZXKlhhFO++Z3NqFQ='; style-src 'self'  ; frame-src 'self' https://www.googletagmanager.com/ ;"
-
-app.use(
-    //https://www.npmjs.com/package/helmet
-    helmet.contentSecurityPolicy({
-        directives: {
-            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            'script-src': [
-                "'self'",
-                'googletagmanager.com/*',
-                '*.herokuapp.com'
-            ],
-            'frame-src': ["'self'", 'googletagmanager.com/*', '*.herokuapp.com']
-        }
-    })
-);
-app.use(compression());
-
 //Retrieve Configuration
 const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 const {
     SALESFORCE_CLIENT_ID,
     SALESFORCE_CLIENT_SECRET,
@@ -78,6 +59,33 @@ const oauth2Sandbox = new jsforce.OAuth2({
 let authService = new AuthenticationService(logger, oauth2Prod);
 let integrationService = new IntegrationService(logger, authService);
 const DIST_DIR = './dist';
+
+const app = express();
+
+app.use(
+    //https://www.npmjs.com/package/helmet
+    helmet.contentSecurityPolicy({
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            'script-src': [
+                'unsafe-inline',
+                'unsafe-eval',
+                "'self'",
+                'googletagmanager.com/*',
+                '*.herokuapp.com',
+                'https://*.google.com'
+            ],
+            'frame-src': [
+                "'self'",
+                'googletagmanager.com/*',
+                '*.herokuapp.com'
+            ],
+            'img-src': ['*']
+        }
+    })
+);
+
+app.use(compression());
 
 //Enable server-side sessions
 app.use(
