@@ -37,12 +37,10 @@ app.use(
     //https://www.npmjs.com/package/helmet
     helmet.contentSecurityPolicy({
         directives: {
-            defaultSrc: ["'self'"],
-
-            scriptSrc: ["'self'", 'googletagmanager.com'],
-            objectSrc: ["'none'"],
-            frameSrc: ["'self'", 'googletagmanager.com'],
-            upgradeInsecureRequests: []
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            'script-src': ["'self'", 'googletagmanager.com'],
+            'object-src': ["'none'"],
+            'frame-src': ["'self'", 'googletagmanager.com']
         }
     })
 );
