@@ -74,7 +74,7 @@ app.use(
                 '*.herokuapp.com',
                 'https://*.google.com'
             ],
-            'default-src': ['https://www.google-analytics.com'],
+            'connect-src': ['https://www.google-analytics.com'],
             'frame-src': [
                 "'self'",
                 'googletagmanager.com/*',
