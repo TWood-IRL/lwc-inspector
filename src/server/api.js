@@ -70,7 +70,7 @@ app.use(
             'script-src': [
                 "'unsafe-inline'",
                 "'unsafe-eval'",
-                'googletagmanager.com/*',
+                'https://www.googletagmanager.com',
                 '*.herokuapp.com',
                 'https://*.google.com'
             ],
