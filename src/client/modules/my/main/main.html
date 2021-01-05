@@ -1,8 +1,8 @@
 <template>
-    <c-spinner
+    <lightning-spinner
         if:true={isLoading}
         alternative-text={LABEL.LOADING_SPINNER}
-    ></c-spinner>
+    ></lightning-spinner>
     <my-header></my-header>
     <div class="main-html">
         <template if:true={isLoggedIn}>
@@ -29,25 +29,25 @@
             >
             <br />
             <template if:true={displayInputs}>
-                <c-input
+                <lightning-input
                     type="text"
                     data-id="sessionId"
                     label={LABEL.ENTER_SESSION}
                     placeholder={LABEL.PLACEHOLDER_SESSION}
                     value=""
-                ></c-input>
-                <c-input
+                ></lightning-input>
+                <lightning-input
                     type="text"
                     data-id="myDomainURL"
                     placeholder={LABEL.PLACEHOLDER_MYDOMAIN}
                     label={LABEL.ENTER_MY_DOMAIN}
                     value=""
-                ></c-input>
+                ></lightning-input>
                 <br />
-                <c-button
+                <lightning-button
                     label={LABEL.SET_SESSION}
                     onclick={setSessionInfo}
-                ></c-button>
+                ></lightning-button>
             </template>
         </template>
     </div>

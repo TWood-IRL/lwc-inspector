@@ -1,22 +1,23 @@
 <template>
     <template if:true={displayContent}>
-        <c-button
+        <lightning-button
             variant="brand"
             label="Back"
             title="Back"
             onclick={handleBack}
-        ></c-button>
-        <c-button
+        ></lightning-button>
+        <lightning-button
             variant="neutral"
             label="Download"
             title="Download"
             onclick={handleDownload}
-        ></c-button>
+        ></lightning-button>
 
         <template for:each={componentBundle} for:item="file">
             <div class="file" key={file.id}>
                 <br />
-                <c-card class="fileName" title={file.FilePath}> </c-card>
+                <lightning-card class="fileName" title={file.FilePath}>
+                </lightning-card>
                 <br />
                 <div class="sourceCode"><code>{file.Source}</code></div>
             </div>
