@@ -1,0 +1,88 @@
+.slds-card {
+    position: relative;
+    padding: 0;
+    background: #fff;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background-clip: padding-box;
+    -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+    display: block;
+}
+.slds-grid {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+.slds-card__header {
+    padding: 0.75rem 1rem 0;
+    margin: 0 0 0.75rem;
+}
+.slds-media--center,
+.slds-media_center {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.slds-media {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+.slds-has-flexi-truncate {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 0%;
+    flex: 1 1 0%;
+    min-width: 0;
+}
+.slds-card__body {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+.slds-media__body,
+.slds-media__body > :last-child {
+    margin-bottom: 0;
+}
+.slds-card__header-title {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.slds-media__body {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    min-width: 0;
+}
+.slds-text-heading--small,
+.slds-text-heading_small {
+    font-size: 1rem;
+    line-height: 1.25;
+}
+.slds-truncate {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
