@@ -14,6 +14,7 @@ const LABELS = {
     GITHUB_FEEDBACK: 'https://github.com/londoner1234/feedback-lwc-inspector',
     GITHUB_URL: 'https://github.com/londoner1234/lwc-inspector',
     LOADING_SPINNER: 'Loading...',
-    TOAST_CLOSE_TEXT: 'Close'
+    TOAST_CLOSE_TEXT: 'Close',
+    SEARCH_HELPTEXT: 'Helptext'
 };
 export { LABELS };

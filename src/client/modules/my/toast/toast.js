@@ -19,7 +19,7 @@ export default class Toast extends LightningElement {
         }
     }
     get getComputedClass() {
-        return !this.toastNotification.title === false
+        return !this.toastNotification.title !== false
             ? 'hidden'
             : 'fade-in-out';
     }

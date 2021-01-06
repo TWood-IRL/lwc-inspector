@@ -4,12 +4,14 @@ import {
     searchLightningComponentBundle
 } from 'data/dataService';
 import { fireLoading, showToast } from 'my/utils';
+import { LABELS } from 'data/labelService';
 
 export default class WebExplorer extends LightningElement {
     @track
     lightningComponentBundles = [];
     searchKey = '';
     isSearching = false;
+    LABELS = LABELS;
     get isComponents() {
         return this.lightningComponentBundles.length > 0;
     }
@@ -17,8 +19,16 @@ export default class WebExplorer extends LightningElement {
         this.getLightningComponents();
     }
     compSelected(event) {
-        let id = event.target.dataset.id;
-        this.dispatchEvent(new CustomEvent('selected', { detail: { id: id } }));
+        let dataset = event.target.dataset;
+        if (dataset.exposed) {
+            this.dispatchEvent(
+                new CustomEvent('selected', { detail: { id: dataset.id } })
+            );
+        } else {
+            this.dispatchEvent(
+                showToast('Managed Component', 'Unable to view source')
+            );
+        }
     }
 
     getLightningComponents() {
@@ -66,13 +76,4 @@ export default class WebExplorer extends LightningElement {
                 this.dispatchEvent(fireLoading(false));
             });
     }
-    /* fireLoading(loading) {
-        this.dispatchEvent(
-            new CustomEvent('loading', {
-                bubbles: true,
-                composed: true,
-                detail: { loading: loading }
-            })
-        );
-    } */
 }

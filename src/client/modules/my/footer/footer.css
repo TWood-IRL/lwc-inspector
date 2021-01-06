@@ -5,8 +5,10 @@
     bottom: 0;
     width: 100%;
     background-color: #0288d1;
-    text-align: center;
     z-index: 100;
     justify-content: flex-end;
+    color: white;
     align-items: center;
+    justify-content: space-between;
+    text-align: center;
 }
