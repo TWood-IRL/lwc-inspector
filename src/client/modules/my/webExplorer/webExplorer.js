@@ -3,6 +3,7 @@ import {
     getLightningComponentBundles,
     searchLightningComponentBundle
 } from 'data/dataService';
+import { fireLoading, showToast } from 'my/utils';
 
 export default class WebExplorer extends LightningElement {
     @track
@@ -21,47 +22,51 @@ export default class WebExplorer extends LightningElement {
     }
 
     getLightningComponents() {
-        this.fireLoading(true);
+        this.dispatchEvent(fireLoading(true));
 
         getLightningComponentBundles()
             .then((resp) => {
+                if (resp.data.length === 0) {
+                    //we didnt get any results
+                    this.dispatchEvent(showToast('No Results Found'));
+                }
                 this.lightningComponentBundles = resp.data;
             })
             .finally(() => {
-                this.fireLoading(false);
+                this.dispatchEvent(fireLoading(false));
             });
     }
     executeSearch(event) {
         // if already searching want to bounce the event and ignore
         event.stopPropagation();
-        if (this.isSearching) {
+        //bounce the request if first search
+        if (this.isSearching || event.detail.value.length <= 3) {
             return;
         }
-
         setTimeout(() => {
             this.isSearching = false;
-        }, 1000);
+        }, 300);
         this.searchComponents(event);
-        this.isSearching = true;
     }
     searchComponents(event) {
         let searchTerm = event.detail.value;
-        this.fireLoading(true);
+        this.dispatchEvent(fireLoading(true));
 
         searchLightningComponentBundle(searchTerm)
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results just reset. Prompt to user
+                    this.dispatchEvent(showToast('No Results Found'));
                     this.getLightningComponents();
                 } else {
                     this.lightningComponentBundles = resp.data;
                 }
             })
             .finally(() => {
-                this.fireLoading(false);
+                this.dispatchEvent(fireLoading(false));
             });
     }
-    fireLoading(loading) {
+    /* fireLoading(loading) {
         this.dispatchEvent(
             new CustomEvent('loading', {
                 bubbles: true,
@@ -69,5 +74,5 @@ export default class WebExplorer extends LightningElement {
                 detail: { loading: loading }
             })
         );
-    }
+    } */
 }

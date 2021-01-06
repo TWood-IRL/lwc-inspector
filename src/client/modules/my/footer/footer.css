@@ -1,12 +1,12 @@
-.footer-css{
+.footer-css {
     position: fixed;
     left: 0;
+    right: 0;
     bottom: 0;
     width: 100%;
     background-color: #0288d1;
-    color: white;
     text-align: center;
-    z-index: -1;/*fix later*/
-}
-.footer-note{
+    z-index: 100;
+    justify-content: flex-end;
+    align-items: center;
 }
