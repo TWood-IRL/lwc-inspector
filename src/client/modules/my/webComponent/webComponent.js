@@ -1,3 +1,6 @@
+/**
+ * Represents the component bundle
+ */
 import { LightningElement, api, track } from 'lwc';
 import { getLightningComponentBundleById } from 'data/dataService';
 

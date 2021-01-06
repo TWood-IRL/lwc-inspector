@@ -15,11 +15,7 @@
 
         <template for:each={componentBundle} for:item="file">
             <div class="file" key={file.id}>
-                <br />
-                <lightning-card class="fileName" title={file.FilePath}>
-                </lightning-card>
-                <br />
-                <div class="sourceCode"><code>{file.Source}</code></div>
+                <my-web-component-source file={file}></my-web-component-source>
             </div>
         </template>
     </template>
