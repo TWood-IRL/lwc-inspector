@@ -15,6 +15,8 @@ const LABELS = {
     GITHUB_URL: 'https://github.com/londoner1234/lwc-inspector',
     LOADING_SPINNER: 'Loading...',
     TOAST_CLOSE_TEXT: 'Close',
-    SEARCH_HELPTEXT: 'Helptext'
+    SEARCH_HELPTEXT: 'Helptext',
+    LWC_COMPONENT: 'LWC Components',
+    AURA_COMPONENT: 'AURA Components'
 };
 export { LABELS };
