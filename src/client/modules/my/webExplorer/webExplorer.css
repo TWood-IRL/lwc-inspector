@@ -1,8 +1,11 @@
-c-layout-item:hover {
+lightning-layout-item:hover {
     outline: 0;
-    border-color: #1589ee;
+    border-color: #0288d1;
     background-color: #1589ee;
-    -webkit-box-shadow: 0 0 3px #0070d2;
-    box-shadow: 0 0 3px #0070d2;
+    -webkit-box-shadow: 0 0 3px #0288d1;
+    box-shadow: 0 0 3px #0288d1;
     cursor: pointer;
+}
+lightning-layout {
+    padding-bottom: 50px; /*offset the footer*/
 }

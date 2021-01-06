@@ -6,9 +6,9 @@ export default class Main extends LightningElement {
     @track loggedInUser = undefined;
     @track state;
     loading = true;
-    displayInputs = false ; 
-    LABEL = LABELS
-    lightningComponentBundles = []  ; 
+    displayInputs = false;
+    LABEL = LABELS;
+    lightningComponentBundles = [];
     connectedCallback() {
         getLoggedInUser().then((response) => {
             if (response.user_id === undefined) {
@@ -17,7 +17,7 @@ export default class Main extends LightningElement {
             } else {
                 this.loggedInUser = response;
                 this.state = 'list';
-            //    this.getLightningComponents() ; 
+                //    this.getLightningComponents() ;
             }
             this.loading = false;
         });
@@ -39,33 +39,30 @@ export default class Main extends LightningElement {
         return this.loggedInUser.username;
     }
 
-  
     setDisplayInputs() {
         this.displayInputs = !this.displayInputs;
     }
-   
-    setSessionInfo(){
+
+    setSessionInfo() {
         //read inputs then post to server to cache it.
-       /*  
-       under construction*/ 
-       let elements = this.template.querySelectorAll('c-input') ; 
+        /*  
+       under construction*/
+        let elements = this.template.querySelectorAll('lightning-input');
         let inputs = {
-            "sessionId" : elements[0].getValue().value ,  
-            "myDomainURL" : elements[1].getValue().value  
-        } ; 
-        
-            //first pos = sessionId, second pos = myDomainURL
+            sessionId: elements[0].value,
+            myDomainURL: elements[1].value
+        };
+
+        //first pos = sessionId, second pos = myDomainURL
         setSessionInformation(inputs).then((res) => {
-            console.log(res)
+            console.log(res);
             this.loading = false;
             window.location.reload(); //reload
-        });   
+        });
     }
-    toggleLoading(event){//        this.dispatchEvent(new CustomEvent('selected', { detail: { loading: true } }));
-        event.stopPropagation(); 
-        this.loading =  event.detail.loading ; 
+    toggleLoading(event) {
+        //        this.dispatchEvent(new CustomEvent('selected', { detail: { loading: true } }));
+        event.stopPropagation();
+        this.loading = event.detail.loading;
     }
-  
-   
-
 }
