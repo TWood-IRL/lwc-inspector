@@ -11,7 +11,7 @@ const LABELS = {
     WELCOME_HELLO: 'Hello ',
     PLACEHOLDER_SESSION: '12345678..',
     PLACEHOLDER_MYDOMAIN: 'https://mydomain.salesforce.com/',
-    FOOTER_NOTE: 'Created by: Thomas Woodhouse (thomaswoodhouse93@gmail.com)',
+    FOOTER_NOTE: '',
     GITHUB_FEEDBACK: GITHUB,
     GITHUB_URL: GITHUB,
     LOADING_SPINNER: 'Loading...',
@@ -44,7 +44,8 @@ const LABELS = {
             Logging in is performed through either Oauth or utilizing your existing sessionId.
             Once this information provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
             These requests then are returned and manipulated to display on screen correctly.
-            Information pertaining your salesforce organization is not stored within the app`
+            Information pertaining your salesforce organization is not stored within the app
+            Feel free to checkout the source code included in the footer`
         }
     ],
     ABOUT_LINKS: [

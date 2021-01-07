@@ -6,8 +6,8 @@
     box-shadow: 0 4px 3px rgba(1, 87, 155, 0.5);
     align-items: center;
 }
-.center{
-    text-align:center ; 
+.center {
+    text-align: center;
 }
 
 .header-banner img {
@@ -18,6 +18,8 @@
     font-size: 1.75rem;
     font-weight: 300;
 }
-.right-align{
-    
+.gh-svg {
+    position: fixed;
+    top: 1.5em;
+    right: 1.5em;
 }
