@@ -47,16 +47,18 @@ module.exports = class IntegrationService {
                 });
         });
     }
-    
 
     getLightningComponentBundles(req, res) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
         let queryTerm = req.query.q;
-        let SObject = (req.query.type === 'auraComps' )? 'AuraDefinitionBundle': 'LightningComponentBundle' ; 
+        let SObject =
+            req.query.type === 'auraComps'
+                ? 'AuraDefinitionBundle'
+                : 'LightningComponentBundle';
         let query = !queryTerm
-            ? LIGHTNING_WEB_COMPONENT_QUERY.replace('#SOBJECT#', SObject)  
-            : `SELECT ID, DeveloperName,ManageableState,ApiVersion from ${SObject} where DeveloperName like '%${queryTerm}%' order by developername asc` 
+            ? LIGHTNING_WEB_COMPONENT_QUERY.replace('#SOBJECT#', SObject)
+            : `SELECT ID, DeveloperName,ManageableState,ApiVersion from ${SObject} where DeveloperName like '%${queryTerm}%' order by developername asc`;
         let session = this.authService.getSession(req, res);
         if (session === null) {
             res.status(401).send('Unauthorized');
@@ -83,7 +85,10 @@ module.exports = class IntegrationService {
                             id: componentBundle.Id,
                             DeveloperName: componentBundle.DeveloperName,
                             ManageableState: componentBundle.ManageableState,
-                            IsExposed: (componentBundle.ManageableState === 'installed' ) ? false : true  ,
+                            IsExposed:
+                                componentBundle.ManageableState === 'installed'
+                                    ? false
+                                    : true,
                             ApiVersion: componentBundle.ApiVersion
                         };
                     }
@@ -94,12 +99,12 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
-    
 
     getLightningComponent(req, res) {
         let bundleId = req.params.id;
-        let query = (bundleId.indexOf('0Rb')>1) ? `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
-        : `select Id, IsDeleted, ManageableState, AuraDefinitionBundleId, AuraDefinitionBundle.DeveloperName , Format, Source, DefType from AuraDefinition where AuraDefinitionBundleId = '${bundleId}' `
+        let query = bundleId.includes('0Rb')
+            ? `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
+            : `select Id, IsDeleted, ManageableState, AuraDefinitionBundleId, AuraDefinitionBundle.DeveloperName , Format, Source, DefType from AuraDefinition where AuraDefinitionBundleId = '${bundleId}' `;
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
@@ -128,13 +133,17 @@ module.exports = class IntegrationService {
                     return {
                         id: component.Id,
                         Source: component.Source,
-                        FilePath: (component.FilePath) ? component.FilePath: component.DefType, //null for aura use defType
+                        FilePath: component.FilePath
+                            ? component.FilePath
+                            : component.DefType, //null for aura use defType
                         attributes: component.attributes,
                         Format: component.Format,
-                        Type: (component.LightningComponentBundle) ? 'LWC': 'AURA', 
-                        ComponentName:
-                            (component.LightningComponentBundle) ? component.LightningComponentBundle.DeveloperName 
-                            : component.AuraDefinitionBundle.DeveloperName  //null for aura use. DeveloperName
+                        Type: component.LightningComponentBundle
+                            ? 'LWC'
+                            : 'AURA',
+                        ComponentName: component.LightningComponentBundle
+                            ? component.LightningComponentBundle.DeveloperName
+                            : component.AuraDefinitionBundle.DeveloperName //null for aura use. DeveloperName
                     };
                 });
                 res.json({ data: formattedData });

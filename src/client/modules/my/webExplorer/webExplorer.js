@@ -10,12 +10,12 @@ export default class WebExplorer extends LightningElement {
     @track
     lightningComponentBundles = [];
     searchKey = '';
-    searchContents = false ; 
+    searchContents = false;
     compTypes = [
-        {'label': 'Lightning Web Components', 'value': 'lwcComps'},
-        {'label': 'Aura Components', 'value': 'auraComps'},
+        { label: 'Lightning Web Components', value: 'lwcComps' },
+        { label: 'Aura Components', value: 'auraComps' }
     ];
-    compTypeValue = "lwcComps";
+    compTypeValue = 'lwcComps';
 
     LABELS = LABELS;
     get isComponents() {
@@ -56,7 +56,7 @@ export default class WebExplorer extends LightningElement {
         // if already searching want to bounce the event and ignore
         event.stopPropagation();
         //bounce the request if first search
-        if (this.isSearching || (!event.detail.value || event.detail.value.length <= 3) ){
+        if (this.isSearching) {
             return;
         }
         setTimeout(() => {
@@ -64,12 +64,13 @@ export default class WebExplorer extends LightningElement {
         }, 300);
         this.searchComponents(event);
     }
-    searchComponents() {
+    async searchComponents() {
         let searchTerm = this.template.querySelector('lightning-input').value;
-        let compTypeValue = this.template.querySelector('lightning-radio-group').value;
+        let compTypeValue = this.template.querySelector('lightning-radio-group')
+            .value;
         this.dispatchEvent(fireLoading(true));
 
-        searchLightningComponentBundle(compTypeValue, searchTerm  )
+        searchLightningComponentBundle(compTypeValue, searchTerm)
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results just reset. Prompt to user
@@ -83,5 +84,4 @@ export default class WebExplorer extends LightningElement {
                 this.dispatchEvent(fireLoading(false));
             });
     }
-    
 }

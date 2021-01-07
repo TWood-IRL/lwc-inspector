@@ -1,18 +1,35 @@
 <template>
     <template if:true={isComponents}>
         <lightning-layout multiple-rows>
-            <lightning-layout-item size="6" padding="around-small" class="slds-box">
-                <lightning-input
-                    label="Search"
-                    value={searchKey}
-                    onchange={executeSearch}
-                ></lightning-input>
-                <lightning-radio-group
-                label="Component Type"
-                options={compTypes}
-                value={compTypeValue} onchange={executeSearch}></lightning-radio-group>
+            <lightning-layout-item
+                size="6"
+                padding="around-small"
+                class="slds-box"
+            >
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12">
+                        <lightning-input
+                            label="Search"
+                            value={searchKey}
+                        ></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12">
+                        <lightning-button
+                            label="Search"
+                            onclick={executeSearch}
+                        ></lightning-button>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12">
+                        <lightning-radio-group
+                            label="Component Type"
+                            options={compTypes}
+                            value={compTypeValue}
+                            onchange={executeSearch}
+                        ></lightning-radio-group>
+                    </lightning-layout-item>
+                </lightning-layout>
 
-             <!--    
+                <!--    
                  WIP - Seach the contents of components
                  <lightning-input
                 label="Search Contents?"

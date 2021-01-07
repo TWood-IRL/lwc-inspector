@@ -6,6 +6,6 @@ lightning-layout-item lightning-card.fileCard .slds-card:hover {
     box-shadow: 0 0 3px #0288d1;
     cursor: pointer;
 }
-lightning-layout {
-    padding-bottom: 50px; /*offset the footer*/
+lightning-layout:last-child {
+    padding-bottom: 80px; /*offset the footer*/
 }
