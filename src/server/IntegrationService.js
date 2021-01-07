@@ -2,7 +2,8 @@
 //const jsforce = require('jsforce');
 
 const axios = require('axios');
-
+//Possible query for contents.. would have to then check on the client
+//select id, Format , Source,  FilePath, LightningComponentBundle.DeveloperName from LightningComponentResource where ManageableState in ('unmanaged') and format in ('js', 'html') and (NOT FilePath like '%.js-meta.xml')
 const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
 const VERSION_API = '49.0';
 // eslint-disable-next-line inclusive-language/use-inclusive-words
@@ -92,6 +93,7 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
+
     getLightningComponent(req, res) {
         let bundleId = req.params.id;
         //query the contents of the bundle
