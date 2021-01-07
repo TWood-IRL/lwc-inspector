@@ -1,74 +1,64 @@
 <template>
+    <my-header></my-header>
+
     <lightning-spinner
         if:true={isLoading}
         alternative-text={LABEL.LOADING_SPINNER}
+        size="large"
+        variant="brand"
     ></lightning-spinner>
-    <my-header></my-header>
     <div class="main-html">
         <template if:true={isLoggedIn}>
             <div>
                 {LABEL.LOGGED_IN_AS} <br />
                 <a href="/oauth2/logout" title="Logout">
-                    {getName} {getUsername}</a
+                    {getName}<br />{getUsername}<br />Logout</a
                 >
             </div>
         </template>
         <template if:false={isLoggedIn}>
-            <a href="/oauth2/login?login_type=PRODUCTION" class="loginButton">
-                {LABEL.LOGIN_PROD}</a
-            >
-            <br />
-            <a href="/oauth2/login?login_type=SANDBOX" class="loginButton">
-                {LABEL.LOGIN_SANDBOX}</a
-            >
-            <br />
-        </template>
-        <template if:false={isLoggedIn}>
-            <a onclick={setDisplayInputs} class="loginButton" target="_blank">
-                {LABEL.LOGIN_SESSIONID}</a
-            >
-            <br />
-            <template if:true={displayInputs}>
-                <lightning-input
-                    type="text"
-                    data-id="sessionId"
-                    label={LABEL.ENTER_SESSION}
-                    placeholder={LABEL.PLACEHOLDER_SESSION}
-                    value=""
-                ></lightning-input>
-                <lightning-input
-                    type="text"
-                    data-id="myDomainURL"
-                    placeholder={LABEL.PLACEHOLDER_MYDOMAIN}
-                    label={LABEL.ENTER_MY_DOMAIN}
-                    value=""
-                ></lightning-input>
+            <div class="loginSection">
+                <a href="/oauth2/login?login_type=PRODUCTION">
+                    {LABEL.LOGIN_PROD}</a
+                >
                 <br />
-                <lightning-button
-                    label={LABEL.SET_SESSION}
-                    onclick={setSessionInfo}
-                ></lightning-button>
-            </template>
+                <a href="/oauth2/login?login_type=SANDBOX">
+                    {LABEL.LOGIN_SANDBOX}</a
+                >
+                <br />
+                <a onclick={setDisplayInputs} target="_blank">
+                    {LABEL.LOGIN_SESSIONID}</a
+                >
+                <br />
+                <template if:true={displayInputs}>
+                    <lightning-input
+                        type="text"
+                        data-id="sessionId"
+                        label={LABEL.ENTER_SESSION}
+                        placeholder={LABEL.PLACEHOLDER_SESSION}
+                        value=""
+                    ></lightning-input>
+                    <lightning-input
+                        type="text"
+                        data-id="myDomainURL"
+                        placeholder={LABEL.PLACEHOLDER_MYDOMAIN}
+                        label={LABEL.ENTER_MY_DOMAIN}
+                        value=""
+                    ></lightning-input>
+                    <br />
+                    <lightning-button
+                        label={LABEL.SET_SESSION}
+                        onclick={setSessionInfo}
+                    ></lightning-button>
+                </template>
+            </div>
+            <br />
+            <my-greeting></my-greeting>
+        </template>
+
+        <template if:true={isLoggedIn}>
+            <my-app onloading={toggleLoading}></my-app>
         </template>
     </div>
-    <br />
-    
-
-    <template if:false={isLoggedIn}>
-        <!-- LWC sample component <my-greeting> -->
-        <div class="center greeting">
-            <!-- <my-greeting speed="slow"></my-greeting> -->
-            <my-greeting speed="medium"></my-greeting>
-            <!-- <my-greeting speed="fast"></my-greeting> -->
-        </div>
-
-        <div class="center">
-            <img src="resources/lwc.png" class="img-lwc-icon" />
-        </div>
-    </template>
-    <template if:true={isLoggedIn}>
-        <my-app onloading={toggleLoading}></my-app>
-    </template>
-
-    <my-footer></my-footer>
+    <!-- No real need for a footer  <my-footer></my-footer> -->
 </template>

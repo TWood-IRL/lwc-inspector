@@ -1,7 +1,12 @@
 .main-html {
-    text-align: center;
     padding-top: 10px;
+    max-width: 1080px;
+    width: 96%;
+    margin: 1rem auto;
 }
 .img-lwc-icon {
     max-width: 150px;
+}
+.loginSection {
+    text-align: center;
 }

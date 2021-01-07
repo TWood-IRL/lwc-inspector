@@ -6,23 +6,17 @@ import {
 import { fireLoading, showToast } from 'my/utils';
 import { LABELS } from 'data/labelService';
 
-export default class WebExplorer extends LightningElement {
+export default class AuraExplorer extends LightningElement {
     @track
     lightningComponentBundles = [];
     searchKey = '';
-    searchContents = false;
-    compTypes = [
-        { label: 'Lightning Web Components', value: 'lwcComps' },
-        { label: 'Aura Components', value: 'auraComps' }
-    ];
-    compTypeValue = 'lwcComps';
-
+    isSearching = false;
     LABELS = LABELS;
     get isComponents() {
         return this.lightningComponentBundles.length > 0;
     }
     connectedCallback() {
-        this.getLightningComponents(this.compTypeValue);
+        this.getLightningComponents();
     }
     compSelected(event) {
         let dataset = event.target.dataset;
@@ -40,7 +34,7 @@ export default class WebExplorer extends LightningElement {
     getLightningComponents() {
         this.dispatchEvent(fireLoading(true));
 
-        getLightningComponentBundles(this.compTypeValue)
+        getLightningComponentBundles()
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results
@@ -56,7 +50,7 @@ export default class WebExplorer extends LightningElement {
         // if already searching want to bounce the event and ignore
         event.stopPropagation();
         //bounce the request if first search
-        if (this.isSearching) {
+        if (this.isSearching || event.detail.value.length <= 3) {
             return;
         }
         setTimeout(() => {
@@ -64,18 +58,16 @@ export default class WebExplorer extends LightningElement {
         }, 300);
         this.searchComponents(event);
     }
-    async searchComponents() {
-        let searchTerm = this.template.querySelector('lightning-input').value;
-        let compTypeValue = this.template.querySelector('lightning-radio-group')
-            .value;
+    searchComponents(event) {
+        let searchTerm = event.detail.value;
         this.dispatchEvent(fireLoading(true));
 
-        searchLightningComponentBundle(compTypeValue, searchTerm)
+        searchLightningComponentBundle(searchTerm)
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results just reset. Prompt to user
                     this.dispatchEvent(showToast('No Results Found'));
-                    this.getLightningComponents(this.compTypeValue);
+                    this.getLightningComponents();
                 } else {
                     this.lightningComponentBundles = resp.data;
                 }

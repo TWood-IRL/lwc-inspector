@@ -19,7 +19,7 @@ module.exports = class AuthenticationService {
      * @param {Object} res - server response
      * @returns {Object} session data or null if there was no session
      */
-    getSession(req, res) {
+    getSession(req) {
         const { session } = req;
         if (session.sfdcAccessToken === undefined) {
            //res.status(401).send('Unauthorized');
@@ -91,7 +91,7 @@ module.exports = class AuthenticationService {
             return;
         }
          else  if (session.spoofed) {
-            res.json({user_id:session.sfdcAccessToken,display_name:session.sfdcAccessToken, username: "Logout"  });
+            res.json({user_id:session.sfdcAccessToken,display_name:session.sfdcAccessToken  });
             return;
         }
         // Connect to Salesforce and fetch user info

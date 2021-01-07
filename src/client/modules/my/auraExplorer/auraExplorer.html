@@ -1,0 +1,29 @@
+<template>
+    <template if:true={isComponents}>
+        <lightning-input
+            label="Search"
+            value={searchKey}
+            onchange={executeSearch}
+        ></lightning-input>
+
+        <lightning-layout multiple-rows>
+            <template for:each={lightningComponentBundles} for:item="component">
+                <lightning-layout-item
+                    size="3"
+                    key={component.id}
+                    padding="around-small"
+                >
+                    <!--Onclick we'll retrieve the contents-->
+                    <lightning-card
+                        variant="narrow"
+                        title={component.DeveloperName}
+                        data-id={component.id}
+                        data-exposed={component.IsExposed}
+                        onclick={compSelected}
+                    >
+                    </lightning-card>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </template>
+</template>
