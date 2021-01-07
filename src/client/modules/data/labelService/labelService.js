@@ -34,7 +34,7 @@ const LABELS = {
              -Listing Components in a org
              -Searching existing components (by name only)
              -Click to view the component source
-             -Download the source directly to your maching`
+             -Download the source directly to your machine`
         },
         {
             KEY: '2',
