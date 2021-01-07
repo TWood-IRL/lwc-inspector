@@ -1,3 +1,10 @@
 <template>
-   
+    <br />
+    <lightning-card class="fileName" title={file.FilePath} onclick={toggle}>
+    </lightning-card>
+    <br />
+
+    <div class="sourceCode" if:false={isCollapsed}>
+        <code>{file.Source}</code>
+    </div>
 </template>

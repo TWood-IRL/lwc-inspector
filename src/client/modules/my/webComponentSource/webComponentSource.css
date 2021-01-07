@@ -1,0 +1,12 @@
+.sourceCode {
+    white-space: pre-wrap;
+    background-color: blanchedalmond;
+}
+lightning-card.fileName .slds-card:hover {
+    outline: 0;
+    border-color: #0288d1;
+    /* background-color: #1589ee; */
+    -webkit-box-shadow: 0 0 3px #0288d1;
+    box-shadow: 0 0 3px #0288d1;
+    cursor: pointer;
+}

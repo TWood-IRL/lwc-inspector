@@ -2,8 +2,9 @@
 //const jsforce = require('jsforce');
 
 const axios = require('axios');
-
-const LIGHTNING_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle order by developername asc`;
+//Possible query for contents.. would have to then check on the client
+//select id, Format , Source,  FilePath, LightningComponentBundle.DeveloperName from LightningComponentResource where ManageableState in ('unmanaged') and format in ('js', 'html') and (NOT FilePath like '%.js-meta.xml')
+const LIGHTNING_WEB_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,ApiVersion from #SOBJECT# order by developername asc`;
 const VERSION_API = '49.0';
 // eslint-disable-next-line inclusive-language/use-inclusive-words
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
@@ -46,15 +47,16 @@ module.exports = class IntegrationService {
                 });
         });
     }
+    
 
     getLightningComponentBundles(req, res) {
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
         let queryTerm = req.query.q;
-
+        let SObject = (req.query.type === 'auraComps' )? 'AuraDefinitionBundle': 'LightningComponentBundle' ; 
         let query = !queryTerm
-            ? LIGHTNING_COMPONENT_QUERY
-            : `SELECT ID, DeveloperName,ManageableState,IsExposed,ApiVersion from LightningComponentBundle where DeveloperName like '%${queryTerm}%' order by developername asc`;
+            ? LIGHTNING_WEB_COMPONENT_QUERY.replace('#SOBJECT#', SObject)  
+            : `SELECT ID, DeveloperName,ManageableState,ApiVersion from ${SObject} where DeveloperName like '%${queryTerm}%' order by developername asc` 
         let session = this.authService.getSession(req, res);
         if (session === null) {
             res.status(401).send('Unauthorized');
@@ -81,7 +83,7 @@ module.exports = class IntegrationService {
                             id: componentBundle.Id,
                             DeveloperName: componentBundle.DeveloperName,
                             ManageableState: componentBundle.ManageableState,
-                            IsExposed: componentBundle.IsExposed,
+                            IsExposed: (componentBundle.ManageableState === 'installed' ) ? false : true  ,
                             ApiVersion: componentBundle.ApiVersion
                         };
                     }
@@ -92,8 +94,12 @@ module.exports = class IntegrationService {
                 res.status(500).send(error);
             });
     }
+    
+
     getLightningComponent(req, res) {
         let bundleId = req.params.id;
+        let query = (bundleId.indexOf('0Rb')>1) ? `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
+        : `select Id, IsDeleted, ManageableState, AuraDefinitionBundleId, AuraDefinitionBundle.DeveloperName , Format, Source, DefType from AuraDefinition where AuraDefinitionBundleId = '${bundleId}' `
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
@@ -109,7 +115,7 @@ module.exports = class IntegrationService {
             baseURL: session.sfdcInstanceUrl,
             method: 'get',
             params: {
-                q: `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
+                q: query
             },
             headers: {
                 'Content-Type': 'application/json',
@@ -122,11 +128,13 @@ module.exports = class IntegrationService {
                     return {
                         id: component.Id,
                         Source: component.Source,
-                        FilePath: component.FilePath,
+                        FilePath: (component.FilePath) ? component.FilePath: component.DefType, //null for aura use defType
                         attributes: component.attributes,
                         Format: component.Format,
+                        Type: (component.LightningComponentBundle) ? 'LWC': 'AURA', 
                         ComponentName:
-                            component.LightningComponentBundle.DeveloperName
+                            (component.LightningComponentBundle) ? component.LightningComponentBundle.DeveloperName 
+                            : component.AuraDefinitionBundle.DeveloperName  //null for aura use. DeveloperName
                     };
                 });
                 res.json({ data: formattedData });
