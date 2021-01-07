@@ -7,7 +7,7 @@ import googleTagManager from '@analytics/google-tag-manager';
 import '@lwc/synthetic-shadow'; //allow lightning design system
 //Note - https://github.com/salesforce/lwc/issues/2029 - slots wont work correctly.
 
-const app = createElement('my-app', { is: MainApp });
+const app = createElement('my-main', { is: MainApp });
 const analytics = Analytics({
     app: 'lwc-inspector',
     plugins: [
