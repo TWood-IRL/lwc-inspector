@@ -41,7 +41,7 @@ const LABELS = {
             HEADER: `How's it work?`,
             BODY: `
             The App is built using LWC OOS, and hosted on heroku
-            Logging in is performed through either Oauth or utilizing your existing sessionId.
+            Login is performed through either Oauth or utilizing your existing sessionId + mydomain
             Once this information provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
             These requests then are returned and manipulated to display on screen correctly.
             Information pertaining your salesforce organization is not stored within the app
