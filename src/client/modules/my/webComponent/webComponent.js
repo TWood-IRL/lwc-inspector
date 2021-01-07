@@ -7,6 +7,7 @@ import { getLightningComponentBundleById } from 'data/dataService';
 //Do zipping in client
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import {  showToast } from 'my/utils';
 
 export default class WebComponent extends LightningElement {
     //here we'll get the information for the resource. , when clicking
@@ -43,6 +44,11 @@ export default class WebComponent extends LightningElement {
         this.dispatchEvent(new CustomEvent('backselected'));
     }
     handleDownload() {
+        if(this.componentBundle && this.componentBundle[0] && this.componentBundle[0].Type === 'AURA')
+        {
+            this.dispatchEvent(showToast('Download not Implmented for Aura'));
+            return ; 
+        }
         //get the component name pass to the below function
         var zipFile = new JSZip();
         /*  if (this.componentBundle.length > 0) {

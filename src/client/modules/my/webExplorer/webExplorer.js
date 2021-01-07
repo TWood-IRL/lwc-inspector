@@ -10,13 +10,19 @@ export default class WebExplorer extends LightningElement {
     @track
     lightningComponentBundles = [];
     searchKey = '';
-    isSearching = false;
+    searchContents = false ; 
+    compTypes = [
+        {'label': 'Lightning Web Components', 'value': 'lwcComps'},
+        {'label': 'Aura Components', 'value': 'auraComps'},
+    ];
+    compTypeValue = "lwcComps";
+
     LABELS = LABELS;
     get isComponents() {
         return this.lightningComponentBundles.length > 0;
     }
     connectedCallback() {
-        this.getLightningComponents();
+        this.getLightningComponents(this.compTypeValue);
     }
     compSelected(event) {
         let dataset = event.target.dataset;
@@ -34,7 +40,7 @@ export default class WebExplorer extends LightningElement {
     getLightningComponents() {
         this.dispatchEvent(fireLoading(true));
 
-        getLightningComponentBundles()
+        getLightningComponentBundles(this.compTypeValue)
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results
@@ -50,7 +56,7 @@ export default class WebExplorer extends LightningElement {
         // if already searching want to bounce the event and ignore
         event.stopPropagation();
         //bounce the request if first search
-        if (this.isSearching || event.detail.value.length <= 3) {
+        if (this.isSearching || (!event.detail.value || event.detail.value.length <= 3) ){
             return;
         }
         setTimeout(() => {
@@ -58,16 +64,17 @@ export default class WebExplorer extends LightningElement {
         }, 300);
         this.searchComponents(event);
     }
-    searchComponents(event) {
-        let searchTerm = event.detail.value;
+    searchComponents() {
+        let searchTerm = this.template.querySelector('lightning-input').value;
+        let compTypeValue = this.template.querySelector('lightning-radio-group').value;
         this.dispatchEvent(fireLoading(true));
 
-        searchLightningComponentBundle(searchTerm)
+        searchLightningComponentBundle(compTypeValue, searchTerm  )
             .then((resp) => {
                 if (resp.data.length === 0) {
                     //we didnt get any results just reset. Prompt to user
                     this.dispatchEvent(showToast('No Results Found'));
-                    this.getLightningComponents();
+                    this.getLightningComponents(this.compTypeValue);
                 } else {
                     this.lightningComponentBundles = resp.data;
                 }
@@ -76,4 +83,5 @@ export default class WebExplorer extends LightningElement {
                 this.dispatchEvent(fireLoading(false));
             });
     }
+    
 }

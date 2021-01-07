@@ -1,12 +1,28 @@
 <template>
     <template if:true={isComponents}>
-        <lightning-input
-            label="Search"
-            value={searchKey}
-            onchange={executeSearch}
-        ></lightning-input>
-
         <lightning-layout multiple-rows>
+            <lightning-layout-item size="6" padding="around-small" class="slds-box">
+                <lightning-input
+                    label="Search"
+                    value={searchKey}
+                    onchange={executeSearch}
+                ></lightning-input>
+                <lightning-radio-group
+                label="Component Type"
+                options={compTypes}
+                value={compTypeValue} onchange={executeSearch}></lightning-radio-group>
+
+             <!--    
+                 WIP - Seach the contents of components
+                 <lightning-input
+                label="Search Contents?"
+                type="checkbox"
+                value={searchContents}
+                onchange={executeSearch}
+            ></lightning-input> -->
+            </lightning-layout-item>
+            <lightning-layout-item size="12" padding="around-small">
+            </lightning-layout-item>
             <template for:each={lightningComponentBundles} for:item="component">
                 <lightning-layout-item
                     size="3"
