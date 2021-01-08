@@ -2,6 +2,7 @@
     <my-header></my-header>
 
     <lightning-spinner
+        if:true={isLoading}
         alternative-text={LABEL.LOADING_SPINNER}
         size="large"
         variant="brand"
