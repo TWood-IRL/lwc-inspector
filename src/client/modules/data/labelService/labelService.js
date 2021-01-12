@@ -28,7 +28,7 @@ const LABELS = {
             Oh It's a Lightning Web Component is it? 
             You don't have sfdx installed? 
             Ah so this is the tool thats meant to help you in that situation. 
-            I encounted this quite often and thought why not make an app for it, if your reading this then hope it helps 
+            I encountered this quite often and thought, "why not make an app for it"  if your reading this then hope it helps 
 
             Current features include: 
              -Listing Components in a org
@@ -38,9 +38,9 @@ const LABELS = {
         },
         {
             KEY: '2',
-            HEADER: `How's it work?`,
+            HEADER: `How Does it work?`,
             BODY: `
-            The App is built using LWC OOS, and hosted on heroku
+            The App is built using LWC OSS, and hosted on heroku
             Login is performed through either Oauth or utilizing your existing sessionId + mydomain
             Once this information provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
             These requests then are returned and manipulated to display on screen correctly.
@@ -49,7 +49,7 @@ const LABELS = {
         }
     ],
     ABOUT_LINKS: [
-        { HREF: 'https://lwc.dev/', TEXT: 'LWC OOS' },
+        { HREF: 'https://lwc.dev/', TEXT: 'LWC OSS' },
         {
             HREF:
                 'https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_tasks.htm',
