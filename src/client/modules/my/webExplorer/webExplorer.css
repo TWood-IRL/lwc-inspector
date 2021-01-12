@@ -9,3 +9,8 @@ lightning-layout-item lightning-card.fileCard .slds-card:hover {
 lightning-layout:last-child {
     padding-bottom: 80px; /*offset the footer*/
 }
+div.sourceCode {
+    white-space: pre-wrap;
+    background-color: blanchedalmond;
+    border-radius: 5px;
+}
