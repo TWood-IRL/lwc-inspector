@@ -1,4 +1,3 @@
-let GITHUB = 'https://github.com/londoner1234/lwc-inspector';
 const LABELS = {
     HEADER: 'Lightning Web Component Inspector',
     LOGIN_PROD: ' Log In Production',
@@ -29,7 +28,6 @@ const LABELS = {
             You don't have sfdx installed? 
             Ah so this is the tool thats meant to help you in that situation. 
             I encountered this quite often and thought, "why not make an app for it"  if your reading this then hope it helps 
-
             Current features include: 
              -Listing Components in a org
              -Searching existing components (by name only)
@@ -41,8 +39,8 @@ const LABELS = {
             HEADER: `How Does it work?`,
             BODY: `
             The App is built using LWC OSS, and hosted on heroku
-            Login is performed through either Oauth or utilizing your existing sessionId + mydomain
-            Once this information provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
+            Login is performed through either Oauth or utilizing your existing sessionId + mydomain (eg.https://mydomain.my.salesforce.com)
+            Once this information is provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
             These requests then are returned and manipulated to display on screen correctly.
             Information pertaining your salesforce organization is not stored within the app
             Feel free to checkout the source code included in the footer`
