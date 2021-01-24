@@ -1,3 +1,4 @@
+let GITHUB = 'https://github.com/londoner1234/lwc-inspector';
 const LABELS = {
     HEADER: 'Lightning Web Component Inspector',
     LOGIN_PROD: ' Log In Production',
