@@ -40,13 +40,37 @@
             </lightning-layout-item>
             <lightning-layout-item size="12" padding="around-small">
             </lightning-layout-item>
-            <template for:each={lightningComponentBundles} for:item="component">
+            <lightning-layout-item size="4" padding="around-small" >
+                <div class="component-tree">
+                    <c-tree
+                    items={components}
+                    header="Components"
+                 
+                    onselect={handleOnselect}
+                ></c-tree>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="8" padding="around-small">
+                <template if:true={isTypeSource}>
+                 <lightning-button
+                    variant="neutral"
+                    label="Download"
+                    title="Download"
+                    onclick={handleDownload}
+                ></lightning-button>
+                <br/>
+                    {getSourceLabel}
+                    <span role="textbox" contenteditable> <div class="sourceCode" > {getSource}</div> </span>
+                </template>
+            </lightning-layout-item>
+
+            <!--https://developer.salesforce.com/docs/component-library/bundle/lightning-tree/example-->
+            <!-- <template for:each={lightningComponentBundles} for:item="component">
                 <lightning-layout-item
                     size="3"
                     key={component.id}
                     padding="around-small"
                 >
-                    <!--Onclick we'll retrieve the contents-->
                     <lightning-card
                         class="fileCard"
                         variant="narrow"
@@ -57,7 +81,7 @@
                     >
                     </lightning-card>
                 </lightning-layout-item>
-            </template>
+            </template>-->
         </lightning-layout>
     </template>
 </template>

@@ -1,4 +1,3 @@
-let GITHUB = 'https://github.com/londoner1234/lwc-inspector';
 const LABELS = {
     HEADER: 'Lightning Web Component Inspector',
     LOGIN_PROD: ' Log In Production',
@@ -29,7 +28,6 @@ const LABELS = {
             You don't have sfdx installed? 
             Ah so this is the tool thats meant to help you in that situation. 
             I encountered this quite often and thought, "why not make an app for it"  if your reading this then hope it helps 
-
             Current features include: 
              -Listing Components in a org
              -Searching existing components (by name only)

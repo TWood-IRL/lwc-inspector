@@ -80,10 +80,14 @@ module.exports = class IntegrationService {
         this._performGet(options)
             .then((response) => {
                 const formattedData = response.data.records.map(
-                    (componentBundle) => {
+                    (componentBundle, idx) => {
                         return {
                             id: componentBundle.Id,
-                            DeveloperName: componentBundle.DeveloperName,
+                            label: componentBundle.DeveloperName,
+                            name: idx,//will use this to get the bundle info for items
+                            href: `#${componentBundle.DeveloperName}`,
+                            items: [],
+                            expanded: false,
                             ManageableState: componentBundle.ManageableState,
                             IsExposed:
                                 componentBundle.ManageableState === 'installed'
@@ -133,7 +137,11 @@ module.exports = class IntegrationService {
                     return {
                         id: component.Id,
                         Source: component.Source,
-                        FilePath: component.FilePath
+                        name: component.Id, 
+                        href: `#${component.FilePath}`,
+                        expanded:true,
+                        items: [] , 
+                        label: component.FilePath
                             ? component.FilePath
                             : component.DefType, //null for aura use defType
                         attributes: component.attributes,
