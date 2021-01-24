@@ -23,6 +23,13 @@ export default class cTree extends LightningElement {
     @track _selectedItem = null;
     hasDetachedListeners = true;
 
+    @api resetSelected(){
+        let tree = this.template.querySelector("c-tree-item") ; 
+        //reset inner tree
+        tree.resetTree();  
+     
+
+    }
     constructor() {
         super();
         this.callbackMap = {};

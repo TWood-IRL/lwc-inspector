@@ -40,16 +40,26 @@
             </lightning-layout-item>
             <lightning-layout-item size="12" padding="around-small">
             </lightning-layout-item>
-            <lightning-layout-item size="4" padding="around-small">
-                <c-tree
+            <lightning-layout-item size="4" padding="around-small" >
+                <div class="component-tree">
+                    <c-tree
                     items={components}
                     header="Components"
-                    selected-item={selectedComp}
+                 
                     onselect={handleOnselect}
                 ></c-tree>
+                </div>
             </lightning-layout-item>
             <lightning-layout-item size="8" padding="around-small">
                 <template if:true={isTypeSource}>
+                 <lightning-button
+                    variant="neutral"
+                    label="Download"
+                    title="Download"
+                    onclick={handleDownload}
+                ></lightning-button>
+                <br/>
+                    {getSourceLabel}
                     <span role="textbox" contenteditable> <div class="sourceCode" > {getSource}</div> </span>
                 </template>
             </lightning-layout-item>

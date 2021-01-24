@@ -38,7 +38,18 @@ export default class cTreeItem extends LightningElement {
     @api get childItems() {
         return this._children;
     }
+    @api resetTree(){
+        let treeItems = this.template.querySelectorAll("c-tree-item") ; 
+        //reset inner tree
+        if(treeItems.length > 1 ){
+            treeItems.forEach((item) =>{
+                item.resetTree() ; 
+                item.setAttribute("aria-selected", false ) ; 
+            })
+        }
+     
 
+    }
     set childItems(value) {
         this._children = value;
         const childLen = this._children.length;
