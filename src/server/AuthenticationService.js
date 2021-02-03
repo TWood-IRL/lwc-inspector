@@ -9,7 +9,7 @@ module.exports = class AuthenticationService {
     constructor(logger, oauth2) {
         this.logger = logger;
         this.oauth2 = oauth2;
-        this.sessionInfo = null ; 
+        this.sessionInfo = null;
     }
 
     /**
@@ -22,20 +22,18 @@ module.exports = class AuthenticationService {
     getSession(req) {
         const { session } = req;
         if (session.sfdcAccessToken === undefined) {
-           //res.status(401).send('Unauthorized');
             return null;
         }
         return session;
     }
 
-    setSession(req,res, session){
-        this.oauth2 = null ; 
-        this.sessionInfo = session ; 
-        req.session.sfdcAccessToken = this.sessionInfo.sfdcAccessToken ;
-        req.session.spoofed = this.sessionInfo.spoofed ;
-        req.session.sfdcInstanceUrl = this.sessionInfo.sfdcInstanceUrl ;
+    setSession(req, res, session) {
+        this.oauth2 = null;
+        this.sessionInfo = session;
+        req.session.sfdcAccessToken = this.sessionInfo.sfdcAccessToken;
+        req.session.spoofed = this.sessionInfo.spoofed;
+        req.session.sfdcInstanceUrl = this.sessionInfo.sfdcInstanceUrl;
     }
-    
 
     /**
      * Redirects user to Salesforce login page for authorization
@@ -44,7 +42,6 @@ module.exports = class AuthenticationService {
     redirectToAuthUrl(res) {
         res.redirect(this.oauth2.getAuthorizationUrl({ scope: 'api' }));
     }
-
 
     /**
      * Retrieves and stores OAuth2 token from authentication callback
@@ -89,9 +86,11 @@ module.exports = class AuthenticationService {
         if (session.sfdcAccessToken === undefined) {
             res.status(200).send({});
             return;
-        }
-         else  if (session.spoofed) {
-            res.json({user_id:session.sfdcAccessToken,display_name:session.sfdcAccessToken  });
+        } else if (session.spoofed) {
+            res.json({
+                user_id: session.sfdcAccessToken,
+                display_name: session.sfdcAccessToken
+            });
             return;
         }
         // Connect to Salesforce and fetch user info
@@ -119,32 +118,23 @@ module.exports = class AuthenticationService {
      */
     doLogout(req, res) {
         const session = this.getSession(req, res);
-        if (session === null) {
-            return;
-        }
-        else if(session.spoofed){
-            req.session = null ; 
-            this.sessionInfo = null ; 
+        if (session.spoofed) {
+            req.session = null;
+            this.sessionInfo = null;
             session.destroy((err) => {
                 if (err) {
-                    this.logger.error(
-                        'Failed to destroy server session',
-                        err
-                    );
-                    res.status(500).send(
-                        'Failed to destroy server session'
-                    );
+                    this.logger.error('Failed to destroy server session', err);
+                    res.status(500).send('Failed to destroy server session');
                 } else {
                     res.redirect('/');
                 }
             });
-        }
-        else{
+        } else if (session) {
             const conn = new jsforce.Connection({
                 accessToken: session.sfdcAccessToken,
                 instanceUrl: session.sfdcInstanceUrl
             });
-    
+
             conn.logout((error) => {
                 if (error) {
                     this.logger.error(
@@ -169,8 +159,5 @@ module.exports = class AuthenticationService {
                 }
             });
         }
-
-       
     }
 };
-

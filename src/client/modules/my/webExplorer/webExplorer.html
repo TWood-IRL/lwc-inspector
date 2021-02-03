@@ -39,52 +39,35 @@
         ></lightning-input> -->
             </lightning-layout-item>
             <lightning-layout-item size="12" padding="around-small">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="4" padding="around-small">
+                        <div class="component-tree source-viewer">
+                            <c-tree
+                                items={components}
+                                header="Components"
+                                onselect={handleOnselect}
+                            ></c-tree>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="8" padding="around-small">
+                        <div class="source-section source-viewer">
+                            <template if:true={isTypeSource}>
+                                <lightning-button
+                                    variant="neutral"
+                                    label="Download"
+                                    title="Download"
+                                    onclick={handleDownload}
+                                ></lightning-button>
+                                <br />
+                                {getSourceLabel}
+                                <span role="textbox" contenteditable>
+                                    <div class="sourceCode">{getSource}</div>
+                                </span>
+                            </template>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
             </lightning-layout-item>
-            <lightning-layout-item size="4" padding="around-small">
-                <div class="component-tree">
-                    <c-tree
-                        items={components}
-                        header="Components"
-                        onselect={handleOnselect}
-                    ></c-tree>
-                </div>
-            </lightning-layout-item>
-            <lightning-layout-item size="8" padding="around-small">
-                <div class="source-section">
-                    <template if:true={isTypeSource}>
-                        <lightning-button
-                            variant="neutral"
-                            label="Download"
-                            title="Download"
-                            onclick={handleDownload}
-                        ></lightning-button>
-                        <br />
-                        {getSourceLabel}
-                        <span role="textbox" contenteditable>
-                            <div class="sourceCode">{getSource}</div>
-                        </span>
-                    </template>
-                </div>
-            </lightning-layout-item>
-
-            <!--https://developer.salesforce.com/docs/component-library/bundle/lightning-tree/example-->
-            <!-- <template for:each={lightningComponentBundles} for:item="component">
-            <lightning-layout-item
-                size="3"
-                key={component.id}
-                padding="around-small"
-            >
-                <lightning-card
-                    class="fileCard"
-                    variant="narrow"
-                    title={component.DeveloperName}
-                    data-id={component.id}
-                    data-exposed={component.IsExposed}
-                    onclick={compSelected}
-                >
-                </lightning-card>
-            </lightning-layout-item>
-        </template>-->
         </lightning-layout>
     </template>
 </template>

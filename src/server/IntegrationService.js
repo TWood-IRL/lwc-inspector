@@ -1,5 +1,4 @@
 //Contain all our methods for the application ie. get bundles.. get resources etc .
-//const jsforce = require('jsforce');
 
 const axios = require('axios');
 //Possible query for contents.. would have to then check on the client
