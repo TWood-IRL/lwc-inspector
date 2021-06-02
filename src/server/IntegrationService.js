@@ -1,5 +1,4 @@
 //Contain all our methods for the application ie. get bundles.. get resources etc .
-//const jsforce = require('jsforce');
 
 const axios = require('axios');
 //Possible query for contents.. would have to then check on the client
@@ -12,27 +11,6 @@ module.exports = class IntegrationService {
     constructor(logger, authService) {
         this.logger = logger;
         this.authService = authService;
-    }
-
-    /**
-     * Runs an SOQL query on Salesforce
-     * @param {jsforce.Connection} conn - jsforce Connection
-     * @param {string} soqlQuery - SOQL query
-     * @returns {Promise<Array>} Promise holding an Array of records returned by SOQL query
-     */
-    _runSoql(conn, soqlQuery) {
-        return new Promise((resolve, reject) => {
-            conn.tooling.query(soqlQuery, (error, result) => {
-                if (error) {
-                    this.logger.error(
-                        `Failed to run SOQL query: ${soqlQuery}`,
-                        error
-                    );
-                    reject(error);
-                }
-                resolve(result.records);
-            });
-        });
     }
     _performGet(urlOptions) {
         //using https://github.com/axios/axios#features
@@ -84,7 +62,7 @@ module.exports = class IntegrationService {
                         return {
                             id: componentBundle.Id,
                             label: componentBundle.DeveloperName,
-                            name: idx,//will use this to get the bundle info for items
+                            name: idx, //will use this to get the bundle info for items
                             href: `#${componentBundle.DeveloperName}`,
                             items: [],
                             expanded: false,
@@ -137,10 +115,10 @@ module.exports = class IntegrationService {
                     return {
                         id: component.Id,
                         Source: component.Source,
-                        name: component.Id, 
+                        name: component.Id,
                         href: `#${component.FilePath}`,
-                        expanded:true,
-                        items: [] , 
+                        expanded: true,
+                        items: [],
                         label: component.FilePath
                             ? component.FilePath
                             : component.DefType, //null for aura use defType

@@ -15,14 +15,6 @@ const showToast = (title, message) => {
         composed: true,
         detail: toastNotification
     });
-
-    /* this.dispatchEvent(
-        new CustomEvent('loading', {
-            bubbles: true,
-            composed: true,
-            detail: toastNotification
-        })
-    ); */
 };
 
 export { fireLoading, showToast };

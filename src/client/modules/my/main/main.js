@@ -32,7 +32,7 @@ export default class Main extends LightningElement {
         return !!this.loggedInUser;
     }
     get getUsername() {
-        return (this.loggedInUser.username) ? this.loggedInUser.username : '' ;
+        return this.loggedInUser.username ? this.loggedInUser.username : '';
     }
 
     setDisplayInputs() {
@@ -49,7 +49,7 @@ export default class Main extends LightningElement {
         setSessionInformation(inputs).then((res) => {
             console.log(res);
             this.loading = false;
-            window.location.reload(); //reload
+            window.location.reload();
         });
     }
     toggleLoading(event) {

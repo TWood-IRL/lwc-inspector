@@ -44,7 +44,7 @@ const LABELS = {
             Once this information is provided your current session information is used to authenticate requests using the existing salesforce tooling api. 
             These requests then are returned and manipulated to display on screen correctly.
             Information pertaining your salesforce organization is not stored within the app
-            Feel free to checkout the source code included in the footer`
+            Feel free to checkout the source code included in github`
         }
     ],
     ABOUT_LINKS: [

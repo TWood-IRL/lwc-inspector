@@ -16,6 +16,8 @@ div.sourceCode {
 }
 .component-tree {
     background-color: white;
+}
+.source-viewer {
+    max-height: 80vh;
     overflow-y: auto;
-    height: 80vh;
 }
