@@ -8,3 +8,13 @@
     color: #5c5c5c;
     border-bottom: 1px solid #e3e6ec;
 }
+
+.slds-tree_container {
+    padding-bottom: 0.5rem;
+}
+
+.slds-tree__group-header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
