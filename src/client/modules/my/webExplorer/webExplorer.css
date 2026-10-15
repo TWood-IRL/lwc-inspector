@@ -40,6 +40,10 @@
     padding: 3.5rem 1rem;
     text-align: center;
 }
+.empty-icon {
+    margin-bottom: 0.75rem;
+    color: var(--lwci-border, #c9ced6);
+}
 .empty-title {
     margin-bottom: 0.25rem;
     font-size: 1.125rem;
@@ -58,6 +62,9 @@
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 }
 .editor-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     display: flex;
     align-items: stretch;
     justify-content: space-between;
@@ -114,4 +121,50 @@ my-code-viewer {
     display: flex;
     flex: 1;
     min-height: 0;
+}
+
+.editor-button {
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+.editor-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.editor-button-done,
+.editor-button-done:hover {
+    border-color: #2e844a;
+    background: rgba(46, 132, 74, 0.25);
+    color: #cdefc4;
+}
+.tab {
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease;
+}
+.search-card {
+    border-top: 3px solid var(--lwci-brand, #0176d3);
+}
+
+@media (max-width: 48rem) {
+    .panes {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+    .pane-tree,
+    .pane-source {
+        flex: none;
+        width: 100%;
+    }
+    .pane-tree .pane {
+        max-height: 14rem;
+        min-height: 0;
+    }
+    .editor {
+        height: 70vh;
+    }
+    .search-card {
+        padding: 1rem;
+    }
 }
