@@ -3,83 +3,79 @@
     "description": "My amazing LWC app",
     "version": "0.0.1",
     "author": "Thomas Woodhouse",
-    "bugs": "https://github.com/Thomas Woodhouse/lwc-inspector/issues",
+    "bugs": "https://github.com/londoner1234/lwc-inspector/issues",
     "dependencies": {
-        "@analytics/google-tag-manager": "^0.4.0",
-        "@salesforce-ux/design-system": "^2.13.7",
-        "analytics": "^0.6.4",
-        "axios": "^0.21.1",
-        "compression": "^1.7.4",
-        "crypto": "^1.0.1",
-        "dotenv": "^8.2.0",
-        "express": "^4.17.1",
-        "express-session": "^1.17.1",
+        "@analytics/google-tag-manager": "^0.6.0",
+        "analytics": "^0.8.19",
+        "axios": "^1.13.0",
+        "compression": "^1.8.0",
+        "dotenv": "^17.0.0",
+        "express": "^5.1.0",
+        "express-session": "^1.18.0",
         "file-saver": "^2.0.5",
-        "helmet": "^4.2.0",
-        "https": "^1.0.0",
-        "jsforce": "^1.10.1",
-        "jszip": "^3.5.0",
-        "lightning-base-components": "^1.11.1-alpha",
-        "winston": "^3.3.3"
+        "helmet": "^8.1.0",
+        "jsforce": "^3.10.0",
+        "jszip": "^3.10.1",
+        "winston": "^3.17.0"
     },
     "devDependencies": {
-        "eslint": "^7.17.0",
-        "husky": "^4.3.6",
-        "lint-staged": "^10.5.3",
-        "lwc-services": "^2.3.0",
-        "npm-run-all": "^4.1.5",
-        "prettier": "^2.2.1"
+        "@lwc/engine-dom": "^9.5.1",
+        "@lwc/eslint-plugin-lwc": "^3.5.0",
+        "@lwc/jest-preset": "^19.6.1",
+        "@lwc/rollup-plugin": "^9.5.1",
+        "@lwc/synthetic-shadow": "^9.5.1",
+        "@lwc/wire-service": "^9.5.1",
+        "@rollup/plugin-commonjs": "^29.0.3",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup/plugin-replace": "^6.0.3",
+        "@rollup/plugin-terser": "^1.0.0",
+        "@salesforce-ux/design-system": "^2.264.1",
+        "@salesforce/eslint-config-lwc": "^4.1.2",
+        "eslint": "^9.39.5",
+        "eslint-plugin-inclusive-language": "^2.2.1",
+        "husky": "^9.1.7",
+        "jest": "^30.5.2",
+        "jest-environment-jsdom": "^30.5.2",
+        "lightning-base-components": "^1.28.19-alpha",
+        "lint-staged": "^17.6.0",
+        "lwc": "^9.5.1",
+        "npm-run-all2": "^8.0.4",
+        "prettier": "^3.9.10",
+        "rollup": "^4.64.7"
     },
     "engines": {
-        "node": ">=10.13.0",
-        "npm": ">=6.4.1",
-        "yarn": ">=1.9.4"
+        "node": ">=20"
     },
     "homepage": "https://github.com/londoner1234/lwc-inspector",
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "keywords": [
         "lwc"
     ],
     "license": "MIT",
     "lint-staged": {
-        "**/*.{css,html,js,json,md,ts,yaml,yml}": [
+        "**/*.{css,html,js,json,md,yaml,yml}": [
             "prettier --write"
         ],
-        "./src/**/*.js": [
+        "src/**/*.js": [
             "eslint"
         ]
     },
-    "nodemonConfig": {
-        "watch": [
-            "src/server/**/*.js"
-        ],
-        "ext": "js",
-        "ignore": [
-            "src/**/*.spec.js",
-            "src/**/*.test.js"
-        ],
-        "exec": "node ./src/server/api.js"
-    },
-    "repository": "Thomas Woodhouse/lwc-inspector",
+    "repository": "londoner1234/lwc-inspector",
     "scripts": {
-        "build": "lwc-services build -m production",
-        "build:development": "lwc-services build",
-        "lint": "eslint ./src/**/*.js",
-        "prettier": "prettier --write \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
-        "prettier:verify": "prettier --list-different \"**/*.{css,html,js,json,md,ts,yaml,yml}\"",
-        "serve": "npm run serve:api",
+        "build": "rollup -c --environment NODE_ENV:production",
+        "build:development": "rollup -c",
+        "lint": "eslint src scripts",
+        "prettier": "prettier --write \"**/*.{css,html,js,json,md,yaml,yml}\"",
+        "prettier:verify": "prettier --list-different \"**/*.{css,html,js,json,md,yaml,yml}\"",
+        "serve": "node src/server/api.js",
         "serve:api": "node src/server/api.js",
         "serve:client": "node scripts/server.js",
-        "test:unit": "lwc-services test:unit",
-        "test:unit:coverage": "lwc-services test:unit --coverage",
-        "test:unit:debug": "lwc-services test:unit --debug",
-        "test:unit:watch": "lwc-services test:unit --watch",
-        "watch": "run-p  watch:client watch:server",
-        "watch:client": "lwc-services watch",
-        "watch:server": "nodemon"
+        "test:unit": "jest",
+        "test:unit:coverage": "jest --coverage",
+        "test:unit:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand",
+        "test:unit:watch": "jest --watch",
+        "watch": "run-p watch:client watch:server",
+        "watch:client": "rollup -c -w",
+        "watch:server": "node --watch-path=src/server src/server/api.js",
+        "prepare": "husky"
     }
 }

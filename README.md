@@ -24,11 +24,15 @@ https://lwc-inspector-staging.herokuapp.com/
 
 ## How to start?
 
-Start simple by running `yarn watch` (or `npm run watch`, if you set up the project with `npm`). This will start the project with a local development server.
+Requires Node 20 or newer.
 
-The source files are located in the [`src`](./src) folder. All web components are within the [`src/client/modules`](./src/modules) folder. The folder hierarchy also represents the naming structure of the web components. The entry file for the custom Express configuration can be found in the ['src/server'](./src/server) folder.
+1. `npm install`
+2. Create a `.env` file with `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_CALLBACK_URL`, `LOGIN_URL_PROD`, `LOGIN_URL_SANDBOX` and `NODE_SESSION_SECRET_KEY`.
+3. `npm run watch` rebuilds the client with Rollup and runs the API server on http://localhost:3002.
 
-Find more information on the main repo on [GitHub](https://github.com/muenzpraeger/create-lwc-app).
+Other scripts: `npm run build` (production bundle into `dist`), `npm start`-style serving via `npm run serve`, `npm run test:unit`, `npm run lint`.
+
+Web components live in [`src/client/modules`](./src/client/modules); the Express API is in [`src/server`](./src/server). The client is built with Rollup and `@lwc/rollup-plugin` (see `rollup.config.mjs`).
 
 # License
 

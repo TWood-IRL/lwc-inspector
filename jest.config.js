@@ -1,9 +1,10 @@
-// You only need this file
-// - if you want to customize your Jest environment
-// - if you want to use Jest i. e. from a Visual Studio Code extension
-const { jestConfig } = require('lwc-services/lib/config/jestConfig');
-
 module.exports = {
-    ...jestConfig
-    // Add your custom Jest configuration
+    preset: '@lwc/jest-preset',
+    moduleNameMapper: {
+        // Keep in sync with the module list in rollup.config.mjs
+        '^(my|data|c)/(.+)$': '<rootDir>/src/client/modules/$1/$2/$2',
+        // lightning-base-components ships untranspiled ESM, so stub it in unit tests
+        '^lightning/(.+)$': '<rootDir>/jest-mocks/lightningStub.js'
+    },
+    testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/']
 };
