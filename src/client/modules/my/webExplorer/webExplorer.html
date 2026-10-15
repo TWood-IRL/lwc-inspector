@@ -1,5 +1,5 @@
 <template>
-    <section class="explorer">
+    <section class={explorerClass}>
         <div class="slds-card search-card">
             <div class="search-row">
                 <div class="search-input">
@@ -23,7 +23,39 @@
                     label="Search"
                     onclick={executeSearch}
                 ></lightning-button>
+                <lightning-button-icon
+                    class="refresh-button"
+                    icon-name="utility:refresh"
+                    alternative-text="Refresh components"
+                    title="Refresh (bypass cache)"
+                    disabled={refreshDisabled}
+                    onclick={handleRefresh}
+                ></lightning-button-icon>
             </div>
+            <p lwc:if={freshnessLabel} class="freshness" aria-live="polite">
+                {freshnessLabel}
+            </p>
+            <div lwc:if={offline} class="offline-banner" role="status">
+                You are offline. Showing cached data where available.
+            </div>
+        </div>
+
+        <div lwc:if={showSkeleton} class="panes">
+            <div class="pane-tree">
+                <div class="slds-card pane component-tree">
+                    <my-skeleton variant="tree" rows="10"></my-skeleton>
+                </div>
+            </div>
+            <div class="pane-source">
+                <my-skeleton variant="code" rows="12"></my-skeleton>
+            </div>
+        </div>
+        <div lwc:if={showLoadError} class="slds-card">
+            <my-error-state
+                title="Unable to load components"
+                message={loadError}
+                onretry={handleRetry}
+            ></my-error-state>
         </div>
 
         <my-recent-chips
@@ -33,8 +65,47 @@
             onclear={handleRecentsClear}
         ></my-recent-chips>
 
+        <div lwc:if={isComponents} class="layout-bar">
+            <button
+                lwc:if={showTreeToggle}
+                type="button"
+                class="layout-button"
+                aria-expanded={treeExpanded}
+                aria-label={treeToggleLabel}
+                title={treeToggleLabel}
+                onclick={handleTreeToggle}
+            >
+                <svg
+                    class={chevronClass}
+                    viewBox="0 0 20 20"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M12.5 4.5L7 10l5.5 5.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+                </svg>
+                <span>Tree</span>
+            </button>
+            <button
+                type="button"
+                class="layout-button"
+                aria-pressed={isFocusMode}
+                title={focusTitle}
+                onclick={handleFocusToggle}
+            >
+                {focusLabel}
+            </button>
+        </div>
+
         <div lwc:if={isComponents} class="panes">
-            <div class="pane-tree">
+            <div class={treeClass} style={treeStyle}>
                 <div class="slds-card pane component-tree">
                     <h2 class="list-header">{listHeader}</h2>
                     <ul class="component-list">
@@ -61,8 +132,29 @@
                     </ul>
                 </div>
             </div>
+            <my-splitter
+                lwc:if={showSplitter}
+                value={treeWidth}
+                min={minTreeWidth}
+                max={maxTreeWidthValue}
+                onresize={handleSplitterResize}
+                onreset={handleSplitterReset}
+            ></my-splitter>
             <div class="pane-source">
-                <div lwc:if={isTypeSource} class="editor">
+                <my-skeleton
+                    lwc:if={loadingItems}
+                    variant="code"
+                    rows="12"
+                    label="Loading component files"
+                ></my-skeleton>
+                <div lwc:elseif={itemError} class="slds-card pane">
+                    <my-error-state
+                        title="Unable to load component files"
+                        message={itemError}
+                        onretry={handleItemRetry}
+                    ></my-error-state>
+                </div>
+                <div lwc:elseif={isTypeSource} class="editor">
                     <div class="editor-bar">
                         <div
                             class="tabs"
@@ -87,6 +179,15 @@
                             </template>
                         </div>
                         <div class="editor-actions">
+                            <button
+                                type="button"
+                                class="editor-button compare-button"
+                                title="Compare two files"
+                                aria-pressed={comparing}
+                                onclick={handleCompare}
+                            >
+                                Compare
+                            </button>
                             <button
                                 type="button"
                                 class={copyClass}
@@ -121,11 +222,19 @@
                             </button>
                         </div>
                     </div>
+                    <my-diff-view
+                        lwc:if={comparing}
+                        files={compareFiles}
+                        initial-left={selectedFileName}
+                        onexit={handleCompareExit}
+                    ></my-diff-view>
                     <my-component-insights
+                        lwc:if={viewing}
                         files={insightFiles}
                         oninsightselect={handleInsightSelect}
                     ></my-component-insights>
                     <my-code-viewer
+                        lwc:if={viewing}
                         code={getSource}
                         file-name={getSourceLabel}
                         format={getSourceFormat}

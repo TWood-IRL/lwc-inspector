@@ -20,9 +20,18 @@ export default class Header extends LightningElement {
             this.theme = theme;
             applyTheme(theme);
         });
+        // The command palette can switch theme too
+        this._onThemeChanged = (event) => {
+            this.theme = event.detail.theme;
+        };
+        document.addEventListener('lwci:theme-changed', this._onThemeChanged);
     }
 
     disconnectedCallback() {
+        document.removeEventListener(
+            'lwci:theme-changed',
+            this._onThemeChanged
+        );
         if (this.unwatch) {
             this.unwatch();
             this.unwatch = undefined;

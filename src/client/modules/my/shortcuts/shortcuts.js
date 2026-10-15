@@ -8,6 +8,7 @@ import { LightningElement } from 'lwc';
  *   lwci:prev-tab      '['  previous file tab in the open component
  *   lwci:next-tab      ']'  next file tab in the open component
  *   lwci:copy-source   'c'  copy the current source
+ *   lwci:toggle-focus  'f'  toggle focus mode (hide chrome, widen source)
  * '?' toggles the cheat-sheet dialog owned by this module.
  */
 export const SHORTCUTS = [
@@ -19,6 +20,8 @@ export const SHORTCUTS = [
     { key: '[', description: 'Previous file tab', event: 'lwci:prev-tab' },
     { key: ']', description: 'Next file tab', event: 'lwci:next-tab' },
     { key: 'c', description: 'Copy current source', event: 'lwci:copy-source' },
+    { key: 'f', description: 'Toggle focus mode', event: 'lwci:toggle-focus' },
+    { key: 'Ctrl/Cmd+K', description: 'Open command palette' },
     { key: '?', description: 'Show or hide this help' },
     { key: 'Esc', description: 'Close this help' }
 ];
@@ -50,10 +53,13 @@ export default class Shortcuts extends LightningElement {
     connectedCallback() {
         this._onKeydown = (event) => this.handleKeydown(event);
         document.addEventListener('keydown', this._onKeydown);
+        this._onShow = () => !this.open && this.openHelp();
+        document.addEventListener('lwci:show-shortcuts', this._onShow);
     }
 
     disconnectedCallback() {
         document.removeEventListener('keydown', this._onKeydown);
+        document.removeEventListener('lwci:show-shortcuts', this._onShow);
     }
 
     renderedCallback() {

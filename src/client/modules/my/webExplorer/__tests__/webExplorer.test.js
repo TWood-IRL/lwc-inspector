@@ -1,5 +1,6 @@
 import { createElement } from 'lwc';
 import WebExplorer from 'my/webExplorer';
+import { clearCache } from 'data/dataService';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -19,6 +20,7 @@ const bundle = (name, idx) => ({
 });
 
 describe('my-web-explorer', () => {
+    beforeEach(() => clearCache());
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
@@ -192,5 +194,218 @@ describe('my-web-explorer', () => {
                 element.shadowRoot.querySelector('my-code-viewer').code
             ).toBe('a');
         });
+
+        describe('command palette bridge', () => {
+            it('answers lwci:palette-request with bundles and open files', async () => {
+                mockApi([bundle('accountCard', 0), bundle('caseTimeline', 1)]);
+                window.history.replaceState(
+                    null,
+                    '',
+                    '/#/lwc/accountCard/accountCard.html'
+                );
+                const element = await create();
+                await flushPromises();
+                const respond = jest.fn();
+
+                document.dispatchEvent(
+                    new CustomEvent('lwci:palette-request', {
+                        detail: { respond }
+                    })
+                );
+
+                expect(respond).toHaveBeenCalledWith({
+                    bundles: [
+                        { label: 'accountCard', type: 'lwcComps' },
+                        { label: 'caseTimeline', type: 'lwcComps' }
+                    ],
+                    files: [
+                        {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.js'
+                        },
+                        {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.html'
+                        }
+                    ],
+                    canCopySource: true
+                });
+                document.body.removeChild(element);
+            });
+
+            it('opens a target on lwci:open-target', async () => {
+                mockApi([bundle('accountCard', 0)]);
+                const element = await create();
+
+                document.dispatchEvent(
+                    new CustomEvent('lwci:open-target', {
+                        detail: {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.html'
+                        }
+                    })
+                );
+                await flushPromises();
+                await flushPromises();
+
+                expect(
+                    element.shadowRoot.querySelector('my-code-viewer').code
+                ).toBe('b');
+            });
+        });
+    });
+});
+
+describe('my-web-explorer data loading', () => {
+    beforeEach(() => {
+        clearCache();
+        Object.defineProperty(navigator, 'onLine', {
+            value: true,
+            configurable: true
+        });
+    });
+    afterEach(() => {
+        while (document.body.firstChild) {
+            document.body.removeChild(document.body.firstChild);
+        }
+        delete global.fetch;
+    });
+
+    const make = () => {
+        const element = createElement('my-web-explorer', { is: WebExplorer });
+        document.body.appendChild(element);
+        return element;
+    };
+    const failing = (status) => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: false,
+                status,
+                json: () => Promise.resolve({})
+            })
+        );
+    };
+
+    it('shows skeleton loaders until the first load finishes', async () => {
+        let resolve;
+        global.fetch = jest.fn(
+            () =>
+                new Promise((r) => {
+                    resolve = r;
+                })
+        );
+
+        const element = make();
+        await Promise.resolve();
+
+        expect(element.shadowRoot.querySelectorAll('my-skeleton').length).toBe(
+            2
+        );
+        expect(element.shadowRoot.querySelector('c-tree')).toBeNull();
+
+        resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: [bundle('a', 0)] })
+        });
+        await flushPromises();
+
+        expect(element.shadowRoot.querySelector('my-skeleton')).toBeNull();
+        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+    });
+
+    it('shows an error state with Retry that reloads, instead of only a toast', async () => {
+        failing(404);
+        const element = make();
+        await flushPromises();
+
+        const error = element.shadowRoot.querySelector('my-error-state');
+        expect(error).not.toBeNull();
+        expect(error.message).toBe('Request failed (404)');
+        expect(element.shadowRoot.querySelector('my-skeleton')).toBeNull();
+
+        mockBundles([bundle('a', 0)]);
+        error.dispatchEvent(new CustomEvent('retry'));
+        await flushPromises();
+
+        expect(element.shadowRoot.querySelector('my-error-state')).toBeNull();
+        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+    });
+
+    it('shows the freshness label and refresh bypasses the cache', async () => {
+        mockBundles([bundle('a', 0)]);
+        const element = make();
+        await flushPromises();
+
+        expect(element.shadowRoot.querySelector('.freshness').textContent).toBe(
+            'Updated just now'
+        );
+
+        mockBundles([bundle('a', 0), bundle('b', 1)]);
+        element.shadowRoot.querySelector('.refresh-button').click();
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalledTimes(1); // the new mock
+        expect(element.shadowRoot.querySelector('c-tree').header).toBe(
+            'Components (2)'
+        );
+    });
+
+    it('serves a second mount from cache without a request', async () => {
+        mockBundles([bundle('a', 0)]);
+        make();
+        await flushPromises();
+        const second = make();
+        await flushPromises();
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(second.shadowRoot.querySelector('c-tree')).not.toBeNull();
+    });
+
+    it('shows an offline banner and hides it when back online', async () => {
+        mockBundles([bundle('a', 0)]);
+        const element = make();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.offline-banner')).toBeNull();
+
+        window.dispatchEvent(new CustomEvent('offline'));
+        await Promise.resolve();
+        expect(
+            element.shadowRoot.querySelector('.offline-banner')
+        ).not.toBeNull();
+        // cached data stays browsable
+        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+
+        window.dispatchEvent(new CustomEvent('online'));
+        await Promise.resolve();
+        expect(element.shadowRoot.querySelector('.offline-banner')).toBeNull();
+    });
+
+    it('starts with the banner when the page loads offline', async () => {
+        Object.defineProperty(navigator, 'onLine', { value: false });
+        mockBundles([bundle('a', 0)]);
+        const element = make();
+        await flushPromises();
+
+        expect(
+            element.shadowRoot.querySelector('.offline-banner')
+        ).not.toBeNull();
+    });
+
+    it('retries automatically when connectivity returns after a failed load', async () => {
+        failing(404);
+        const element = make();
+        await flushPromises();
+        expect(
+            element.shadowRoot.querySelector('my-error-state')
+        ).not.toBeNull();
+
+        mockBundles([bundle('a', 0)]);
+        window.dispatchEvent(new CustomEvent('online'));
+        await flushPromises();
+
+        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
     });
 });

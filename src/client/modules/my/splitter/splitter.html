@@ -1,0 +1,22 @@
+<template>
+    <div
+        class={className}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={label}
+        aria-valuenow={value}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-disabled={ariaDisabled}
+        tabindex={tabIndexValue}
+        title="Drag to resize, double-click to reset"
+        onpointerdown={handlePointerDown}
+        onpointermove={handlePointerMove}
+        onpointerup={handlePointerUp}
+        onpointercancel={handlePointerCancel}
+        onkeydown={handleKeydown}
+        ondblclick={handleDoubleClick}
+    >
+        <span class="grip"></span>
+    </div>
+</template>

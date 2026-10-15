@@ -1,7 +1,8 @@
 import {
     getLightningComponentBundles,
     getLightningComponentBundleById,
-    searchLightningComponentBundle
+    searchLightningComponentBundle,
+    clearCache
 } from 'data/dataService';
 
 const mockFetch = (ok, body = { data: [] }, status = 200) => {
@@ -11,6 +12,7 @@ const mockFetch = (ok, body = { data: [] }, status = 200) => {
 };
 
 describe('dataService', () => {
+    beforeEach(() => clearCache());
     afterEach(() => {
         delete global.fetch;
     });
@@ -32,7 +34,8 @@ describe('dataService', () => {
         await searchLightningComponentBundle('lwcComps', "o'brien & co");
 
         expect(global.fetch).toHaveBeenCalledWith(
-            '/api/LightningComponents?type=lwcComps&q=o%27brien+%26+co'
+            '/api/LightningComponents?type=lwcComps&q=o%27brien+%26+co',
+            expect.any(Object)
         );
     });
 

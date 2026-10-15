@@ -2,8 +2,12 @@ import { LightningElement, api, track } from 'lwc';
 import {
     getLightningComponentBundles,
     searchLightningComponentBundle,
-    getLightningComponentBundleById
+    getLightningComponentBundleById,
+    getBundlesUpdatedAt,
+    refresh as refreshData,
+    isAbortError
 } from 'data/dataService';
+import { formatAge } from 'data/cache';
 
 import { fireLoading, showToast } from 'my/utils';
 import { LABELS } from 'data/labelService';
@@ -20,7 +24,20 @@ import { sortFiles } from './fileOrder';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
+import {
+    DEFAULT_TREE_WIDTH,
+    MIN_TREE_WIDTH,
+    clamp,
+    maxTreeWidth,
+    loadWidth,
+    saveWidth,
+    clearWidth,
+    loadCollapsed,
+    saveCollapsed
+} from 'my/layoutState';
+
 const SEARCH_DEBOUNCE_MS = 300;
+const STACKED_QUERY = '(max-width: 48rem)';
 
 export default class WebExplorer extends LightningElement {
     // @track: a component's files are filled in place once they have loaded
@@ -31,6 +48,7 @@ export default class WebExplorer extends LightningElement {
     searchContents = false;
     isSearching = false;
     copied = false;
+    _comparing = false;
     linkCopied = false;
     _recents = [];
     pendingTabFocus = null;
@@ -41,7 +59,39 @@ export default class WebExplorer extends LightningElement {
     ];
     compTypeValue = 'lwcComps';
 
+    // Workspace layout (see "Workspace layout" at the end of the class)
+    treeWidth = DEFAULT_TREE_WIDTH;
+    minTreeWidth = MIN_TREE_WIDTH;
+    treeCollapsed = false;
+    focusMode = false;
+    stacked = false;
+    resizing = false;
+
     LABELS = LABELS;
+
+    // Data loading state: errors, freshness and connectivity
+    loadError = null; // message when the bundle list failed to load
+    itemError = null; // message when a bundle's files failed to load
+    loadingItems = false;
+    refreshing = false;
+    offline = false;
+    updatedAt = null;
+    _now = Date.now();
+    _listRequest = 0; // guards against out-of-order list responses
+    _showingSearch = false;
+
+    get showSkeleton() {
+        return !this.loaded && !this.isComponents;
+    }
+    get showLoadError() {
+        return !!this.loadError && !this.isComponents;
+    }
+    get freshnessLabel() {
+        return formatAge(this.updatedAt, this._now);
+    }
+    get refreshDisabled() {
+        return this.refreshing;
+    }
 
     get isComponents() {
         return this._lightningComponentBundles.length > 0;
@@ -107,6 +157,34 @@ export default class WebExplorer extends LightningElement {
         );
     }
 
+    // --- Compare ---------------------------------------------------------
+
+    // Every file of every bundle whose source has been loaded
+    get compareFiles() {
+        return this._lightningComponentBundles.flatMap((bundle) =>
+            (bundle.items ?? [])
+                .filter((item) => item.Source !== undefined)
+                .map((item) => ({
+                    id: item.name,
+                    bundle: bundle.label,
+                    label: item.label,
+                    source: item.Source
+                }))
+        );
+    }
+    get comparing() {
+        return this._comparing && this.isTypeSource;
+    }
+    get viewing() {
+        return !this.comparing;
+    }
+    handleCompare() {
+        this._comparing = !this._comparing;
+    }
+    handleCompareExit() {
+        this._comparing = false;
+    }
+
     handleInsightSelect(event) {
         const { fileName, line } = event.detail;
         const item = this.insightFiles.find((file) => file.name === fileName);
@@ -127,6 +205,7 @@ export default class WebExplorer extends LightningElement {
             (file) => file.name === name
         );
         if (item) {
+            this._comparing = false;
             this._selectedComponentResource = item;
             this.syncHash(false);
         }
@@ -245,7 +324,7 @@ export default class WebExplorer extends LightningElement {
      */
     async openTarget(
         { type, bundle: bundleName, file },
-        { push = false } = {}
+        { push = false, force = false } = {}
     ) {
         if (type !== this.compTypeValue) {
             this.compTypeValue = type;
@@ -268,13 +347,21 @@ export default class WebExplorer extends LightningElement {
             );
             return;
         }
+        // a new selection starts without the previous one's error or spinner
+        this.itemError = null;
+        this.loadingItems = false;
         this._selectedComponentResource = null;
         this._selectedComponent = bundle;
-        if (bundle.items.length === 0) {
-            await this.loadSelectedComponentItems(bundle);
+        if (bundle.items.length === 0 || force) {
+            await this.loadSelectedComponentItems(bundle, force);
         }
         // another component may have been picked while the files were loading
         if (this._selectedComponent?.id !== bundle.id) {
+            return;
+        }
+        if (this.itemError) {
+            // the panel shows the error with a Retry, keep the selection in the URL
+            this.recordNavigation(push);
             return;
         }
         const readable = bundle.items.filter(
@@ -333,6 +420,8 @@ export default class WebExplorer extends LightningElement {
         }
         window.addEventListener('hashchange', this.handleHashChange);
         this.addShortcutListeners();
+        this.initLayout();
+        this.addConnectivityListeners();
         await this.getLightningComponents();
         if (target) {
             await this.openTarget(target);
@@ -348,11 +437,33 @@ export default class WebExplorer extends LightningElement {
             'lwci:focus-search': () => this.focusSearch(),
             'lwci:copy-source': () => this.isTypeSource && this.handleCopy(),
             'lwci:prev-tab': () => this.stepTab(-1),
-            'lwci:next-tab': () => this.stepTab(1)
+            'lwci:next-tab': () => this.stepTab(1),
+            'lwci:toggle-focus': () => this.toggleFocus(),
+            'lwci:copy-link': () => this.handleCopyLink(),
+            'lwci:open-target': (event) => this.openTarget(event.detail),
+            'lwci:palette-request': (event) =>
+                event.detail?.respond?.(this.paletteData())
         };
         Object.entries(this._shortcutHandlers).forEach(([name, fn]) =>
             document.addEventListener(name, fn)
         );
+    }
+    // Answers the command palette (see my/commandPalette)
+    paletteData() {
+        const type = this.compTypeValue;
+        const bundle = this._selectedComponent?.label;
+        return {
+            bundles: this._lightningComponentBundles.map((entry) => ({
+                label: entry.label,
+                type
+            })),
+            files: this.fileTabs.map((tab) => ({
+                type,
+                bundle,
+                file: tab.label
+            })),
+            canCopySource: this.isTypeSource
+        };
     }
     stepTab(delta) {
         const tabs = this.fileTabs;
@@ -377,25 +488,95 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
+    // Offline banner and "Updated x ago" ticker
+    addConnectivityListeners() {
+        this.offline = navigator.onLine === false;
+        window.addEventListener('online', this.handleOnline);
+        window.addEventListener('offline', this.handleOffline);
+        this._tick = setInterval(() => {
+            this._now = Date.now();
+        }, 30000);
+    }
+    handleOffline = () => {
+        this.offline = true;
+    };
+    handleOnline = () => {
+        this.offline = false;
+        if (this.loadError) {
+            this.getLightningComponents(true);
+        }
+    };
+
+    handleRefresh() {
+        this.getLightningComponents(true);
+    }
+    handleRetry() {
+        this.getLightningComponents(true);
+    }
+    handleItemRetry() {
+        const target = this.currentTarget();
+        if (target) {
+            this.openTarget(target, { force: true });
+        }
+    }
+
     showError(error) {
         this.dispatchEvent(showToast('Something went wrong', error.message));
     }
 
-    async getLightningComponents() {
-        this.dispatchEvent(fireLoading(true));
+    async getLightningComponents(force = false) {
+        const request = ++this._listRequest;
+        this.loadError = null;
+        this.refreshing = true;
+        this._showingSearch = false;
         try {
-            const resp = await getLightningComponentBundles(this.compTypeValue);
+            const resp = force
+                ? await refreshData(this.compTypeValue)
+                : await getLightningComponentBundles(this.compTypeValue, {
+                      onRevalidate: (fresh) =>
+                          this.applyRevalidated(request, fresh)
+                  });
+            if (request !== this._listRequest) {
+                return; // a newer request owns the result
+            }
             if (resp.data.length === 0) {
                 //we did not get any results
                 this.dispatchEvent(showToast('No Results Found'));
             }
+            if (force) {
+                this._selectedComponent = null;
+                this._selectedComponentResource = null;
+            }
             this._lightningComponentBundles = resp.data;
+            this.updatedAt = getBundlesUpdatedAt(this.compTypeValue);
+            this._now = Date.now();
         } catch (error) {
-            this.showError(error);
+            if (request === this._listRequest) {
+                this.loadError = error.message || 'Unable to load components';
+                if (this.isComponents) {
+                    this.showError(error);
+                }
+            }
         } finally {
-            this.loaded = true;
-            this.dispatchEvent(fireLoading(false));
+            if (request === this._listRequest) {
+                this.loaded = true;
+                this.refreshing = false;
+            }
         }
+    }
+
+    // Stale-while-revalidate: swap in fresh data unless the user is mid-task
+    applyRevalidated(request, fresh) {
+        if (
+            request !== this._listRequest ||
+            this._showingSearch ||
+            this._selectedComponent
+        ) {
+            return;
+        }
+        this._lightningComponentBundles = fresh.data;
+        this.updatedAt = getBundlesUpdatedAt(this.compTypeValue);
+        this._now = Date.now();
     }
 
     handleSearchKeyup(event) {
@@ -415,8 +596,12 @@ export default class WebExplorer extends LightningElement {
     }
 
     disconnectedCallback() {
+        this.teardownLayout();
         window.removeEventListener('hashchange', this.handleHashChange);
         clearTimeout(this.linkTimer);
+        clearInterval(this._tick);
+        window.removeEventListener('online', this.handleOnline);
+        window.removeEventListener('offline', this.handleOffline);
 
         Object.entries(this._shortcutHandlers ?? {}).forEach(([name, fn]) =>
             document.removeEventListener(name, fn)
@@ -481,10 +666,16 @@ export default class WebExplorer extends LightningElement {
                 this.dispatchEvent(showToast('No Results Found'));
                 await this.getLightningComponents();
             } else {
+                this._listRequest++; // supersedes any in-flight list load
+                this._showingSearch = true;
+                this.loadError = null;
                 this._lightningComponentBundles = resp.data;
             }
         } catch (error) {
-            this.showError(error);
+            // a superseded search is not an error, a newer one is running
+            if (!isAbortError(error)) {
+                this.showError(error);
+            }
         } finally {
             this.dispatchEvent(fireLoading(false));
         }
@@ -507,15 +698,21 @@ export default class WebExplorer extends LightningElement {
         );
     }
 
-    async loadSelectedComponentItems(bundle) {
-        this.dispatchEvent(fireLoading(true));
+    async loadSelectedComponentItems(bundle, force = false) {
+        this.itemError = null;
+        this.loadingItems = true;
         try {
-            const resp = await getLightningComponentBundleById(bundle.id);
+            const resp = await getLightningComponentBundleById(bundle.id, {
+                force
+            });
             bundle.items = sortFiles(resp.data);
         } catch (error) {
-            this.showError(error);
+            this.itemError = error.message || 'Unable to load files';
         } finally {
-            this.dispatchEvent(fireLoading(false));
+            // a newer selection owns the loading flag now
+            if (bundle.id === this._selectedComponent?.id) {
+                this.loadingItems = false;
+            }
         }
     }
 
@@ -535,5 +732,129 @@ export default class WebExplorer extends LightningElement {
             console.error('error generating zip', error);
             this.dispatchEvent(showToast('Unable to create zip file'));
         }
+    }
+
+    // --- Workspace layout: splitter, tree collapse, focus mode --------
+
+    initLayout() {
+        this.treeWidth = loadWidth();
+        this.treeCollapsed = loadCollapsed();
+        if (typeof window.matchMedia === 'function') {
+            this._mql = window.matchMedia(STACKED_QUERY);
+            this.stacked = !!this._mql.matches;
+            this._onMql = (event) => {
+                this.stacked = !!event.matches;
+            };
+            if (this._mql.addEventListener) {
+                this._mql.addEventListener('change', this._onMql);
+            }
+        }
+        this._onLayoutKeydown = (event) => {
+            if (
+                event.key === 'Escape' &&
+                this.focusMode &&
+                !event.defaultPrevented
+            ) {
+                this.setFocusMode(false);
+            }
+        };
+        this._onLayoutResize = () => {
+            // Re-clamp so a shrunk window never leaves the tree too wide
+            this.treeWidth = clamp(
+                this.treeWidth,
+                MIN_TREE_WIDTH,
+                this.maxTreeWidthValue
+            );
+        };
+        document.addEventListener('keydown', this._onLayoutKeydown);
+        window.addEventListener('resize', this._onLayoutResize);
+    }
+
+    teardownLayout() {
+        document.removeEventListener('keydown', this._onLayoutKeydown);
+        window.removeEventListener('resize', this._onLayoutResize);
+        this._mql?.removeEventListener?.('change', this._onMql);
+        document.documentElement.removeAttribute('data-focus');
+    }
+
+    get maxTreeWidthValue() {
+        const panes = this.template.querySelector('.panes');
+        return maxTreeWidth(panes ? panes.getBoundingClientRect().width : 0);
+    }
+    get treeHidden() {
+        return this.treeCollapsed || this.focusMode;
+    }
+    get showSplitter() {
+        return !this.stacked && !this.treeHidden;
+    }
+    get showTreeToggle() {
+        return !this.stacked && !this.focusMode;
+    }
+    get treeExpanded() {
+        return !this.treeCollapsed;
+    }
+    get treeToggleLabel() {
+        return this.treeCollapsed
+            ? 'Show component tree'
+            : 'Hide component tree';
+    }
+    get chevronClass() {
+        return this.treeCollapsed ? 'chevron chevron-collapsed' : 'chevron';
+    }
+    get treeStyle() {
+        if (this.stacked) return '';
+        const width = this.treeHidden ? 0 : this.treeWidth;
+        return `flex: 0 0 ${width}px; width: ${width}px;`;
+    }
+    get treeClass() {
+        let cls = 'pane-tree';
+        if (!this.stacked && this.treeHidden) cls += ' pane-tree-hidden';
+        if (this.resizing) cls += ' pane-tree-resizing';
+        return cls;
+    }
+    get explorerClass() {
+        return this.focusMode ? 'explorer explorer-focus' : 'explorer';
+    }
+    get isFocusMode() {
+        return this.focusMode;
+    }
+    get focusLabel() {
+        return this.focusMode ? 'Exit focus' : 'Focus';
+    }
+    get focusTitle() {
+        return this.focusMode ? 'Exit focus mode (Esc)' : 'Focus mode (f)';
+    }
+
+    handleSplitterResize(event) {
+        const { value, final } = event.detail;
+        this.resizing = !final;
+        this.treeWidth = clamp(value, MIN_TREE_WIDTH, this.maxTreeWidthValue);
+        if (final) saveWidth(this.treeWidth);
+    }
+
+    handleSplitterReset() {
+        this.resizing = false;
+        this.treeWidth = DEFAULT_TREE_WIDTH;
+        clearWidth();
+    }
+
+    handleTreeToggle() {
+        this.treeCollapsed = !this.treeCollapsed;
+        saveCollapsed(this.treeCollapsed);
+    }
+
+    handleFocusToggle() {
+        this.toggleFocus();
+    }
+
+    toggleFocus() {
+        this.setFocusMode(!this.focusMode);
+    }
+
+    setFocusMode(on) {
+        this.focusMode = !!on;
+        const root = document.documentElement;
+        if (this.focusMode) root.setAttribute('data-focus', 'true');
+        else root.removeAttribute('data-focus');
     }
 }

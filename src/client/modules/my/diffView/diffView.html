@@ -1,0 +1,300 @@
+<template>
+    <div
+        class="diff-root"
+        tabindex="-1"
+        role="region"
+        aria-label="Compare files"
+        onkeydown={handleKeydown}
+    >
+        <div class="toolbar">
+            <div class="picker">
+                <label class="picker-label" for="diff-left">Left</label>
+                <select
+                    id="diff-left"
+                    class="picker-select left-select"
+                    onchange={handleLeftChange}
+                >
+                    <template for:each={leftGroups} for:item="group">
+                        <optgroup key={group.key} label={group.label}>
+                            <template for:each={group.options} for:item="opt">
+                                <option
+                                    key={opt.id}
+                                    value={opt.id}
+                                    selected={opt.selected}
+                                >
+                                    {opt.label}
+                                </option>
+                            </template>
+                        </optgroup>
+                    </template>
+                </select>
+            </div>
+            <button
+                type="button"
+                class="tool-button swap-button"
+                title="Swap left and right"
+                onclick={handleSwap}
+            >
+                Swap
+            </button>
+            <div class="picker">
+                <label class="picker-label" for="diff-right">Right</label>
+                <select
+                    id="diff-right"
+                    class="picker-select right-select"
+                    onchange={handleRightChange}
+                >
+                    <template for:each={rightGroups} for:item="group">
+                        <optgroup key={group.key} label={group.label}>
+                            <template for:each={group.options} for:item="opt">
+                                <option
+                                    key={opt.id}
+                                    value={opt.id}
+                                    selected={opt.selected}
+                                >
+                                    {opt.label}
+                                </option>
+                            </template>
+                        </optgroup>
+                    </template>
+                </select>
+            </div>
+            <div class="spacer"></div>
+            <div
+                lwc:if={ready}
+                class="stats"
+                role="group"
+                aria-label={statsAria}
+            >
+                <span class="stat stat-added" aria-hidden="true"
+                    >{addedLabel}</span
+                >
+                <span class="stat stat-removed" aria-hidden="true"
+                    >{removedLabel}</span
+                >
+            </div>
+            <div class="nav" role="group" aria-label="Navigate changes">
+                <button
+                    type="button"
+                    class="tool-button prev-button"
+                    title="Previous change (p)"
+                    disabled={noChanges}
+                    onclick={handlePrev}
+                >
+                    Previous
+                </button>
+                <button
+                    type="button"
+                    class="tool-button next-button"
+                    title="Next change (n)"
+                    disabled={noChanges}
+                    onclick={handleNext}
+                >
+                    Next
+                </button>
+                <span class="nav-status" role="status" aria-live="polite"
+                    >{changeStatus}</span
+                >
+            </div>
+            <div
+                lwc:if={showModeToggle}
+                class="modes"
+                role="group"
+                aria-label="Diff layout"
+            >
+                <button
+                    type="button"
+                    class={splitClass}
+                    aria-pressed={splitPressed}
+                    onclick={handleSplit}
+                    data-mode="split"
+                >
+                    Side by side
+                </button>
+                <button
+                    type="button"
+                    class={unifiedClass}
+                    aria-pressed={unifiedPressed}
+                    onclick={handleUnified}
+                    data-mode="unified"
+                >
+                    Unified
+                </button>
+            </div>
+            <button
+                type="button"
+                class="tool-button exit-button"
+                title="Back to the viewer"
+                onclick={handleExit}
+            >
+                Exit compare
+            </button>
+        </div>
+
+        <p lwc:if={coarse} class="notice" role="status">
+            These files differ too much for a precise diff, so the changed
+            region is shown as one removal and one addition.
+        </p>
+
+        <div class="diff-body">
+            <p lwc:if={noFiles} class="message">
+                No files are loaded yet. Open a component first, then compare.
+            </p>
+            <p lwc:elseif={needsRight} class="message">
+                Choose a file for the right side to compare against.
+            </p>
+            <p lwc:elseif={identical} class="message identical" role="status">
+                The two files are identical.
+            </p>
+            <table
+                lwc:elseif={isUnified}
+                class="diff diff-unified"
+                aria-label="Unified diff"
+            >
+                <caption class="sr-only">
+                    Unified diff. Removed lines are marked with a minus sign and
+                    added lines with a plus sign.
+                </caption>
+                <colgroup>
+                    <col class="col-no" />
+                    <col class="col-no" />
+                    <col class="col-mark" />
+                    <col />
+                </colgroup>
+                <thead class="sr-only">
+                    <tr>
+                        <th scope="col">Left line</th>
+                        <th scope="col">Right line</th>
+                        <th scope="col">Change</th>
+                        <th scope="col">Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={unifiedRows} for:item="row">
+                        <tr lwc:if={row.isFold} key={row.key} class="fold-row">
+                            <td colspan="4">
+                                <button
+                                    type="button"
+                                    class="fold-button"
+                                    aria-label={row.ariaLabel}
+                                    data-id={row.foldId}
+                                    onclick={handleExpand}
+                                >
+                                    {row.label}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr
+                            lwc:else
+                            key={row.key}
+                            class={row.className}
+                            data-hunk={row.hunk}
+                            data-hunk-start={row.hunkStart}
+                        >
+                            <td class="no">{row.oldNo}</td>
+                            <td class="no">{row.newNo}</td>
+                            <td class="mark">
+                                <span aria-hidden="true">{row.mark}</span>
+                                <span class="sr-only">{row.markText}</span>
+                            </td>
+                            <td class="code">
+                                <template for:each={row.segments} for:item="seg"
+                                    ><span key={seg.key} class={seg.className}
+                                        >{seg.text}</span
+                                    ></template
+                                >
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <table
+                lwc:elseif={isSplit}
+                class="diff diff-split"
+                aria-label="Side-by-side diff"
+            >
+                <caption class="sr-only">
+                    Side-by-side diff. Removed lines are marked with a minus
+                    sign and added lines with a plus sign.
+                </caption>
+                <colgroup>
+                    <col class="col-no" />
+                    <col class="col-mark" />
+                    <col />
+                    <col class="col-no" />
+                    <col class="col-mark" />
+                    <col />
+                </colgroup>
+                <thead class="sr-only">
+                    <tr>
+                        <th scope="col">Left line</th>
+                        <th scope="col">Left change</th>
+                        <th scope="col">Left code</th>
+                        <th scope="col">Right line</th>
+                        <th scope="col">Right change</th>
+                        <th scope="col">Right code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={splitRows} for:item="row">
+                        <tr lwc:if={row.isFold} key={row.key} class="fold-row">
+                            <td colspan="6">
+                                <button
+                                    type="button"
+                                    class="fold-button"
+                                    aria-label={row.ariaLabel}
+                                    data-id={row.foldId}
+                                    onclick={handleExpand}
+                                >
+                                    {row.label}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr
+                            lwc:else
+                            key={row.key}
+                            class={row.className}
+                            data-hunk={row.hunk}
+                            data-hunk-start={row.hunkStart}
+                        >
+                            <td class={row.left.className}>
+                                <span class="no-text">{row.left.no}</span>
+                            </td>
+                            <td class={row.left.className}>
+                                <span aria-hidden="true">{row.left.mark}</span>
+                                <span class="sr-only">{row.left.markText}</span>
+                            </td>
+                            <td class={row.left.className}>
+                                <template
+                                    for:each={row.left.segments}
+                                    for:item="seg"
+                                    ><span key={seg.key} class={seg.className}
+                                        >{seg.text}</span
+                                    ></template
+                                >
+                            </td>
+                            <td class={row.right.className}>
+                                <span class="no-text">{row.right.no}</span>
+                            </td>
+                            <td class={row.right.className}>
+                                <span aria-hidden="true">{row.right.mark}</span>
+                                <span class="sr-only"
+                                    >{row.right.markText}</span
+                                >
+                            </td>
+                            <td class={row.right.className}>
+                                <template
+                                    for:each={row.right.segments}
+                                    for:item="seg"
+                                    ><span key={seg.key} class={seg.className}
+                                        >{seg.text}</span
+                                    ></template
+                                >
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

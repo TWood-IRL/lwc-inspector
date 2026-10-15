@@ -1,0 +1,19 @@
+<template>
+    <div
+        class={containerClass}
+        role="status"
+        aria-busy="true"
+        aria-live="polite"
+        aria-label={label}
+    >
+        <template for:each={lines} for:item="line">
+            <span
+                key={line.key}
+                class={line.className}
+                style={line.style}
+                aria-hidden="true"
+            ></span>
+        </template>
+        <span class="visually-hidden">{label}</span>
+    </div>
+</template>
