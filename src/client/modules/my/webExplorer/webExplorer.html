@@ -1,5 +1,5 @@
 <template>
-    <section class="explorer">
+    <section class={explorerClass}>
         <div class="slds-card search-card">
             <div class="search-row">
                 <div class="search-input">
@@ -33,8 +33,47 @@
             onclear={handleRecentsClear}
         ></my-recent-chips>
 
+        <div lwc:if={isComponents} class="layout-bar">
+            <button
+                lwc:if={showTreeToggle}
+                type="button"
+                class="layout-button"
+                aria-expanded={treeExpanded}
+                aria-label={treeToggleLabel}
+                title={treeToggleLabel}
+                onclick={handleTreeToggle}
+            >
+                <svg
+                    class={chevronClass}
+                    viewBox="0 0 20 20"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M12.5 4.5L7 10l5.5 5.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+                </svg>
+                <span>Tree</span>
+            </button>
+            <button
+                type="button"
+                class="layout-button"
+                aria-pressed={isFocusMode}
+                title={focusTitle}
+                onclick={handleFocusToggle}
+            >
+                {focusLabel}
+            </button>
+        </div>
+
         <div lwc:if={isComponents} class="panes">
-            <div class="pane-tree">
+            <div class={treeClass} style={treeStyle}>
                 <div class="slds-card pane component-tree">
                     <c-tree
                         items={components}
@@ -44,6 +83,14 @@
                     ></c-tree>
                 </div>
             </div>
+            <my-splitter
+                lwc:if={showSplitter}
+                value={treeWidth}
+                min={minTreeWidth}
+                max={maxTreeWidthValue}
+                onresize={handleSplitterResize}
+                onreset={handleSplitterReset}
+            ></my-splitter>
             <div class="pane-source">
                 <div lwc:if={isTypeSource} class="editor">
                     <div class="editor-bar">
