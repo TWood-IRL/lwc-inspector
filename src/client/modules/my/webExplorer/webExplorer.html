@@ -1,73 +1,86 @@
 <template>
-    <template lwc:if={isComponents}>
-        <lightning-layout multiple-rows>
-            <lightning-layout-item
-                size="12"
-                padding="around-small"
-                class="slds-box"
-            >
-                <lightning-layout multiple-rows>
-                    <lightning-layout-item size="12">
-                        <lightning-input
-                            label="Search"
-                            value={searchKey}
-                        ></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="12">
-                        <lightning-button
-                            label="Search"
-                            onclick={executeSearch}
-                        ></lightning-button>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="12">
-                        <lightning-radio-group
-                            label="Component Type"
-                            options={compTypes}
-                            value={compTypeValue}
-                            onchange={executeSearch}
-                        ></lightning-radio-group>
-                    </lightning-layout-item>
-                </lightning-layout>
+    <section class="explorer">
+        <div class="slds-card search-card">
+            <div class="search-row">
+                <div class="search-input">
+                    <lightning-input
+                        type="search"
+                        label="Search components"
+                        placeholder="Search by name"
+                        value={searchKey}
+                        onkeyup={handleSearchKeyup}
+                    ></lightning-input>
+                </div>
+                <lightning-radio-group
+                    label="Component type"
+                    type="button"
+                    options={compTypes}
+                    value={compTypeValue}
+                    onchange={executeSearch}
+                ></lightning-radio-group>
+                <lightning-button
+                    variant="brand"
+                    label="Search"
+                    onclick={executeSearch}
+                ></lightning-button>
+            </div>
+        </div>
 
-                <!--    
-                WIP - Seach the contents of components
-                <lightning-input
-            label="Search Contents?"
-            type="checkbox"
-            value={searchContents}
-            onchange={executeSearch}
-        ></lightning-input> -->
-            </lightning-layout-item>
-            <lightning-layout-item size="12" padding="around-small">
-                <lightning-layout multiple-rows>
-                    <lightning-layout-item size="4" padding="around-small">
-                        <div class="component-tree source-viewer">
-                            <c-tree
-                                items={components}
-                                header="Components"
-                                onselect={handleOnselect}
-                            ></c-tree>
-                        </div>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="8" padding="around-small">
-                        <div class="source-section source-viewer">
-                            <template lwc:if={isTypeSource}>
+        <div lwc:if={isComponents} class="panes">
+            <div class="pane-tree">
+                <div class="slds-card pane component-tree">
+                    <c-tree
+                        items={components}
+                        header={treeHeader}
+                        onselect={handleOnselect}
+                    ></c-tree>
+                </div>
+            </div>
+            <div class="pane-source">
+                <div class="slds-card pane">
+                    <template lwc:if={isTypeSource}>
+                        <div class="source-header">
+                            <span class="source-title" title={getSourceLabel}
+                                >{getSourceLabel}</span
+                            >
+                            <div class="source-actions">
                                 <lightning-button
                                     variant="neutral"
-                                    label="Download"
-                                    title="Download"
+                                    label="Copy"
+                                    title="Copy source to clipboard"
+                                    onclick={handleCopy}
+                                ></lightning-button>
+                                <lightning-button
+                                    variant="brand"
+                                    label="Download .zip"
+                                    title="Download the whole component"
                                     onclick={handleDownload}
                                 ></lightning-button>
-                                <br />
-                                {getSourceLabel}
-                                <span role="textbox" contenteditable>
-                                    <div class="sourceCode">{getSource}</div>
-                                </span>
-                            </template>
+                            </div>
                         </div>
-                    </lightning-layout-item>
-                </lightning-layout>
-            </lightning-layout-item>
-        </lightning-layout>
-    </template>
+                        <pre
+                            class="sourceCode"
+                            tabindex="0"
+                            aria-label="Source code"
+                        ><code>{getSource}</code></pre>
+                    </template>
+                    <template lwc:else>
+                        <div class="empty-state">
+                            <p class="empty-title">No file selected</p>
+                            <p class="slds-text-color_weak">
+                                Choose a component in the tree, then pick a file
+                                to view its source.
+                            </p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div lwc:if={showEmptyState} class="slds-card empty-state">
+            <p class="empty-title">No components found</p>
+            <p class="slds-text-color_weak">
+                Try a different search term or component type.
+            </p>
+        </div>
+    </section>
 </template>

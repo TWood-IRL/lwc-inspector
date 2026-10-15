@@ -45,8 +45,7 @@ describe('my-main', () => {
         expect(element.shadowRoot.querySelector('my-app')).not.toBeNull();
         expect(element.shadowRoot.querySelector('my-greeting')).toBeNull();
         expect(
-            element.shadowRoot.querySelector('a[href="/oauth2/logout"]')
-                .textContent
+            element.shadowRoot.querySelector('.account-bar').textContent
         ).toContain('Ada Lovelace');
     });
 

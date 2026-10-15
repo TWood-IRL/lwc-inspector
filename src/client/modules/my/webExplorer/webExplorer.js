@@ -21,6 +21,7 @@ export default class WebExplorer extends LightningElement {
     searchKey = '';
     searchContents = false;
     isSearching = false;
+    loaded = false; // true once the first request has finished, drives the empty state
     compTypes = [
         { label: 'Lightning Web Components', value: 'lwcComps' },
         { label: 'Aura Components', value: 'auraComps' }
@@ -31,6 +32,12 @@ export default class WebExplorer extends LightningElement {
 
     get isComponents() {
         return this._lightningComponentBundles.length > 0;
+    }
+    get showEmptyState() {
+        return this.loaded && !this.isComponents;
+    }
+    get treeHeader() {
+        return `Components (${this._lightningComponentBundles.length})`;
     }
     get components() {
         return this._lightningComponentBundles;
@@ -78,7 +85,23 @@ export default class WebExplorer extends LightningElement {
         } catch (error) {
             this.showError(error);
         } finally {
+            this.loaded = true;
             this.dispatchEvent(fireLoading(false));
+        }
+    }
+
+    handleSearchKeyup(event) {
+        if (event.key === 'Enter') {
+            this.executeSearch(event);
+        }
+    }
+
+    async handleCopy() {
+        try {
+            await navigator.clipboard.writeText(this.getSource);
+            this.dispatchEvent(showToast('Copied to clipboard'));
+        } catch {
+            this.dispatchEvent(showToast('Unable to copy to clipboard'));
         }
     }
 

@@ -1,51 +1,31 @@
 <template>
     <div class="about">
-        <article class="slds-card">
-            <div class="slds-card__header slds-grid">
-                <header class="slds-media slds-has-flexi-truncate">
-                    <div class="slds-media__body">
-                        <h1
-                            class="slds-card__header-title slds-text-heading_large slds-align_absolute-center"
-                        >
-                            {LABELS.HEADER}
-                        </h1>
-                    </div>
-                </header>
-            </div>
-            <div class="slds-card__body slds-card__body_inner">
-                <br />
-                <template for:each={LABELS.ABOUT_HEADERS} for:item="section">
-                    <ul
-                        key={section.KEY}
-                        class="slds-has-dividers_top-space slds-text-heading_medium slds-p-around_medium"
-                    >
-                        <li class="slds-item">{section.HEADER}</li>
-                        <ul
-                            class="slds-is-nested slds-text-body_small"
-                            style="white-space: pre-line"
-                        >
-                            {section.BODY}
-                        </ul>
-                        <br />
-                    </ul>
+        <template for:each={LABELS.ABOUT_HEADERS} for:item="section">
+            <section key={section.KEY} class="slds-card about-card">
+                <h2 class="slds-text-heading_medium about-heading">
+                    {section.HEADER}
+                </h2>
+                <template for:each={section.PARAGRAPHS} for:item="paragraph">
+                    <p key={paragraph} class="about-text">{paragraph}</p>
                 </template>
-            </div>
-            <footer class="slds-card__footer">
-                {ABOUT_REF}
-                <lightning-layout multiple-rows>
-                    <template for:each={LABELS.ABOUT_LINKS} for:item="LINK">
-                        <lightning-layout-item
-                            size="4"
-                            key={LINK.HREF}
-                            padding="around-small"
-                        >
-                            <a class="slds-text-body_small" href={LINK.HREF}
-                                >{LINK.TEXT}</a
-                            >
-                        </lightning-layout-item>
+                <ul lwc:if={section.LIST} class="slds-list_dotted about-text">
+                    <template for:each={section.LIST} for:item="entry">
+                        <li key={entry}>{entry}</li>
                     </template>
-                </lightning-layout>
-            </footer>
-        </article>
+                </ul>
+            </section>
+        </template>
+        <nav class="about-links" aria-label={LABELS.ABOUT_REF}>
+            <span class="slds-text-color_weak">{LABELS.ABOUT_REF}:</span>
+            <template for:each={LABELS.ABOUT_LINKS} for:item="LINK">
+                <a
+                    key={LINK.HREF}
+                    href={LINK.HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >{LINK.TEXT}</a
+                >
+            </template>
+        </nav>
     </div>
 </template>
