@@ -30,7 +30,7 @@
     max-height: calc(100vh - 16rem);
     overflow: auto;
     scrollbar-width: thin;
-    scrollbar-color: #c1c9d4 transparent;
+    scrollbar-color: var(--lwci-scroll, #c1c9d4) transparent;
 }
 .component-tree {
     background-color: var(--lwci-surface, #ffffff);

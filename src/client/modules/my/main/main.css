@@ -81,11 +81,11 @@
     min-width: 0;
     border-color: transparent;
     background: transparent;
-    color: var(--lwci-brand, #0176d3);
+    color: var(--lwci-link, var(--lwci-brand, #0176d3));
 }
 .login-actions .session-toggle:hover {
     box-shadow: none;
-    background: #eef4fb;
+    background: var(--lwci-hover, #eef4fb);
 }
 .session-form {
     animation: lwci-rise 0.3s ease both;
@@ -93,7 +93,7 @@
     margin: 1.75rem auto 0;
     padding: 1rem 1.25rem;
     text-align: left;
-    background: #f4f6fa;
+    background: var(--lwci-bg, #f4f6fa);
     border: 1px solid var(--lwci-border, #e3e6ec);
     border-radius: 0.5rem;
 }
