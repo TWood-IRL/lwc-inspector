@@ -182,15 +182,6 @@
                         <div class="editor-actions">
                             <button
                                 type="button"
-                                class="editor-button compare-button"
-                                title="Compare two files"
-                                aria-pressed={comparing}
-                                onclick={handleCompare}
-                            >
-                                Compare
-                            </button>
-                            <button
-                                type="button"
                                 class={copyClass}
                                 title="Copy your selection, or the whole file"
                                 onclick={handleCopy}
@@ -223,19 +214,11 @@
                             </button>
                         </div>
                     </div>
-                    <my-diff-view
-                        lwc:if={comparing}
-                        files={compareFiles}
-                        initial-left={selectedFileName}
-                        onexit={handleCompareExit}
-                    ></my-diff-view>
                     <my-component-insights
-                        lwc:if={viewing}
                         files={insightFiles}
                         oninsightselect={handleInsightSelect}
                     ></my-component-insights>
                     <my-code-viewer
-                        lwc:if={viewing}
                         code={getSource}
                         file-name={getSourceLabel}
                         format={getSourceFormat}
