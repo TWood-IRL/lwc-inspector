@@ -35,6 +35,22 @@
                     #f4f6fa;
                 -webkit-font-smoothing: antialiased;
             }
+            a:focus-visible,
+            button:focus-visible {
+                outline: 2px solid #1b96ff;
+                outline-offset: 2px;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    animation-duration: 0.01ms !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .slds-card {
+                    border-radius: 0.5rem;
+                }
+            }
             .slds-card {
                 border: 1px solid var(--lwci-border);
                 border-radius: var(--lwci-radius);
