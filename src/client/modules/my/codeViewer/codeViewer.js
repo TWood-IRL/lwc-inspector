@@ -765,6 +765,20 @@ export default class CodeViewer extends LightningElement {
         scroller.scrollLeft = 0;
     }
 
+    /**
+     * @returns {string} the text the user has selected inside the code, or ''
+     */
+    @api
+    getSelectedText() {
+        const selection = window.getSelection?.();
+        const text = selection ? selection.toString() : '';
+        const inside =
+            selection &&
+            selection.anchorNode &&
+            this.refs.code?.contains(selection.anchorNode);
+        return inside ? text : '';
+    }
+
     // Top and height of a line inside .code-area. Line height is read from the
     // rendered DOM (it depends on the font size and line height preferences),
     // never from constants; the fallback only applies where there is no layout.

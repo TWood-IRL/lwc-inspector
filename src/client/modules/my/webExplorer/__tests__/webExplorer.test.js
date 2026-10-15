@@ -43,20 +43,25 @@ describe('my-web-explorer', () => {
         expect(
             element.shadowRoot.querySelector('.empty-title').textContent
         ).toBe('No components found');
-        expect(element.shadowRoot.querySelector('c-tree')).toBeNull();
+        expect(element.shadowRoot.querySelector('.component-list')).toBeNull();
     });
 
-    it('shows the tree with a component count when components load', async () => {
+    it('lists the components with a count when they load', async () => {
         mockBundles([bundle('accountCard', 0), bundle('caseTimeline', 1)]);
 
         const element = await create();
 
-        const tree = element.shadowRoot.querySelector('c-tree');
-        expect(tree).not.toBeNull();
-        expect(tree.header).toBe('Components (2)');
+        expect(
+            element.shadowRoot.querySelector('.list-header').textContent
+        ).toBe('Components (2)');
+        expect(
+            [...element.shadowRoot.querySelectorAll('button.component')].map(
+                (button) => button.textContent.trim()
+            )
+        ).toEqual(['accountCard', 'caseTimeline']);
         expect(
             element.shadowRoot.querySelector('.empty-title').textContent
-        ).toBe('No file selected');
+        ).toBe('No component selected');
     });
 
     it('searches when Enter is pressed in the search box', async () => {
@@ -147,24 +152,26 @@ describe('my-web-explorer', () => {
             expect(toasts.some((t) => t.title === 'Component not found')).toBe(
                 true
             );
-            expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+            expect(
+                element.shadowRoot.querySelector('.component-list')
+            ).not.toBeNull();
         });
 
-        it('updates the hash and recents when a file is picked', async () => {
+        it('updates the hash and recents when a component is picked', async () => {
             mockApi([bundle('accountCard', 0)]);
             const element = await create();
 
-            element.shadowRoot
-                .querySelector('c-tree')
-                .dispatchEvent(
-                    new CustomEvent('select', { detail: { name: 0 } })
-                );
+            element.shadowRoot.querySelector('button.component').click();
             await flushPromises();
-            expect(window.location.hash).toBe('#/lwc/accountCard');
+            await flushPromises();
 
-            await flushPromises();
-            const tab = element.shadowRoot.querySelectorAll('button.tab');
-            expect(tab).toHaveLength(0);
+            // the first file (the template) opens, and the URL says so
+            expect(window.location.hash).toBe(
+                '#/lwc/accountCard/accountCard.html'
+            );
+            expect(
+                element.shadowRoot.querySelectorAll('button.tab')
+            ).toHaveLength(2);
             expect(
                 JSON.parse(localStorage.getItem('lwci.recents')).items[0].name
             ).toBe('accountCard');
