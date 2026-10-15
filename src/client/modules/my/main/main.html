@@ -25,6 +25,53 @@
         <template lwc:else>
             <section class="slds-card login-card">
                 <div class="slds-card__body slds-card__body_inner">
+                    <svg
+                        class="hero-icon"
+                        viewBox="0 0 64 64"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <defs>
+                            <linearGradient
+                                id="hero-g"
+                                x1="0"
+                                y1="0"
+                                x2="1"
+                                y2="1"
+                            >
+                                <stop offset="0" stop-color="#1b96ff"></stop>
+                                <stop offset="1" stop-color="#014486"></stop>
+                            </linearGradient>
+                        </defs>
+                        <rect
+                            width="64"
+                            height="64"
+                            rx="16"
+                            fill="url(#hero-g)"
+                        ></rect>
+                        <circle
+                            cx="27"
+                            cy="27"
+                            r="11"
+                            fill="none"
+                            stroke="#fff"
+                            stroke-width="4"
+                        ></circle>
+                        <path
+                            d="M35 35l12 12"
+                            stroke="#fff"
+                            stroke-width="4"
+                            stroke-linecap="round"
+                        ></path>
+                        <path
+                            d="M23 27l3 3 6-6"
+                            fill="none"
+                            stroke="#fff"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        ></path>
+                    </svg>
                     <p class="tagline">{LABEL.TAGLINE}</p>
                     <div class="login-actions">
                         <a
@@ -39,7 +86,7 @@
                         >
                         <button
                             type="button"
-                            class="slds-button slds-button_neutral"
+                            class="slds-button slds-button_neutral session-toggle"
                             aria-expanded={displayInputs}
                             onclick={setDisplayInputs}
                         >

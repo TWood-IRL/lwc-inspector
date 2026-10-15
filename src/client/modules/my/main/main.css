@@ -62,7 +62,33 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(1, 68, 134, 0.25);
 }
+.hero-icon {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1.25rem;
+    filter: drop-shadow(0 6px 12px rgba(1, 68, 134, 0.3));
+    animation: lwci-pop 0.5s ease both;
+}
+.login-card .login-actions {
+    animation: lwci-rise 0.45s ease 0.1s both;
+}
+.login-actions .slds-button_brand {
+    min-width: 11rem;
+    font-weight: 600;
+}
+.login-actions .session-toggle {
+    min-width: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--lwci-brand, #0176d3);
+}
+.login-actions .session-toggle:hover {
+    box-shadow: none;
+    background: #eef4fb;
+}
 .session-form {
+    animation: lwci-rise 0.3s ease both;
     max-width: 28rem;
     margin: 1.75rem auto 0;
     padding: 1rem 1.25rem;
@@ -70,4 +96,32 @@
     background: #f4f6fa;
     border: 1px solid var(--lwci-border, #e3e6ec);
     border-radius: 0.5rem;
+}
+
+@keyframes lwci-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+@keyframes lwci-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-icon,
+    .login-card .login-actions,
+    .session-form {
+        animation: none;
+    }
 }
