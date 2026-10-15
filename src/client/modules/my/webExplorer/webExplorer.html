@@ -26,6 +26,13 @@
             </div>
         </div>
 
+        <my-recent-chips
+            lwc:if={hasRecents}
+            items={recents}
+            onselect={handleRecentSelect}
+            onclear={handleRecentsClear}
+        ></my-recent-chips>
+
         <div lwc:if={isComponents} class="panes">
             <div class="pane-tree">
                 <div class="slds-card pane component-tree">
@@ -67,6 +74,14 @@
                                 onclick={handleCopy}
                             >
                                 {copyLabel}
+                            </button>
+                            <button
+                                type="button"
+                                class={copyLinkClass}
+                                title="Copy a link to this file"
+                                onclick={handleCopyLink}
+                            >
+                                {copyLinkLabel}
                             </button>
                             <button
                                 type="button"

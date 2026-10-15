@@ -68,4 +68,122 @@ describe('my-web-explorer', () => {
 
         expect(global.fetch).toHaveBeenCalledTimes(1);
     });
+
+    describe('deep links and recents', () => {
+        const files = [
+            {
+                id: 'f1',
+                name: 'f1',
+                label: 'lwc/accountCard/accountCard.js',
+                Source: 'a',
+                Format: 'js'
+            },
+            {
+                id: 'f2',
+                name: 'f2',
+                label: 'lwc/accountCard/accountCard.html',
+                Source: 'b',
+                Format: 'html'
+            }
+        ];
+        const mockApi = (data) => {
+            global.fetch = jest.fn((url) =>
+                Promise.resolve({
+                    ok: true,
+                    json: () =>
+                        Promise.resolve({
+                            data: url.includes('/api/LightningComponent/')
+                                ? files
+                                : data
+                        })
+                })
+            );
+        };
+        const toasts = [];
+        const listen = (element) =>
+            element.addEventListener('toastfired', (e) =>
+                toasts.push(e.detail)
+            );
+
+        beforeEach(() => {
+            toasts.length = 0;
+            localStorage.clear();
+            window.history.replaceState(null, '', '/');
+        });
+
+        it('restores the selection from the hash on load', async () => {
+            mockApi([bundle('accountCard', 0)]);
+            window.history.replaceState(
+                null,
+                '',
+                '/#/lwc/accountCard/accountCard.html'
+            );
+
+            const element = await create();
+            await flushPromises();
+
+            const viewer = element.shadowRoot.querySelector('my-code-viewer');
+            expect(viewer.code).toBe('b');
+            expect(
+                element.shadowRoot.querySelector(
+                    'c-recent-chips, my-recent-chips'
+                )
+            ).not.toBeNull();
+        });
+
+        it('toasts and degrades when the component is unknown', async () => {
+            mockApi([bundle('accountCard', 0)]);
+            window.history.replaceState(null, '', '/#/lwc/missing');
+            const element = createElement('my-web-explorer', {
+                is: WebExplorer
+            });
+            listen(element);
+            document.body.appendChild(element);
+            await flushPromises();
+            await flushPromises();
+
+            expect(toasts.some((t) => t.title === 'Component not found')).toBe(
+                true
+            );
+            expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        });
+
+        it('updates the hash and recents when a file is picked', async () => {
+            mockApi([bundle('accountCard', 0)]);
+            const element = await create();
+
+            element.shadowRoot
+                .querySelector('c-tree')
+                .dispatchEvent(
+                    new CustomEvent('select', { detail: { name: 0 } })
+                );
+            await flushPromises();
+            expect(window.location.hash).toBe('#/lwc/accountCard');
+
+            await flushPromises();
+            const tab = element.shadowRoot.querySelectorAll('button.tab');
+            expect(tab).toHaveLength(0);
+            expect(
+                JSON.parse(localStorage.getItem('lwci.recents')).items[0].name
+            ).toBe('accountCard');
+        });
+
+        it('reacts to hashchange', async () => {
+            mockApi([bundle('accountCard', 0)]);
+            const element = await create();
+
+            window.history.replaceState(
+                null,
+                '',
+                '/#/lwc/accountCard/accountCard.js'
+            );
+            window.dispatchEvent(new HashChangeEvent('hashchange'));
+            await flushPromises();
+            await flushPromises();
+
+            expect(
+                element.shadowRoot.querySelector('my-code-viewer').code
+            ).toBe('a');
+        });
+    });
 });
