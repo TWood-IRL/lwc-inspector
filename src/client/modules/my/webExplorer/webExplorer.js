@@ -7,6 +7,14 @@ import {
 
 import { fireLoading, showToast } from 'my/utils';
 import { LABELS } from 'data/labelService';
+import {
+    parseHash,
+    buildHash,
+    loadRecents,
+    addRecent,
+    clearRecents,
+    TYPE_TO_SLUG
+} from 'my/navState';
 //Do zipping in client
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -22,6 +30,8 @@ export default class WebExplorer extends LightningElement {
     searchContents = false;
     isSearching = false;
     copied = false;
+    linkCopied = false;
+    _recents = [];
     loaded = false; // true once the first request has finished, drives the empty state
     compTypes = [
         { label: 'Lightning Web Components', value: 'lwcComps' },
@@ -83,11 +93,164 @@ export default class WebExplorer extends LightningElement {
         );
         if (item) {
             this._selectedComponentResource = item;
+            this.syncHash(false);
         }
     }
 
-    connectedCallback() {
-        this.getLightningComponents();
+    // --- Deep links and recents ---------------------------------------
+
+    get hasRecents() {
+        return this._recents.length > 0;
+    }
+    get recents() {
+        return this._recents;
+    }
+
+    // Last path segment of a file label ("lwc/myComp/myComp.js" -> "myComp.js")
+    fileSlug(item) {
+        return item.label.split('/').pop();
+    }
+
+    currentTarget() {
+        const bundle = this._selectedComponent;
+        if (!bundle) {
+            return null;
+        }
+        const file = this._selectedComponentResource;
+        return {
+            type: this.compTypeValue,
+            bundle: bundle.label,
+            file: file ? this.fileSlug(file) : null
+        };
+    }
+
+    // Mirrors the selection into the URL hash (pushState for a new
+    // component, replaceState for tab switches). Never fires hashchange.
+    syncHash(push) {
+        const hash = buildHash(this.currentTarget() ?? {});
+        if (!hash || hash === window.location.hash) {
+            return;
+        }
+        const url = `${window.location.pathname}${window.location.search}${hash}`;
+        try {
+            window.history[push ? 'pushState' : 'replaceState'](null, '', url);
+        } catch {
+            // history unavailable: deep links are best effort
+        }
+    }
+
+    recordNavigation(push) {
+        this.syncHash(push);
+        const bundle = this._selectedComponent;
+        if (bundle) {
+            this._recents = addRecent({
+                name: bundle.label,
+                label: bundle.label,
+                type: this.compTypeValue
+            });
+        }
+    }
+
+    handleHashChange = () => {
+        const target = parseHash(window.location.hash);
+        const current = this.currentTarget();
+        if (
+            target &&
+            !(
+                current &&
+                current.type === target.type &&
+                current.bundle === target.bundle &&
+                (current.file ?? null) === target.file
+            )
+        ) {
+            this.openTarget(target);
+        }
+    };
+
+    async openTarget({ type, bundle: bundleName, file }) {
+        if (type !== this.compTypeValue) {
+            this.compTypeValue = type;
+            await this.getLightningComponents();
+        }
+        const bundles = this._lightningComponentBundles;
+        const bundle = bundles.find((entry) => entry.label === bundleName);
+        if (!bundle) {
+            this.dispatchEvent(
+                showToast(
+                    'Component not found',
+                    `No ${TYPE_TO_SLUG[type]} component named ${bundleName}`
+                )
+            );
+            return;
+        }
+        if (this._selectedComponent && this._selectedComponent !== bundle) {
+            this._selectedComponent.expanded = false;
+        }
+        this._selectedComponentResource = null;
+        this._selectedComponent = bundle;
+        bundle.expanded = true;
+        if (bundle.items.length === 0) {
+            await this.loadSelectedComponentItems();
+        }
+        if (file) {
+            const item = bundle.items.find(
+                (entry) => this.fileSlug(entry) === file
+            );
+            if (item?.Source !== undefined) {
+                this._selectedComponentResource = item;
+            } else {
+                this.dispatchEvent(
+                    showToast('File not found', `${bundleName} has no ${file}`)
+                );
+            }
+        }
+        this.refreshBundles();
+        this.recordNavigation(false);
+    }
+
+    handleRecentSelect(event) {
+        const { name, type } = event.detail;
+        this.openTarget({ type, bundle: name, file: null });
+    }
+
+    handleRecentsClear() {
+        this._recents = clearRecents();
+    }
+
+    async handleCopyLink() {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            this.linkCopied = true;
+            clearTimeout(this.linkTimer);
+            this.linkTimer = setTimeout(() => {
+                this.linkCopied = false;
+            }, 1500);
+            this.dispatchEvent(showToast('Link copied to clipboard'));
+        } catch {
+            this.dispatchEvent(showToast('Unable to copy link'));
+        }
+    }
+
+    get copyLinkLabel() {
+        return this.linkCopied ? 'Link copied!' : 'Copy link';
+    }
+    get copyLinkClass() {
+        return this.linkCopied
+            ? 'editor-button editor-button-done'
+            : 'editor-button';
+    }
+
+    async connectedCallback() {
+        this._recents = loadRecents();
+        const target = parseHash(window.location.hash);
+        if (target) {
+            this.compTypeValue = target.type;
+        }
+        window.addEventListener('hashchange', this.handleHashChange);
+        await this.getLightningComponents();
+        if (target) {
+            await this.openTarget(target);
+        }
     }
 
     compSelected(event) {
@@ -141,6 +304,8 @@ export default class WebExplorer extends LightningElement {
     }
 
     disconnectedCallback() {
+        window.removeEventListener('hashchange', this.handleHashChange);
+        clearTimeout(this.linkTimer);
         clearTimeout(this.copyTimer);
     }
 
@@ -176,6 +341,7 @@ export default class WebExplorer extends LightningElement {
         const compTypeValue = this.template.querySelector(
             'lightning-radio-group'
         ).value;
+        this.compTypeValue = compTypeValue;
         this.dispatchEvent(fireLoading(true));
         try {
             const resp = await searchLightningComponentBundle(
@@ -226,6 +392,7 @@ export default class WebExplorer extends LightningElement {
             } else {
                 this.refreshBundles();
             }
+            this.recordNavigation(true);
         } else if (Array.isArray(indxPos)) {
             // a file inside a bundle
             const [bundleIdx, fileIdx] = indxPos;
@@ -235,6 +402,7 @@ export default class WebExplorer extends LightningElement {
             this._selectedComponentResource =
                 this._selectedComponent.items[fileIdx];
             this.refreshBundles();
+            this.recordNavigation(false);
         }
     }
 

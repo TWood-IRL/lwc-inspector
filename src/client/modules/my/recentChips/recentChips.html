@@ -1,0 +1,35 @@
+<template>
+    <div
+        lwc:if={hasItems}
+        class="recents"
+        role="group"
+        aria-label="Recently viewed components"
+    >
+        <span class="recents-label">Recent</span>
+        <ul class="chips">
+            <template for:each={chips} for:item="chip">
+                <li key={chip.key}>
+                    <button
+                        type="button"
+                        class="chip"
+                        title={chip.title}
+                        data-name={chip.name}
+                        data-type={chip.type}
+                        onclick={handleChipClick}
+                    >
+                        <span class="chip-badge">{chip.badge}</span>
+                        <span class="chip-text">{chip.label}</span>
+                    </button>
+                </li>
+            </template>
+        </ul>
+        <button
+            type="button"
+            class="clear"
+            title="Clear recently viewed"
+            onclick={handleClear}
+        >
+            Clear
+        </button>
+    </div>
+</template>
