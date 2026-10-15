@@ -51,6 +51,39 @@ export default class WebExplorer extends LightningElement {
     get getSourceLabel() {
         return this._selectedComponentResource.label;
     }
+    get getSourceFormat() {
+        return this._selectedComponentResource.Format;
+    }
+    // Keeps the tree highlight in step with the open tab
+    get selectedFileName() {
+        return this._selectedComponentResource?.name;
+    }
+    // One tab per file in the open component
+    get fileTabs() {
+        const items = this._selectedComponent?.items ?? [];
+        return items
+            .filter((item) => item.Source !== undefined)
+            .map((item) => {
+                const selected = item.name === this.selectedFileName;
+                return {
+                    name: item.name,
+                    label: item.label.split('/').pop(),
+                    title: item.label,
+                    selected,
+                    className: selected ? 'tab tab-active' : 'tab'
+                };
+            });
+    }
+
+    handleTabClick(event) {
+        const { name } = event.currentTarget.dataset;
+        const item = this._selectedComponent.items.find(
+            (file) => file.name === name
+        );
+        if (item) {
+            this._selectedComponentResource = item;
+        }
+    }
 
     connectedCallback() {
         this.getLightningComponents();

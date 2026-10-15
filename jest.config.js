@@ -6,5 +6,10 @@ module.exports = {
         // lightning-base-components ships untranspiled ESM, so stub it in unit tests
         '^lightning/(.+)$': '<rootDir>/jest-mocks/lightningStub.js'
     },
-    testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/']
+    testPathIgnorePatterns: [
+        '<rootDir>/node_modules/',
+        '<rootDir>/dist/',
+        '<rootDir>/.claude/'
+    ],
+    modulePathIgnorePatterns: ['<rootDir>/.claude/']
 };

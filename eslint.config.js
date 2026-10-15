@@ -3,7 +3,15 @@ const inclusiveLanguage = require('eslint-plugin-inclusive-language');
 const globals = require('globals');
 
 module.exports = [
-    { ignores: ['dist/', 'coverage/', 'lib/', 'src/client/resources/'] },
+    {
+        ignores: [
+            'dist/',
+            'coverage/',
+            'lib/',
+            'src/client/resources/',
+            '.claude/'
+        ]
+    },
     ...lwcConfig.configs.recommended,
     {
         plugins: { 'inclusive-language': inclusiveLanguage },
