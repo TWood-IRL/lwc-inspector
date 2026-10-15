@@ -93,6 +93,10 @@
                             </button>
                         </div>
                     </div>
+                    <my-component-insights
+                        files={insightFiles}
+                        oninsightselect={handleInsightSelect}
+                    ></my-component-insights>
                     <my-code-viewer
                         code={getSource}
                         file-name={getSourceLabel}

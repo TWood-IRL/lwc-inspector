@@ -1,0 +1,116 @@
+<template>
+    <section class="insights" aria-label="Component insights">
+        <button
+            type="button"
+            class="insights-toggle"
+            aria-expanded={panelExpanded}
+            onclick={handleTogglePanel}
+        >
+            <svg
+                class={chevronClass}
+                viewBox="0 0 20 20"
+                width="14"
+                height="14"
+                aria-hidden="true"
+            >
+                <path
+                    d="M7 4l6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+            </svg>
+            <span class="insights-title">Insights</span>
+            <span class="insights-summary">{summary}</span>
+        </button>
+        <div class="insights-body" lwc:if={panelExpanded}>
+            <p lwc:if={isEmpty} class="empty">No files to analyze.</p>
+            <div lwc:else class="sections">
+                <div class="section">
+                    <button
+                        type="button"
+                        class="section-header"
+                        aria-expanded={filesExpanded}
+                        data-id="__files"
+                        onclick={handleToggleSection}
+                    >
+                        <span class="section-name">Files</span>
+                        <span class="count">{totals.files}</span>
+                    </button>
+                    <div lwc:if={filesExpanded} class="section-body">
+                        <table class="file-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col" class="num">Lines</th>
+                                    <th scope="col" class="num">KB</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={fileRows} for:item="row">
+                                    <tr key={row.name}>
+                                        <td class="file-name" title={row.label}>
+                                            {row.shortLabel}
+                                        </td>
+                                        <td class="num">{row.lines}</td>
+                                        <td class="num">{row.kb}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th scope="row">Total</th>
+                                    <td class="num">{totals.lines}</td>
+                                    <td class="num">{totals.kb}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <template for:each={viewSections} for:item="section">
+                    <div class="section" key={section.id}>
+                        <button
+                            type="button"
+                            class="section-header"
+                            aria-expanded={section.expanded}
+                            data-id={section.id}
+                            onclick={handleToggleSection}
+                        >
+                            <span class="section-name">{section.title}</span>
+                            <span class="count">{section.count}</span>
+                        </button>
+                        <ul lwc:if={section.expanded} class="chips">
+                            <template for:each={section.items} for:item="item">
+                                <li key={item.key}>
+                                    <button
+                                        type="button"
+                                        class="chip"
+                                        title={item.title}
+                                        data-file={item.file}
+                                        data-line={item.line}
+                                        onclick={handleItemClick}
+                                    >
+                                        <span class="chip-text">
+                                            {item.text}
+                                        </span>
+                                        <span
+                                            lwc:if={item.detail}
+                                            class="chip-detail"
+                                        >
+                                            {item.detail}
+                                        </span>
+                                    </button>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+                <p lwc:if={noFindings} class="empty">
+                    No API surface found in this component.
+                </p>
+            </div>
+        </div>
+    </section>
+</template>
