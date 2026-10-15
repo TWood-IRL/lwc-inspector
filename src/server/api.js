@@ -70,6 +70,9 @@ app.use(
     helmet.contentSecurityPolicy({
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            // Don't force https for subresources when running on http://localhost
+            'upgrade-insecure-requests':
+                process.env.NODE_ENV === 'production' ? [] : null,
             'script-src': [
                 "'self'",
                 "'unsafe-inline'",

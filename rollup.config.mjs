@@ -46,6 +46,8 @@ export default {
         replace({
             preventAssignment: true,
             values: {
+                // lightning-base-components uses Vite-style flags; this is a client-only build
+                'import.meta.env.SSR': 'false',
                 'process.env.NODE_ENV': JSON.stringify(
                     isProd ? 'production' : 'development'
                 )
