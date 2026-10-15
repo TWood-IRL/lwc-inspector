@@ -1,57 +1,62 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement } from 'lwc';
 import { getLoggedInUser, setSessionInformation } from 'data/authService';
 import { LABELS } from 'data/labelService';
 
 export default class Main extends LightningElement {
-    @track loggedInUser = undefined;
+    loggedInUser = undefined;
     loading = true;
     displayInputs = false;
     LABEL = LABELS;
-    lightningComponentBundles = [];
-    connectedCallback() {
-        getLoggedInUser().then((response) => {
-            if (response.user_id === undefined) {
-                this.loggedInUser = undefined;
-            } else {
-                this.loggedInUser = response;
-            }
+
+    async connectedCallback() {
+        try {
+            const response = await getLoggedInUser();
+            this.loggedInUser =
+                response.user_id === undefined ? undefined : response;
+        } catch (error) {
+            console.error('Unable to determine logged in user', error);
+            this.loggedInUser = undefined;
+        } finally {
             this.loading = false;
-        });
+        }
     }
+
     get isLoading() {
         return this.loading;
     }
+    get showGreeting() {
+        return !this.loading;
+    }
     get isLoggedIn() {
-        return this.loggedInUser;
-    }
-
-    get getName() {
-        return this.loggedInUser.display_name;
-    }
-    get getIsLoggedIn() {
         return !!this.loggedInUser;
     }
+    get getName() {
+        return this.loggedInUser?.display_name;
+    }
     get getUsername() {
-        return this.loggedInUser.username ? this.loggedInUser.username : '';
+        return this.loggedInUser?.username ?? '';
     }
 
     setDisplayInputs() {
         this.displayInputs = !this.displayInputs;
     }
 
-    setSessionInfo() {
-        let elements = this.template.querySelectorAll('lightning-input');
-        let inputs = {
-            sessionId: elements[0].value,
-            myDomainURL: elements[1].value
-        };
+    async setSessionInfo() {
+        const sessionId = this.template.querySelector(
+            '[data-id="sessionId"]'
+        ).value;
+        const myDomainURL = this.template.querySelector(
+            '[data-id="myDomainURL"]'
+        ).value;
 
-        setSessionInformation(inputs).then((res) => {
-            console.log(res);
-            this.loading = false;
+        try {
+            await setSessionInformation({ sessionId, myDomainURL });
             window.location.reload();
-        });
+        } catch (error) {
+            console.error('Unable to set session information', error);
+        }
     }
+
     toggleLoading(event) {
         event.stopPropagation();
         this.loading = event.detail.loading;

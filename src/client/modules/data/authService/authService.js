@@ -1,41 +1,19 @@
 /**
  * Gets logged in user info
- * @returns {Promise} Promise holding user info or an empty object if user is not logged in
+ * @returns {Promise<Object>} user info or an empty object if user is not logged in
  */
-export function getLoggedInUser() {
-    return new Promise((resolve, reject) => {
-        fetch('/oauth2/whoami')
-            .then((response) => {
-                if (!response.ok) {
-                    reject(response);
-                }
-                return response.json();
-            })
-            .then((jsonResponse) => resolve(jsonResponse))
-            .catch((error) => {
-                reject(error);
-            });
-    });
+export async function getLoggedInUser() {
+    const response = await fetch('/oauth2/whoami');
+    if (!response.ok) {
+        throw new Error(`Request failed (${response.status})`);
+    }
+    return response.json();
 }
-export function setSessionInformation(inputs) {
-    ///api/v1/sessionId
-    return new Promise((resolve, reject) => {
-        fetch(
-            `/api/v1/sessionId?sessionId=${inputs.sessionId}&myDomainURL=${inputs.myDomainURL}`
-        ) /* , {
-            method: 'post',
-            body: inputs
-          } */
-            .then((response) => {
-                if (!response.ok) {
-                    reject(response);
-                }
-                resolve();
-                //return response.json();
-            })
-            //  .then((responsePost) => resolve(responsePost))
-            .catch((error) => {
-                reject(error);
-            });
-    });
+
+export async function setSessionInformation({ sessionId, myDomainURL }) {
+    const params = new URLSearchParams({ sessionId, myDomainURL });
+    const response = await fetch(`/api/v1/sessionId?${params}`);
+    if (!response.ok) {
+        throw new Error(`Request failed (${response.status})`);
+    }
 }

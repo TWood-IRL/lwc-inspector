@@ -1,14 +1,14 @@
 <template>
     <div ontoastfired={handleToast}>
         <my-toast></my-toast>
-        <template if:false={isDisplayComp}>
-            <my-web-explorer onselected={setComponent}></my-web-explorer>
-        </template>
-        <template if:true={isDisplayComp}>
+        <template lwc:if={isDisplayComp}>
             <my-web-component
                 id={displayCompId}
                 onbackselected={resetId}
             ></my-web-component>
+        </template>
+        <template lwc:else>
+            <my-web-explorer onselected={setComponent}></my-web-explorer>
         </template>
     </div>
 </template>

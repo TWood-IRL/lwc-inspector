@@ -23,12 +23,10 @@ export default class cTree extends LightningElement {
     @track _selectedItem = null;
     hasDetachedListeners = true;
 
-    @api resetSelected(){
-        let tree = this.template.querySelector("c-tree-item") ; 
+    @api resetSelected() {
+        let tree = this.template.querySelector('c-tree-item');
         //reset inner tree
-        tree.resetTree();  
-     
-
+        tree.resetTree();
     }
     constructor() {
         super();
@@ -280,9 +278,8 @@ export default class cTree extends LightningElement {
             this.callbackMap[currentFocused.key].unfocusCallback();
         }
         if (item) {
-            this._currentFocusedItem = this.treedata.updateCurrentFocusedItemIndex(
-                item.index
-            );
+            this._currentFocusedItem =
+                this.treedata.updateCurrentFocusedItemIndex(item.index);
 
             if (this.callbackMap[item.parent]) {
                 this.callbackMap[item.parent].focusCallback(

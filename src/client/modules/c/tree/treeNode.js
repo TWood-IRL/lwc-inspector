@@ -37,9 +37,8 @@ export function getTreeNode(node, level, parentKey, childNum) {
         },
         focusedChild: null,
         get strexpanded() {
-            return (this.isLeaf
-                ? true
-                : this.nodeRef.expanded || false
+            return (
+                this.isLeaf ? true : this.nodeRef.expanded || false
             ).toString();
         }
     };

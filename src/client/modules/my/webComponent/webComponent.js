@@ -1,81 +1,68 @@
 /**
  * Represents the component bundle
  */
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api } from 'lwc';
 import { getLightningComponentBundleById } from 'data/dataService';
 
 //Do zipping in client
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import {  showToast } from 'my/utils';
+import { fireLoading, showToast } from 'my/utils';
 
 export default class WebComponent extends LightningElement {
     //here we'll get the information for the resource. , when clicking
 
     @api id = null;
     componentId = null;
-    @track componentBundle = []; // array of differnt components .. attributes
-    /*  
-    id: component.Id,
-                            Source: component.Source,
-                            FilePath: component.FilePath,
-                            attributes: component.attributes,
-                            Format: component.Format 
-                            */
+    // array of the bundle's files: { id, Source, FilePath, attributes, Format, Type, ComponentName }
+    componentBundle = [];
 
     connectedCallback() {
-        this.fireLoading(true);
-        if (this.id.split('-').length > 1) {
+        if (this.id) {
             this.componentId = this.id.split('-')[0];
-        } else if (this.id) {
-            this.componentId = this.id;
+            this.loadBundle();
         }
-        getLightningComponentBundleById(this.componentId).then((resp) => {
-            this.fireLoading(false);
-
-            this.componentBundle = resp.data;
-        });
     }
+
+    async loadBundle() {
+        this.dispatchEvent(fireLoading(true));
+        try {
+            const resp = await getLightningComponentBundleById(
+                this.componentId
+            );
+            this.componentBundle = resp.data;
+        } catch (error) {
+            this.dispatchEvent(
+                showToast('Unable to load component', error.message)
+            );
+        } finally {
+            this.dispatchEvent(fireLoading(false));
+        }
+    }
+
     get displayContent() {
-        return this.id === null ? false : true;
+        return this.id !== null;
     }
 
     handleBack() {
         this.dispatchEvent(new CustomEvent('backselected'));
     }
-    handleDownload() {
-        if(this.componentBundle && this.componentBundle[0] && this.componentBundle[0].Type === 'AURA')
-        {
-            this.dispatchEvent(showToast('Download not Implmented for Aura'));
-            return ; 
-        }
-        //get the component name pass to the below function
-        const zipFile = new JSZip();
-        /*  if (this.componentBundle.length > 0) {
-            console.log('Could not identify component');
+
+    async handleDownload() {
+        if (this.componentBundle[0]?.Type === 'AURA') {
+            this.dispatchEvent(showToast('Download not Implemented for Aura'));
             return;
-        } */
+        }
+        const zipFile = new JSZip();
         this.componentBundle.forEach((component) => {
             zipFile.file(component.FilePath, component.Source);
         });
-        zipFile.generateAsync({ type: 'blob' }).then(
-            (blob) => {
-                saveAs(blob, this.componentBundle[0].ComponentName);
-            },
-            (err) => {
-                console.error('error generating zip', err);
-            }
-        );
-
-        // zipLightningComponentBundle(this.componentBundle) ;
-    }
-    fireLoading(loading) {
-        this.dispatchEvent(
-            new CustomEvent('loading', {
-                bubbles: true,
-                composed: true,
-                detail: { loading: loading }
-            })
-        );
+        try {
+            const blob = await zipFile.generateAsync({ type: 'blob' });
+            saveAs(blob, this.componentBundle[0].ComponentName);
+        } catch (error) {
+            console.error('error generating zip', error);
+            this.dispatchEvent(showToast('Unable to create zip file'));
+        }
     }
 }

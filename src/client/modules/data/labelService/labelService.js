@@ -50,8 +50,7 @@ const LABELS = {
     ABOUT_LINKS: [
         { HREF: 'https://lwc.dev/', TEXT: 'LWC OSS' },
         {
-            HREF:
-                'https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_tasks.htm',
+            HREF: 'https://developer.salesforce.com/docs/atlas.en-us.api_tooling.meta/api_tooling/intro_tasks.htm',
             TEXT: 'Tooling API'
         },
         { HREF: GITHUB, TEXT: 'Github' }

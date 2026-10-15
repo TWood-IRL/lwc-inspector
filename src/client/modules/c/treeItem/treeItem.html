@@ -6,9 +6,9 @@
  -->
 
 <template>
-    <template if:true={isRoot}>
+    <template lwc:if={isRoot}>
         <template for:each={children} for:item="item" for:index="index">
-            <template if:true={item.node.isLeaf}>
+            <template lwc:if={item.node.isLeaf}>
                 <c-tree-item
                     role="treeitem"
                     data-key={item.node.key}
@@ -30,7 +30,7 @@
                 >
                 </c-tree-item>
             </template>
-            <template if:false={item.node.isLeaf}>
+            <template lwc:else>
                 <c-tree-item
                     role="treeitem"
                     data-key={item.node.key}
@@ -56,7 +56,7 @@
             </template>
         </template>
     </template>
-    <template if:false={isRoot}>
+    <template lwc:else>
         <div class="slds-tree__item" onclick={handleClick}>
             <button
                 type="button"
@@ -65,7 +65,7 @@
                 aria-hidden="true"
                 title={buttonLabel}
             >
-              <!--   <c-primitive-icon
+                <!--   <c-primitive-icon
                     icon-name={computedIconName}
                     variant="bare"
                     svg-class="slds-button__icon slds-button__icon_small"
@@ -74,13 +74,13 @@
                 <span class="slds-assistive-text"> {buttonLabel} </span>
             </button>
             <span class="slds-has-flexi-truncate">
-                <template if:true={isDisabled}>
+                <template lwc:if={isDisabled}>
                     <span
                         class="slds-tree__item-label slds-truncate"
                         title={label}
                         >{label}</span
                     >
-                    <template if:true={metatext}>
+                    <template lwc:if={metatext}>
                         <span
                             class="slds-tree__item-meta slds-truncate"
                             title={metatext}
@@ -90,14 +90,14 @@
                     </template>
                 </template>
 
-                <template if:false={isDisabled}>
+                <template lwc:else>
                     <a href={href} tabindex="-1" role="presentation">
                         <span
                             class="slds-tree__item-label slds-truncate"
                             title={label}
                             >{label}</span
                         >
-                        <template if:true={metatext}>
+                        <template lwc:if={metatext}>
                             <span
                                 class="slds-tree__item-meta slds-truncate"
                                 title={metatext}
@@ -110,10 +110,10 @@
                 </template>
             </span>
         </div>
-        <template if:true={showExpanded}>
+        <template lwc:if={showExpanded}>
             <div role="group">
                 <template for:each={children} for:item="item">
-                    <template if:true={item.node.isLeaf}>
+                    <template lwc:if={item.node.isLeaf}>
                         <c-tree-item
                             role="treeitem"
                             data-key={item.node.key}
@@ -135,7 +135,7 @@
                         >
                         </c-tree-item>
                     </template>
-                    <template if:false={item.node.isLeaf}>
+                    <template lwc:else>
                         <c-tree-item
                             role="treeitem"
                             data-key={item.node.key}
