@@ -1,0 +1,10 @@
+<template>
+    <div class="scroller" tabindex="0" role="region" aria-label={ariaLabel}>
+        <pre class="gutter" aria-hidden="true">{lineNumbers}</pre>
+        <pre class="code"><code lwc:ref="code" lwc:dom="manual"></code></pre>
+    </div>
+    <div class="status-bar">
+        <span>{languageLabel}</span>
+        <span>{stats}</span>
+    </div>
+</template>

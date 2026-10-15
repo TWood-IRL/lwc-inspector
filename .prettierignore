@@ -11,3 +11,5 @@ dist/
 src/client/resources
 # Ignore boostrap folder
 src/client/boostrap
+# Local tool folders
+.claude/

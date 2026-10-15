@@ -32,47 +32,66 @@
                     <c-tree
                         items={components}
                         header={treeHeader}
+                        selected-item={selectedFileName}
                         onselect={handleOnselect}
                     ></c-tree>
                 </div>
             </div>
             <div class="pane-source">
-                <div class="slds-card pane">
-                    <template lwc:if={isTypeSource}>
-                        <div class="source-header">
-                            <span class="source-title" title={getSourceLabel}
-                                >{getSourceLabel}</span
+                <div lwc:if={isTypeSource} class="editor">
+                    <div class="editor-bar">
+                        <div
+                            class="tabs"
+                            role="group"
+                            aria-label="Component files"
+                        >
+                            <template for:each={fileTabs} for:item="tab">
+                                <button
+                                    key={tab.name}
+                                    type="button"
+                                    class={tab.className}
+                                    title={tab.title}
+                                    aria-pressed={tab.selected}
+                                    data-name={tab.name}
+                                    onclick={handleTabClick}
+                                >
+                                    {tab.label}
+                                </button>
+                            </template>
+                        </div>
+                        <div class="editor-actions">
+                            <button
+                                type="button"
+                                class="editor-button"
+                                title="Copy source to clipboard"
+                                onclick={handleCopy}
                             >
-                            <div class="source-actions">
-                                <lightning-button
-                                    variant="neutral"
-                                    label="Copy"
-                                    title="Copy source to clipboard"
-                                    onclick={handleCopy}
-                                ></lightning-button>
-                                <lightning-button
-                                    variant="brand"
-                                    label="Download .zip"
-                                    title="Download the whole component"
-                                    onclick={handleDownload}
-                                ></lightning-button>
-                            </div>
+                                Copy
+                            </button>
+                            <button
+                                type="button"
+                                class="editor-button"
+                                title="Download the whole component as a zip"
+                                onclick={handleDownload}
+                            >
+                                Download .zip
+                            </button>
                         </div>
-                        <pre
-                            class="sourceCode"
-                            tabindex="0"
-                            aria-label="Source code"
-                        ><code>{getSource}</code></pre>
-                    </template>
-                    <template lwc:else>
-                        <div class="empty-state">
-                            <p class="empty-title">No file selected</p>
-                            <p class="slds-text-color_weak">
-                                Choose a component in the tree, then pick a file
-                                to view its source.
-                            </p>
-                        </div>
-                    </template>
+                    </div>
+                    <my-code-viewer
+                        code={getSource}
+                        file-name={getSourceLabel}
+                        format={getSourceFormat}
+                    ></my-code-viewer>
+                </div>
+                <div lwc:else class="slds-card pane">
+                    <div class="empty-state">
+                        <p class="empty-title">No file selected</p>
+                        <p class="slds-text-color_weak">
+                            Choose a component in the tree, then pick a file to
+                            view its source.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

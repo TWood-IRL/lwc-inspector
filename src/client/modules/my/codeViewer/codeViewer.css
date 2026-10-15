@@ -1,0 +1,112 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+.scroller {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    outline-offset: -2px;
+}
+
+.gutter,
+.code {
+    margin: 0;
+    padding: 0.75rem 0;
+    font-family:
+        ui-monospace, SFMono-Regular, 'Cascadia Code', Menlo, Consolas,
+        monospace;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    tab-size: 4;
+}
+
+.gutter {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    flex: none;
+    min-width: 2.5rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    text-align: right;
+    color: #858585;
+    background: #1e1e1e;
+    user-select: none;
+}
+
+.code {
+    flex: 1 0 auto;
+    padding-right: 1.5rem;
+    white-space: pre;
+    background: transparent;
+    color: inherit;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: #0176d3;
+    color: #ffffff;
+    font-size: 0.75rem;
+}
+
+/* Syntax colours (VS Code Dark+ palette) */
+.code .hljs-keyword,
+.code .hljs-literal,
+.code .hljs-tag,
+.code .hljs-name,
+.code .hljs-selector-tag {
+    color: #569cd6;
+}
+.code .hljs-string,
+.code .hljs-regexp {
+    color: #ce9178;
+}
+.code .hljs-comment,
+.code .hljs-quote {
+    color: #6a9955;
+    font-style: italic;
+}
+.code .hljs-number,
+.code .hljs-symbol {
+    color: #b5cea8;
+}
+.code .hljs-title,
+.code .hljs-title.function_ {
+    color: #dcdcaa;
+}
+.code .hljs-title.class_,
+.code .hljs-built_in,
+.code .hljs-type {
+    color: #4ec9b0;
+}
+.code .hljs-attr,
+.code .hljs-attribute,
+.code .hljs-variable,
+.code .hljs-property,
+.code .hljs-params,
+.code .hljs-template-variable {
+    color: #9cdcfe;
+}
+.code .hljs-meta,
+.code .hljs-doctag {
+    color: #c586c0;
+}
+.code .hljs-selector-class,
+.code .hljs-selector-id,
+.code .hljs-selector-pseudo {
+    color: #d7ba7d;
+}
+.code .hljs-subst,
+.code .hljs-punctuation,
+.code .hljs-operator {
+    color: #d4d4d4;
+}
