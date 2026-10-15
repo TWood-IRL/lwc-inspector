@@ -1,38 +1,124 @@
 .about {
     max-width: 42rem;
     margin: 0 auto;
+    counter-reset: about-step;
 }
 .about-card {
+    position: relative;
     padding: 1.5rem 1.75rem;
     margin-bottom: 1rem;
     border-left: 4px solid var(--lwci-brand, #0176d3);
+    counter-increment: about-step;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+.about-card:hover {
+    box-shadow: 0 6px 18px rgba(1, 68, 134, 0.12);
+    transform: translateY(-1px);
 }
 .about-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin: 0 0 0.75rem;
     font-weight: 600;
     color: var(--lwci-brand-dark, #014486);
 }
+.about-heading::before {
+    content: counter(about-step);
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        var(--lwci-brand-dark, #014486),
+        var(--lwci-brand, #0176d3)
+    );
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.75rem;
+    text-align: center;
+}
 .about-text {
     line-height: 1.65;
-    color: #3e3e3c;
+    color: var(--lwci-ink, #3e3e3c);
 }
 .about-text + .about-text {
     margin-top: 0.5rem;
 }
+/* Quote-style callout for the closing paragraph of a multi-paragraph card */
+p.about-text:last-of-type:not(:first-of-type) {
+    padding: 0.5rem 0.875rem;
+    border-left: 3px solid var(--lwci-brand, #0176d3);
+    border-radius: 0 0.5rem 0.5rem 0;
+    background: rgba(1, 118, 211, 0.07);
+    font-style: italic;
+    color: var(--lwci-ink-weak, #5c5c5c);
+}
+ul.about-text {
+    margin-top: 0.75rem;
+    padding: 0;
+    list-style: none;
+}
+ul.about-text li {
+    position: relative;
+    margin: 0.25rem 0;
+    padding-left: 1.75rem;
+}
+ul.about-text li::before {
+    content: '\2713';
+    position: absolute;
+    left: 0;
+    top: 0.15rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: rgba(1, 118, 211, 0.12);
+    color: var(--lwci-brand, #0176d3);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.1rem;
+    text-align: center;
+}
 .about-links {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    gap: 0.5rem 1.5rem;
+    gap: 0.5rem 0.625rem;
     margin-top: 1.5rem;
     font-size: 0.875rem;
 }
 .about-links a {
+    padding: 0.25rem 0.875rem;
+    border: 1px solid var(--lwci-border, #e3e6ec);
+    border-radius: 999px;
+    background: var(--lwci-surface, #fff);
     text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s ease;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+.about-links a::after {
+    content: ' \2197';
+    font-size: 0.75em;
 }
 .about-links a:hover,
 .about-links a:focus {
-    border-bottom-color: currentColor;
+    border-color: var(--lwci-brand, #0176d3);
+    background: var(--lwci-brand, #0176d3);
+    color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+    .about-card,
+    .about-links a {
+        transition: none;
+    }
+    .about-card:hover {
+        transform: none;
+    }
 }

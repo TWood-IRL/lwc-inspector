@@ -1,69 +1,78 @@
-.fade-in-out {
-    animation: fadeInOut ease 5s;
-    -webkit-animation: fadeInOut ease 5s;
-    -moz-animation: fadeInOut ease 5s;
-    -o-animation: fadeInOut ease 5s;
-    -ms-animation: fadeInOut ease 5s;
-}
-@keyframes fadeInOut {
-    0%,
-    100% {
-        opacity: 0;
-    }
-    25%,
-    75% {
-        opacity: 1;
-    }
-}
-
-@-moz-keyframes fadeInOut {
-    0%,
-    100% {
-        opacity: 0;
-    }
-    25%,
-    75% {
-        opacity: 1;
-    }
-}
-
-@-webkit-keyframes fadeInOut {
-    0%,
-    100% {
-        opacity: 0;
-    }
-    25%,
-    75% {
-        opacity: 1;
-    }
-}
-
-@-o-keyframes fadeInOut {
-    0%,
-    100% {
-        opacity: 0;
-    }
-    25%,
-    75% {
-        opacity: 1;
-    }
-}
-
-@-ms-keyframes fadeInOut {
-    0%,
-    100% {
-        opacity: 0;
-    }
-    25%,
-    75% {
-        opacity: 1;
-    }
-}
-.slds-notify_toast {
+.toast {
+    position: relative;
+    overflow: hidden;
     min-width: 18rem;
-    border-radius: 0.75rem;
-    background: linear-gradient(120deg, #014486, #0176d3);
+    border-radius: var(--lwci-radius, 0.75rem);
     box-shadow: 0 8px 24px rgba(1, 68, 134, 0.35);
+}
+.toast-info .toast {
+    background: linear-gradient(120deg, #014486, #0176d3);
+}
+.toast-success .toast {
+    background: linear-gradient(120deg, #2e844a, #45c65a);
+    box-shadow: 0 8px 24px rgba(46, 132, 74, 0.35);
+}
+.toast-error .toast {
+    background: linear-gradient(120deg, #ba0517, #ea001e);
+    box-shadow: 0 8px 24px rgba(186, 5, 23, 0.35);
+}
+.toast-icon {
+    display: inline-flex;
+    padding: 0.25rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+.toast-icon svg {
+    fill: #fff;
+}
+.toast-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    transform-origin: left center;
+    animation: toastProgress linear forwards;
+}
+.toast-paused .toast-progress {
+    animation-play-state: paused;
+}
+.toast-entering {
+    animation: toastIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.toast-leaving {
+    animation: toastOut 0.2s ease-in forwards;
+}
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(-1rem) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+@keyframes toastOut {
+    to {
+        opacity: 0;
+        transform: translateY(-0.75rem) scale(0.97);
+    }
+}
+@keyframes toastProgress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .toast-entering,
+    .toast-leaving {
+        animation-duration: 0.01s;
+    }
 }
 .hidden {
     display: none;
