@@ -2,13 +2,13 @@
     <my-header></my-header>
 
     <lightning-spinner
-        if:true={isLoading}
+        lwc:if={isLoading}
         alternative-text={LABEL.LOADING_SPINNER}
         size="large"
         variant="brand"
     ></lightning-spinner>
     <div class="main-html">
-        <template if:true={isLoggedIn}>
+        <template lwc:if={isLoggedIn}>
             <div>
                 {LABEL.LOGGED_IN_AS} <br />
                 <a href="/oauth2/logout" title="Logout">
@@ -16,7 +16,7 @@
                 >
             </div>
         </template>
-        <template if:false={isLoggedIn}>
+        <template lwc:else>
             <div class="loginSection">
                 <a href="/oauth2/login?login_type=PRODUCTION">
                     {LABEL.LOGIN_PROD}</a
@@ -30,7 +30,7 @@
                     {LABEL.LOGIN_SESSIONID}</a
                 >
                 <br />
-                <template if:true={displayInputs}>
+                <template lwc:if={displayInputs}>
                     <lightning-input
                         type="text"
                         data-id="sessionId"
@@ -53,10 +53,10 @@
                 </template>
             </div>
             <br />
-            <my-greeting if:false={isLoading}></my-greeting>
+            <my-greeting lwc:if={showGreeting}></my-greeting>
         </template>
 
-        <template if:true={isLoggedIn}>
+        <template lwc:if={isLoggedIn}>
             <my-app onloading={toggleLoading}></my-app>
         </template>
     </div>

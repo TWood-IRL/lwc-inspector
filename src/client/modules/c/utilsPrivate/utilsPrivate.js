@@ -11,9 +11,7 @@ export { toNorthAmericanPhoneNumber } from './phonify';
 export * from './linkUtils'; */
 export { assert } from './assert';
 export { deepCopy, arraysEqual, ArraySlice } from './utility';
-export {
-    keyCodes
-} from './keyboard';
+export { keyCodes } from './keyboard';
 /* 
 Dont need these for the moment 
 export { guid } from './guid';

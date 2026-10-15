@@ -1,32 +1,39 @@
-import { LightningElement, track, api } from 'lwc';
+import { LightningElement, api } from 'lwc';
 /**
  * Toast message displayed by app container
  */
 import { LABELS } from 'data/labelService';
 
+const TOAST_DURATION_MS = 5000;
+
 export default class Toast extends LightningElement {
-    @track toastNotification = {};
+    toastNotification = {};
     TOAST_CLOSE_TEXT = LABELS.TOAST_CLOSE_TEXT;
+    hideTimer;
+
     get isMessage() {
-        return this.message !== '';
+        return !!this.toastNotification.message;
+    }
+    get isDisplayed() {
+        return !!this.toastNotification.title;
+    }
+    get getComputedClass() {
+        return this.isDisplayed ? 'fade-in-out' : 'hidden';
     }
 
     renderedCallback() {
-        if (!this.toastNotification.title === false) {
-            setTimeout(() => {
+        if (this.isDisplayed) {
+            clearTimeout(this.hideTimer);
+            this.hideTimer = setTimeout(() => {
                 this.toastNotification = {};
-            }, 5000); //reset
+            }, TOAST_DURATION_MS);
         }
     }
-    get getComputedClass() {
-        return !this.toastNotification.title !== false
-            ? 'hidden'
-            : 'fade-in-out';
+    disconnectedCallback() {
+        clearTimeout(this.hideTimer);
     }
+
     @api showToast(toastNotification) {
         this.toastNotification = toastNotification;
-    }
-    get isDisplayed() {
-        return !this.toastNotification.title === false;
     }
 }

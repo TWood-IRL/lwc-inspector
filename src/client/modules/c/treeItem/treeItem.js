@@ -12,8 +12,8 @@ import { classSet } from 'c/utils';
 import { keyCodes } from 'c/utilsPrivate';
 
 const i18n = {
-    collapseBranch: "Collapse",
-    expandBranch: "Expand"
+    collapseBranch: 'Collapse',
+    expandBranch: 'Expand'
 };
 
 export default class cTreeItem extends LightningElement {
@@ -38,17 +38,15 @@ export default class cTreeItem extends LightningElement {
     @api get childItems() {
         return this._children;
     }
-    @api resetTree(){
-        let treeItems = this.template.querySelectorAll("c-tree-item") ; 
+    @api resetTree() {
+        let treeItems = this.template.querySelectorAll('c-tree-item');
         //reset inner tree
-        if(treeItems.length > 1 ){
-            treeItems.forEach((item) =>{
-                item.resetTree() ; 
-                item.setAttribute("aria-selected", false ) ; 
-            })
+        if (treeItems.length > 1) {
+            treeItems.forEach((item) => {
+                item.resetTree();
+                item.setAttribute('aria-selected', false);
+            });
         }
-     
-
     }
     set childItems(value) {
         this._children = value;
@@ -145,9 +143,8 @@ export default class cTreeItem extends LightningElement {
                 event.preventDefault();
             }
             let target = 'anchor';
-            if (
-                event.target.tagName === 'BUTTON' 
-            ) {//|| event.target.tagName === 'C-PRIMITIVE-ICON'{
+            if (event.target.tagName === 'BUTTON') {
+                //|| event.target.tagName === 'C-PRIMITIVE-ICON'{
                 target = 'chevron';
             }
             const customEvent = new CustomEvent('privateitemclick', {

@@ -36,13 +36,11 @@ describe('my-app', () => {
         const element = createElement('my-app', { is: MyApp });
         document.body.appendChild(element);
 
-        element.shadowRoot
-            .querySelector('my-web-explorer')
-            .dispatchEvent(
-                new CustomEvent('selected', {
-                    detail: { id: '0Rb000000000001' }
-                })
-            );
+        element.shadowRoot.querySelector('my-web-explorer').dispatchEvent(
+            new CustomEvent('selected', {
+                detail: { id: '0Rb000000000001' }
+            })
+        );
         await flushPromises();
 
         expect(element.shadowRoot.querySelector('my-web-explorer')).toBeNull();

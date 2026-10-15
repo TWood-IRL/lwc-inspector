@@ -1,5 +1,5 @@
 <template>
-    <template if:true={isComponents}>
+    <template lwc:if={isComponents}>
         <lightning-layout multiple-rows>
             <lightning-layout-item
                 size="12"
@@ -51,7 +51,7 @@
                     </lightning-layout-item>
                     <lightning-layout-item size="8" padding="around-small">
                         <div class="source-section source-viewer">
-                            <template if:true={isTypeSource}>
+                            <template lwc:if={isTypeSource}>
                                 <lightning-button
                                     variant="neutral"
                                     label="Download"

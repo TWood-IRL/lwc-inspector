@@ -1,5 +1,5 @@
 <template>
-    <div class={getComputedClass} if:true={isDisplayed}>
+    <div class={getComputedClass} lwc:if={isDisplayed}>
         <div class="slds-notify_container">
             <!--slds-is-relative-->
             <div
@@ -21,7 +21,7 @@
                     <h2 class="slds-text-heading_small">
                         {toastNotification.title}
                     </h2>
-                    <p if:true={isMessage}>{toastNotification.message}</p>
+                    <p lwc:if={isMessage}>{toastNotification.message}</p>
                 </div>
                 <div class="slds-notify__close">
                     <button
