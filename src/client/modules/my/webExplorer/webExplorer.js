@@ -86,6 +86,26 @@ export default class WebExplorer extends LightningElement {
             });
     }
 
+    get insightFiles() {
+        return (this._selectedComponent?.items ?? []).filter(
+            (item) => item.Source !== undefined
+        );
+    }
+
+    handleInsightSelect(event) {
+        const { fileName, line } = event.detail;
+        const item = this.insightFiles.find((file) => file.name === fileName);
+        if (!item) return;
+        this._selectedComponentResource = item;
+        // Wait for the viewer to render the file, then jump if supported
+        Promise.resolve().then(() => {
+            const viewer = this.template.querySelector('my-code-viewer');
+            if (viewer && typeof viewer.goToLine === 'function') {
+                viewer.goToLine(line);
+            }
+        });
+    }
+
     handleTabClick(event) {
         const { name } = event.currentTarget.dataset;
         const item = this._selectedComponent.items.find(
