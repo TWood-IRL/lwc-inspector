@@ -1,0 +1,41 @@
+:host {
+    display: block;
+}
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--lwci-ink, #181818);
+}
+.error-icon {
+    color: #ba0517;
+}
+.error-title {
+    font-size: var(--lwci-text-lg, 1.125rem);
+    font-weight: 600;
+    margin: 0;
+}
+.error-message {
+    margin: 0;
+    color: var(--lwci-ink-weak, #5c5c5c);
+}
+.retry {
+    margin-top: 0.5rem;
+    font: inherit;
+    cursor: pointer;
+    padding: 0.4rem 1.1rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--lwci-brand, #0176d3);
+    background: var(--lwci-brand, #0176d3);
+    color: #fff;
+}
+.retry:hover {
+    background: var(--lwci-brand-dark, #014486);
+}
+.retry:focus-visible {
+    outline: 2px solid var(--lwci-focus, #1b96ff);
+    outline-offset: 2px;
+}

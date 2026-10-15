@@ -247,3 +247,17 @@ my-code-viewer {
         padding: 1rem;
     }
 }
+.freshness {
+    margin: 0.5rem 0 0;
+    font-size: var(--lwci-text-xs, 0.75rem);
+    color: var(--lwci-ink-weak, #5c5c5c);
+}
+.offline-banner {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: var(--lwci-text-sm, 0.8125rem);
+    background: #fef3c7;
+    color: #5c3d00;
+    border: 1px solid #f0c36d;
+}
