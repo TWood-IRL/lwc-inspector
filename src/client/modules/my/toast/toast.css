@@ -59,6 +59,12 @@
         opacity: 1;
     }
 }
+.slds-notify_toast {
+    min-width: 18rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(120deg, #014486, #0176d3);
+    box-shadow: 0 8px 24px rgba(1, 68, 134, 0.35);
+}
 .hidden {
     display: none;
 }
