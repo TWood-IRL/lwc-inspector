@@ -79,6 +79,7 @@ export default class WebExplorer extends LightningElement {
     _now = Date.now();
     _listRequest = 0; // guards against out-of-order list responses
     _showingSearch = false;
+    _searchInFlight = false;
 
     get showSkeleton() {
         return !this.loaded && !this.isComponents;
@@ -582,6 +583,25 @@ export default class WebExplorer extends LightningElement {
     handleSearchKeyup(event) {
         if (event.key === 'Enter') {
             this.executeSearch(event);
+        } else {
+            this.resetSearchIfEmpty(event.target?.value);
+        }
+    }
+
+    // Fired by the search input, including its clear (x) button
+    handleSearchChange(event) {
+        this.resetSearchIfEmpty(event.detail?.value ?? event.target?.value);
+    }
+
+    // An emptied search box restores the full list for the current type,
+    // skipping the debounce and superseding any search still in flight
+    resetSearchIfEmpty(value) {
+        if (
+            (value ?? '').trim() === '' &&
+            (this._showingSearch || this._searchInFlight)
+        ) {
+            this._searchInFlight = false;
+            this.getLightningComponents();
         }
     }
 
@@ -655,18 +675,23 @@ export default class WebExplorer extends LightningElement {
             'lightning-radio-group'
         ).value;
         this.compTypeValue = compTypeValue;
+        const request = ++this._listRequest; // supersedes list loads
+        this._searchInFlight = true;
         this.dispatchEvent(fireLoading(true));
         try {
             const resp = await searchLightningComponentBundle(
                 compTypeValue,
                 searchTerm
             );
+            if (request !== this._listRequest) {
+                return; // cleared or replaced while searching
+            }
+            this._searchInFlight = false;
             if (resp.data.length === 0) {
                 //we did not get any results, reset and prompt the user
                 this.dispatchEvent(showToast('No Results Found'));
                 await this.getLightningComponents();
             } else {
-                this._listRequest++; // supersedes any in-flight list load
                 this._showingSearch = true;
                 this.loadError = null;
                 this._lightningComponentBundles = resp.data;
@@ -677,6 +702,9 @@ export default class WebExplorer extends LightningElement {
                 this.showError(error);
             }
         } finally {
+            if (request === this._listRequest) {
+                this._searchInFlight = false;
+            }
             this.dispatchEvent(fireLoading(false));
         }
     }
