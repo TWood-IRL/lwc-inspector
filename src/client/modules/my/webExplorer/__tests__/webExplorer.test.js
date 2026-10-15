@@ -222,12 +222,12 @@ describe('my-web-explorer', () => {
                         {
                             type: 'lwcComps',
                             bundle: 'accountCard',
-                            file: 'accountCard.js'
+                            file: 'accountCard.html'
                         },
                         {
                             type: 'lwcComps',
                             bundle: 'accountCard',
-                            file: 'accountCard.html'
+                            file: 'accountCard.js'
                         }
                     ],
                     canCopySource: true
@@ -304,7 +304,7 @@ describe('my-web-explorer data loading', () => {
         expect(element.shadowRoot.querySelectorAll('my-skeleton').length).toBe(
             2
         );
-        expect(element.shadowRoot.querySelector('c-tree')).toBeNull();
+        expect(element.shadowRoot.querySelector('.component-list')).toBeNull();
 
         resolve({
             ok: true,
@@ -313,7 +313,9 @@ describe('my-web-explorer data loading', () => {
         await flushPromises();
 
         expect(element.shadowRoot.querySelector('my-skeleton')).toBeNull();
-        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        expect(
+            element.shadowRoot.querySelector('.component-list')
+        ).not.toBeNull();
     });
 
     it('shows an error state with Retry that reloads, instead of only a toast', async () => {
@@ -331,7 +333,9 @@ describe('my-web-explorer data loading', () => {
         await flushPromises();
 
         expect(element.shadowRoot.querySelector('my-error-state')).toBeNull();
-        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        expect(
+            element.shadowRoot.querySelector('.component-list')
+        ).not.toBeNull();
     });
 
     it('shows the freshness label and refresh bypasses the cache', async () => {
@@ -348,9 +352,9 @@ describe('my-web-explorer data loading', () => {
         await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledTimes(1); // the new mock
-        expect(element.shadowRoot.querySelector('c-tree').header).toBe(
-            'Components (2)'
-        );
+        expect(
+            element.shadowRoot.querySelector('.list-header').textContent
+        ).toBe('Components (2)');
     });
 
     it('serves a second mount from cache without a request', async () => {
@@ -361,7 +365,9 @@ describe('my-web-explorer data loading', () => {
         await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledTimes(1);
-        expect(second.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        expect(
+            second.shadowRoot.querySelector('.component-list')
+        ).not.toBeNull();
     });
 
     it('shows an offline banner and hides it when back online', async () => {
@@ -376,7 +382,9 @@ describe('my-web-explorer data loading', () => {
             element.shadowRoot.querySelector('.offline-banner')
         ).not.toBeNull();
         // cached data stays browsable
-        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        expect(
+            element.shadowRoot.querySelector('.component-list')
+        ).not.toBeNull();
 
         window.dispatchEvent(new CustomEvent('online'));
         await Promise.resolve();
@@ -406,6 +414,8 @@ describe('my-web-explorer data loading', () => {
         window.dispatchEvent(new CustomEvent('online'));
         await flushPromises();
 
-        expect(element.shadowRoot.querySelector('c-tree')).not.toBeNull();
+        expect(
+            element.shadowRoot.querySelector('.component-list')
+        ).not.toBeNull();
     });
 });

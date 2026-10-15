@@ -1,5 +1,6 @@
 import { createElement } from 'lwc';
 import WebExplorer from 'my/webExplorer';
+import { clearCache } from 'data/dataService';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -34,6 +35,7 @@ const filesFor = (id) => {
 
 describe('my-web-explorer compare', () => {
     beforeEach(() => {
+        clearCache();
         window.history.replaceState(null, '', '/');
         global.fetch = jest.fn((url) =>
             Promise.resolve({
@@ -54,11 +56,17 @@ describe('my-web-explorer compare', () => {
         delete global.fetch;
     });
 
-    const select = async (element, name) => {
-        element.shadowRoot
-            .querySelector('c-tree')
-            .dispatchEvent(new CustomEvent('select', { detail: { name } }));
+    // Selecting a component opens its first file (the template)
+    const selectComponent = async (element, index) => {
+        element.shadowRoot.querySelectorAll('button.component')[index].click();
         await flushPromises();
+        await flushPromises();
+    };
+    const openJsTab = async (element) => {
+        const tab = [...element.shadowRoot.querySelectorAll('button.tab')].find(
+            (el) => el.textContent.trim().endsWith('.js')
+        );
+        tab.click();
         await flushPromises();
     };
 
@@ -66,8 +74,8 @@ describe('my-web-explorer compare', () => {
         const element = createElement('my-web-explorer', { is: WebExplorer });
         document.body.appendChild(element);
         await flushPromises();
-        await select(element, 0);
-        await select(element, '0Rb000000000000-js');
+        await selectComponent(element, 0);
+        await openJsTab(element);
 
         const root = element.shadowRoot;
         expect(root.querySelector('my-code-viewer')).not.toBeNull();
@@ -91,8 +99,8 @@ describe('my-web-explorer compare', () => {
         const element = createElement('my-web-explorer', { is: WebExplorer });
         document.body.appendChild(element);
         await flushPromises();
-        await select(element, 0);
-        await select(element, '0Rb000000000000-js');
+        await selectComponent(element, 0);
+        await openJsTab(element);
         const root = element.shadowRoot;
         root.querySelector('.compare-button').click();
         await flushPromises();
