@@ -48,7 +48,6 @@ export default class WebExplorer extends LightningElement {
     searchContents = false;
     isSearching = false;
     copied = false;
-    _comparing = false;
     linkCopied = false;
     _recents = [];
     pendingTabFocus = null;
@@ -157,34 +156,6 @@ export default class WebExplorer extends LightningElement {
         );
     }
 
-    // --- Compare ---------------------------------------------------------
-
-    // Every file of every bundle whose source has been loaded
-    get compareFiles() {
-        return this._lightningComponentBundles.flatMap((bundle) =>
-            (bundle.items ?? [])
-                .filter((item) => item.Source !== undefined)
-                .map((item) => ({
-                    id: item.name,
-                    bundle: bundle.label,
-                    label: item.label,
-                    source: item.Source
-                }))
-        );
-    }
-    get comparing() {
-        return this._comparing && this.isTypeSource;
-    }
-    get viewing() {
-        return !this.comparing;
-    }
-    handleCompare() {
-        this._comparing = !this._comparing;
-    }
-    handleCompareExit() {
-        this._comparing = false;
-    }
-
     handleInsightSelect(event) {
         const { fileName, line } = event.detail;
         const item = this.insightFiles.find((file) => file.name === fileName);
@@ -205,7 +176,6 @@ export default class WebExplorer extends LightningElement {
             (file) => file.name === name
         );
         if (item) {
-            this._comparing = false;
             this._selectedComponentResource = item;
             this.syncHash(false);
         }
