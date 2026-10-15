@@ -224,6 +224,11 @@
     font-size: 0.8125rem;
     line-height: 1.55;
     tab-size: 4;
+    /* Show the characters that are really there, not ligatures such as => */
+    font-variant-ligatures: none;
+    font-feature-settings:
+        'liga' 0,
+        'calt' 0;
 }
 
 .gutter {

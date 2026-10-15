@@ -15,6 +15,7 @@ import {
     clearRecents,
     TYPE_TO_SLUG
 } from 'my/navState';
+import { sortFiles } from './fileOrder';
 //Do zipping in client
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -22,7 +23,7 @@ import { saveAs } from 'file-saver';
 const SEARCH_DEBOUNCE_MS = 300;
 
 export default class WebExplorer extends LightningElement {
-    // @track: nodes are mutated in place (expanded, items) and the tree must re-render
+    // @track: a component's files are filled in place once they have loaded
     @track _lightningComponentBundles = [];
     @track _selectedComponent = null;
     @track _selectedComponentResource = null;
@@ -32,6 +33,7 @@ export default class WebExplorer extends LightningElement {
     copied = false;
     linkCopied = false;
     _recents = [];
+    pendingTabFocus = null;
     loaded = false; // true once the first request has finished, drives the empty state
     compTypes = [
         { label: 'Lightning Web Components', value: 'lwcComps' },
@@ -47,14 +49,26 @@ export default class WebExplorer extends LightningElement {
     get showEmptyState() {
         return this.loaded && !this.isComponents;
     }
-    get treeHeader() {
+    get listHeader() {
         return `Components (${this._lightningComponentBundles.length})`;
     }
-    get components() {
-        return this._lightningComponentBundles;
+    get componentList() {
+        const selectedId = this._selectedComponent?.id;
+        return this._lightningComponentBundles.map((bundle, index) => {
+            const selected = bundle.id === selectedId;
+            return {
+                id: bundle.id,
+                index,
+                label: bundle.label,
+                managed: !bundle.IsExposed,
+                selected,
+                className: selected ? 'component component-active' : 'component'
+            };
+        });
     }
+    // An empty file is still a file, so check for a string rather than truthiness
     get isTypeSource() {
-        return !!this._selectedComponentResource?.Source;
+        return typeof this._selectedComponentResource?.Source === 'string';
     }
     get getSource() {
         return this._selectedComponentResource.Source;
@@ -65,7 +79,6 @@ export default class WebExplorer extends LightningElement {
     get getSourceFormat() {
         return this._selectedComponentResource.Format;
     }
-    // Keeps the tree highlight in step with the open tab
     get selectedFileName() {
         return this._selectedComponentResource?.name;
     }
@@ -81,6 +94,8 @@ export default class WebExplorer extends LightningElement {
                     label: item.label.split('/').pop(),
                     title: item.label,
                     selected,
+                    // only the open tab is in the tab order, arrows move between tabs
+                    tabIndex: selected ? 0 : -1,
                     className: selected ? 'tab tab-active' : 'tab'
                 };
             });
@@ -114,6 +129,40 @@ export default class WebExplorer extends LightningElement {
         if (item) {
             this._selectedComponentResource = item;
             this.syncHash(false);
+        }
+    }
+
+    // Arrow keys, Home and End move between the file tabs
+    handleTabKeydown(event) {
+        const tabs = this.fileTabs;
+        const current = tabs.findIndex((tab) => tab.selected);
+        if (tabs.length === 0 || current < 0) {
+            return;
+        }
+        const moves = {
+            ArrowRight: (current + 1) % tabs.length,
+            ArrowLeft: (current - 1 + tabs.length) % tabs.length,
+            Home: 0,
+            End: tabs.length - 1
+        };
+        if (!(event.key in moves)) {
+            return;
+        }
+        event.preventDefault();
+        const target = tabs[moves[event.key]];
+        this.pendingTabFocus = target.name;
+        this.handleTabClick({
+            currentTarget: { dataset: { name: target.name } }
+        });
+    }
+
+    renderedCallback() {
+        if (this.pendingTabFocus) {
+            const tab = [...this.template.querySelectorAll('.tab')].find(
+                (el) => el.dataset.name === this.pendingTabFocus
+            );
+            this.pendingTabFocus = null;
+            tab?.focus();
         }
     }
 
@@ -187,7 +236,17 @@ export default class WebExplorer extends LightningElement {
         }
     };
 
-    async openTarget({ type, bundle: bundleName, file }) {
+    /**
+     * The one way to open a component, used by the list, recents and deep
+     * links. Loads its files (once) and opens the requested file, or the
+     * first one in reading order when none is named.
+     * @param {{type: string, bundle: string, file: string|null}} target
+     * @param {{push?: boolean}} options push a history entry for the component
+     */
+    async openTarget(
+        { type, bundle: bundleName, file },
+        { push = false } = {}
+    ) {
         if (type !== this.compTypeValue) {
             this.compTypeValue = type;
             await this.getLightningComponents();
@@ -203,29 +262,35 @@ export default class WebExplorer extends LightningElement {
             );
             return;
         }
-        if (this._selectedComponent && this._selectedComponent !== bundle) {
-            this._selectedComponent.expanded = false;
+        if (!bundle.IsExposed) {
+            this.dispatchEvent(
+                showToast('Managed Component', 'Unable to view source')
+            );
+            return;
         }
         this._selectedComponentResource = null;
         this._selectedComponent = bundle;
-        bundle.expanded = true;
         if (bundle.items.length === 0) {
-            await this.loadSelectedComponentItems();
+            await this.loadSelectedComponentItems(bundle);
         }
-        if (file) {
-            const item = bundle.items.find(
-                (entry) => this.fileSlug(entry) === file
+        // another component may have been picked while the files were loading
+        if (this._selectedComponent?.id !== bundle.id) {
+            return;
+        }
+        const readable = bundle.items.filter(
+            (entry) => entry.Source !== undefined
+        );
+        let item = file
+            ? readable.find((entry) => this.fileSlug(entry) === file)
+            : readable[0];
+        if (file && !item) {
+            this.dispatchEvent(
+                showToast('File not found', `${bundleName} has no ${file}`)
             );
-            if (item?.Source !== undefined) {
-                this._selectedComponentResource = item;
-            } else {
-                this.dispatchEvent(
-                    showToast('File not found', `${bundleName} has no ${file}`)
-                );
-            }
+            item = readable[0];
         }
-        this.refreshBundles();
-        this.recordNavigation(false);
+        this._selectedComponentResource = item ?? null;
+        this.recordNavigation(push);
     }
 
     handleRecentSelect(event) {
@@ -359,18 +424,31 @@ export default class WebExplorer extends LightningElement {
         clearTimeout(this.copyTimer);
     }
 
+    // Copies the text you have selected in the viewer, or the whole file
     async handleCopy() {
+        const viewer = this.template.querySelector('my-code-viewer');
+        const selected = viewer?.getSelectedText?.() ?? '';
         try {
-            await navigator.clipboard.writeText(this.getSource);
+            await navigator.clipboard.writeText(selected || this.getSource);
             this.copied = true;
             clearTimeout(this.copyTimer);
             this.copyTimer = setTimeout(() => {
                 this.copied = false;
             }, 1500);
-            this.dispatchEvent(showToast('Copied to clipboard'));
+            this.dispatchEvent(
+                showToast(selected ? 'Copied selection' : 'Copied to clipboard')
+            );
         } catch {
             this.dispatchEvent(showToast('Unable to copy to clipboard'));
         }
+    }
+
+    // Saves just the open file rather than the whole component
+    handleDownloadFile() {
+        const blob = new Blob([this.getSource], {
+            type: 'text/plain;charset=utf-8'
+        });
+        saveAs(blob, this.fileSlug(this._selectedComponentResource));
     }
 
     executeSearch(event) {
@@ -412,80 +490,33 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
-    // Assigning a new array makes the tree re-render
-    refreshBundles() {
-        this._lightningComponentBundles = [...this._lightningComponentBundles];
-    }
-
     /**
-     * Selecting a bundle loads (once) and expands its files,
-     * selecting a file shows its source.
-     * @param {onselect} event
+     * @param {Event} event click on a component in the list
      */
-    async handleOnselect(event) {
-        const treeValue = event.detail.name;
-        this.template.querySelector('c-tree').resetSelected();
-        const indxPos = this.findId(this._lightningComponentBundles, treeValue);
-        if (this._selectedComponent) {
+    async handleSelectComponent(event) {
+        const bundle =
             this._lightningComponentBundles[
-                this._selectedComponent.name
-            ].expanded = false;
-            this._selectedComponentResource = null;
+                Number(event.currentTarget.dataset.index)
+            ];
+        if (!bundle || bundle.id === this._selectedComponent?.id) {
+            return;
         }
-
-        if (typeof indxPos === 'number' && indxPos >= 0) {
-            // a bundle
-            this._selectedComponent = this._lightningComponentBundles[indxPos];
-            this._selectedComponent.expanded = true;
-            if (this._selectedComponent.items.length === 0) {
-                await this.loadSelectedComponentItems();
-            } else {
-                this.refreshBundles();
-            }
-            this.recordNavigation(true);
-        } else if (Array.isArray(indxPos)) {
-            // a file inside a bundle
-            const [bundleIdx, fileIdx] = indxPos;
-            this._selectedComponent =
-                this._lightningComponentBundles[bundleIdx];
-            this._selectedComponent.expanded = true;
-            this._selectedComponentResource =
-                this._selectedComponent.items[fileIdx];
-            this.refreshBundles();
-            this.recordNavigation(false);
-        }
+        await this.openTarget(
+            { type: this.compTypeValue, bundle: bundle.label, file: null },
+            { push: true }
+        );
     }
 
-    async loadSelectedComponentItems() {
-        const component = this._selectedComponent;
+    async loadSelectedComponentItems(bundle) {
         this.dispatchEvent(fireLoading(true));
         try {
-            const resp = await getLightningComponentBundleById(component.id);
-            component.items = resp.data;
-            component.expanded = true;
-            this._lightningComponentBundles[component.name] = component;
-            this.refreshBundles();
+            const resp = await getLightningComponentBundleById(bundle.id);
+            bundle.items = sortFiles(resp.data);
         } catch (error) {
             this.showError(error);
         } finally {
             this.dispatchEvent(fireLoading(false));
         }
-    }
-
-    findId(array, id) {
-        for (const [idx, entry] of array.entries()) {
-            if (entry.name === id) {
-                return idx;
-            }
-            if (entry.items) {
-                //if there are children
-                const childIdx = this.findId(entry.items, id);
-                if (childIdx >= 0) {
-                    return [idx, childIdx];
-                }
-            }
-        }
-        return -1;
     }
 
     async handleDownload() {

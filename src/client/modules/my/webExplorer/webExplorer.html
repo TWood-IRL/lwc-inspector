@@ -36,12 +36,29 @@
         <div lwc:if={isComponents} class="panes">
             <div class="pane-tree">
                 <div class="slds-card pane component-tree">
-                    <c-tree
-                        items={components}
-                        header={treeHeader}
-                        selected-item={selectedFileName}
-                        onselect={handleOnselect}
-                    ></c-tree>
+                    <h2 class="list-header">{listHeader}</h2>
+                    <ul class="component-list">
+                        <template for:each={componentList} for:item="component">
+                            <li key={component.id}>
+                                <button
+                                    type="button"
+                                    class={component.className}
+                                    data-index={component.index}
+                                    aria-current={component.selected}
+                                    onclick={handleSelectComponent}
+                                >
+                                    <span class="component-name"
+                                        >{component.label}</span
+                                    >
+                                    <span
+                                        lwc:if={component.managed}
+                                        class="component-badge"
+                                        >Managed</span
+                                    >
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
                 </div>
             </div>
             <div class="pane-source">
@@ -49,18 +66,21 @@
                     <div class="editor-bar">
                         <div
                             class="tabs"
-                            role="group"
+                            role="tablist"
                             aria-label="Component files"
                         >
                             <template for:each={fileTabs} for:item="tab">
                                 <button
                                     key={tab.name}
                                     type="button"
+                                    role="tab"
                                     class={tab.className}
                                     title={tab.title}
-                                    aria-pressed={tab.selected}
+                                    aria-selected={tab.selected}
+                                    tabindex={tab.tabIndex}
                                     data-name={tab.name}
                                     onclick={handleTabClick}
+                                    onkeydown={handleTabKeydown}
                                 >
                                     {tab.label}
                                 </button>
@@ -70,7 +90,7 @@
                             <button
                                 type="button"
                                 class={copyClass}
-                                title="Copy source to clipboard"
+                                title="Copy your selection, or the whole file"
                                 onclick={handleCopy}
                             >
                                 {copyLabel}
@@ -82,6 +102,14 @@
                                 onclick={handleCopyLink}
                             >
                                 {copyLinkLabel}
+                            </button>
+                            <button
+                                type="button"
+                                class="editor-button"
+                                title="Download this file"
+                                onclick={handleDownloadFile}
+                            >
+                                Download file
                             </button>
                             <button
                                 type="button"
@@ -136,10 +164,9 @@
                                 stroke-linejoin="round"
                             />
                         </svg>
-                        <p class="empty-title">No file selected</p>
+                        <p class="empty-title">No component selected</p>
                         <p class="slds-text-color_weak">
-                            Choose a component in the tree, then pick a file to
-                            view its source.
+                            Choose a component from the list to view its source.
                         </p>
                     </div>
                 </div>

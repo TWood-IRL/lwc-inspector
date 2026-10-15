@@ -455,6 +455,20 @@ export default class CodeViewer extends LightningElement {
         scroller.scrollLeft = 0;
     }
 
+    /**
+     * @returns {string} the text the user has selected inside the code, or ''
+     */
+    @api
+    getSelectedText() {
+        const selection = window.getSelection?.();
+        const text = selection ? selection.toString() : '';
+        const inside =
+            selection &&
+            selection.anchorNode &&
+            this.refs.code?.contains(selection.anchorNode);
+        return inside ? text : '';
+    }
+
     measureLine(line) {
         const codeEl = this.refs.code;
         const offset = lineStartOffset(this._code, line);
