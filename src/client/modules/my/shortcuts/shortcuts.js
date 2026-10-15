@@ -21,6 +21,7 @@ export const SHORTCUTS = [
     { key: ']', description: 'Next file tab', event: 'lwci:next-tab' },
     { key: 'c', description: 'Copy current source', event: 'lwci:copy-source' },
     { key: 'f', description: 'Toggle focus mode', event: 'lwci:toggle-focus' },
+    { key: 'Ctrl/Cmd+K', description: 'Open command palette' },
     { key: '?', description: 'Show or hide this help' },
     { key: 'Esc', description: 'Close this help' }
 ];
@@ -52,10 +53,13 @@ export default class Shortcuts extends LightningElement {
     connectedCallback() {
         this._onKeydown = (event) => this.handleKeydown(event);
         document.addEventListener('keydown', this._onKeydown);
+        this._onShow = () => !this.open && this.openHelp();
+        document.addEventListener('lwci:show-shortcuts', this._onShow);
     }
 
     disconnectedCallback() {
         document.removeEventListener('keydown', this._onKeydown);
+        document.removeEventListener('lwci:show-shortcuts', this._onShow);
     }
 
     renderedCallback() {
