@@ -1,10 +1,120 @@
 <template>
-    <div class="scroller" tabindex="0" role="region" aria-label={ariaLabel}>
-        <pre class="gutter" aria-hidden="true">{lineNumbers}</pre>
-        <pre class="code"><code lwc:ref="code" lwc:dom="manual"></code></pre>
+    <div class="viewer">
+        <div class="overlay">
+            <template lwc:if={findOpen}>
+                <div class="bar" role="search" aria-label="Find">
+                    <input
+                        lwc:ref="findInput"
+                        class="bar-input"
+                        type="text"
+                        placeholder="Find"
+                        aria-label="Find in file"
+                        autocomplete="off"
+                        spellcheck="false"
+                        value={query}
+                        oninput={handleFindInput}
+                        onkeydown={handleFindKeydown}
+                    />
+                    <span class="count" role="status" aria-live="polite">
+                        {countLabel}
+                    </span>
+                    <button
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Previous match"
+                        title="Previous match (Shift+Enter)"
+                        disabled={noMatches}
+                        onclick={handlePrev}
+                    >
+                        &#x2191;
+                    </button>
+                    <button
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Next match"
+                        title="Next match (Enter)"
+                        disabled={noMatches}
+                        onclick={handleNext}
+                    >
+                        &#x2193;
+                    </button>
+                    <button
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Close find bar"
+                        title="Close (Esc)"
+                        onclick={closeBars}
+                    >
+                        &#x2715;
+                    </button>
+                </div>
+            </template>
+            <template lwc:if={gotoOpen}>
+                <div class="bar" role="group" aria-label="Line navigation">
+                    <input
+                        lwc:ref="gotoInput"
+                        class="bar-input narrow"
+                        type="number"
+                        min="1"
+                        max={lineCount}
+                        inputmode="numeric"
+                        placeholder="Line"
+                        aria-label="Go to line"
+                        aria-invalid={gotoInvalidAttr}
+                        value={gotoValue}
+                        oninput={handleGotoInput}
+                        onkeydown={handleGotoKeydown}
+                    />
+                    <span class="count" role="status" aria-live="polite">
+                        {gotoHint}
+                    </span>
+                    <button
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Close go to line"
+                        title="Close (Esc)"
+                        onclick={closeBars}
+                    >
+                        &#x2715;
+                    </button>
+                </div>
+            </template>
+        </div>
+        <div
+            lwc:ref="scroller"
+            class={scrollerClass}
+            tabindex="0"
+            role="region"
+            aria-label={ariaLabel}
+            aria-keyshortcuts="Control+F Control+G Meta+F Meta+G"
+        >
+            <pre class="gutter" aria-hidden="true">{lineNumbers}</pre>
+            <div class="code-area">
+                <div
+                    class={flashClass}
+                    style={flashStyle}
+                    aria-hidden="true"
+                ></div>
+                <pre
+                    class="code"
+                ><code lwc:ref="code" lwc:dom="manual"></code></pre>
+            </div>
+        </div>
     </div>
     <div class="status-bar">
         <span>{languageLabel}</span>
-        <span>{stats}</span>
+        <span class="status-right">
+            <span>{stats}</span>
+            <button
+                type="button"
+                class="wrap-btn"
+                aria-pressed={wrapPressed}
+                aria-label="Word wrap"
+                title="Toggle word wrap"
+                onclick={handleWrapToggle}
+            >
+                Wrap
+            </button>
+        </span>
     </div>
 </template>

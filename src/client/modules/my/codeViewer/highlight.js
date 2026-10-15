@@ -72,3 +72,108 @@ export function highlight(code, language) {
     }
     return hljs.highlight(code, { language, ignoreIllegals: true }).value;
 }
+
+export const MAX_MATCHES = 2000;
+
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Case-insensitive, literal (not regex) search. Stops after `cap` matches.
+ * @param {string} code
+ * @param {string} query
+ * @param {number} cap
+ * @returns {{matches: Array<{start: number, end: number}>, truncated: boolean}}
+ */
+export function findMatches(code, query, cap = MAX_MATCHES) {
+    const matches = [];
+    if (!query || !code) {
+        return { matches, truncated: false };
+    }
+    const pattern = new RegExp(escapeRegExp(query), 'gi');
+    let hit = pattern.exec(code);
+    while (hit) {
+        if (matches.length >= cap) {
+            return { matches, truncated: true };
+        }
+        matches.push({ start: hit.index, end: hit.index + hit[0].length });
+        hit = pattern.exec(code);
+    }
+    return { matches, truncated: false };
+}
+
+/**
+ * Wrap each match in <mark class="find-match"> elements using DOM APIs only
+ * (text nodes are split, never re-parsed), so syntax spans are preserved and
+ * nothing from the source is interpreted as markup. A match spanning several
+ * syntax spans gets one mark per text node.
+ * @param {Node} root element whose textContent the offsets refer to
+ * @param {Array<{start: number, end: number}>} matches sorted, non-overlapping
+ * @returns {HTMLElement[][]} marks grouped per match
+ */
+export function wrapMatches(root, matches) {
+    const groups = matches.map(() => []);
+    if (!matches.length) {
+        return groups;
+    }
+    const doc = root.ownerDocument;
+    const walker = doc.createTreeWalker(root, 4 /* SHOW_TEXT */);
+    const nodes = [];
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        nodes.push(n);
+    }
+    let offset = 0;
+    let first = 0;
+    for (const node of nodes) {
+        const nodeStart = offset;
+        const nodeEnd = offset + node.nodeValue.length;
+        offset = nodeEnd;
+        while (first < matches.length && matches[first].end <= nodeStart) {
+            first++;
+        }
+        const segments = [];
+        for (let m = first; m < matches.length; m++) {
+            if (matches[m].start >= nodeEnd) {
+                break;
+            }
+            segments.push({
+                m,
+                s: Math.max(matches[m].start, nodeStart) - nodeStart,
+                e: Math.min(matches[m].end, nodeEnd) - nodeStart
+            });
+        }
+        // Last to first, so splitting never shifts the offsets still to do
+        for (let i = segments.length - 1; i >= 0; i--) {
+            const { m, s, e } = segments[i];
+            if (e <= s) {
+                continue;
+            }
+            const target = s > 0 ? node.splitText(s) : node;
+            if (e - s < target.nodeValue.length) {
+                target.splitText(e - s);
+            }
+            const mark = doc.createElement('mark');
+            mark.className = 'find-match';
+            target.parentNode.insertBefore(mark, target);
+            mark.appendChild(target);
+            groups[m].push(mark);
+        }
+    }
+    return groups;
+}
+
+/**
+ * @param {string} code
+ * @param {number} line 1-based
+ * @returns {number} character offset of the start of that line
+ */
+export function lineStartOffset(code, line) {
+    let offset = 0;
+    for (let l = 1; l < line; l++) {
+        const next = code.indexOf('\n', offset);
+        if (next === -1) {
+            return code.length;
+        }
+        offset = next + 1;
+    }
+    return offset;
+}
