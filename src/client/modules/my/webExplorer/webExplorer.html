@@ -41,8 +41,8 @@
         </div>
 
         <div lwc:if={showSkeleton} class="panes">
-            <div class="pane-tree">
-                <div class="slds-card pane component-tree">
+            <div class="pane-list">
+                <div class="slds-card pane component-pane">
                     <my-skeleton variant="tree" rows="10"></my-skeleton>
                 </div>
             </div>
@@ -67,13 +67,13 @@
 
         <div lwc:if={isComponents} class="layout-bar">
             <button
-                lwc:if={showTreeToggle}
+                lwc:if={showListToggle}
                 type="button"
                 class="layout-button"
-                aria-expanded={treeExpanded}
-                aria-label={treeToggleLabel}
-                title={treeToggleLabel}
-                onclick={handleTreeToggle}
+                aria-expanded={listExpanded}
+                aria-label={listToggleLabel}
+                title={listToggleLabel}
+                onclick={handleListToggle}
             >
                 <svg
                     class={chevronClass}
@@ -91,7 +91,7 @@
                         stroke-linejoin="round"
                     />
                 </svg>
-                <span>Tree</span>
+                <span>List</span>
             </button>
             <button
                 type="button"
@@ -105,8 +105,8 @@
         </div>
 
         <div lwc:if={isComponents} class="panes">
-            <div class={treeClass} style={treeStyle}>
-                <div class="slds-card pane component-tree">
+            <div class={listClass} style={listStyle}>
+                <div class="slds-card pane component-pane">
                     <h2 class="list-header">{listHeader}</h2>
                     <ul class="component-list">
                         <template for:each={componentList} for:item="component">
@@ -134,9 +134,9 @@
             </div>
             <my-splitter
                 lwc:if={showSplitter}
-                value={treeWidth}
-                min={minTreeWidth}
-                max={maxTreeWidthValue}
+                value={listWidth}
+                min={minListWidth}
+                max={maxListWidthValue}
                 onresize={handleSplitterResize}
                 onreset={handleSplitterReset}
             ></my-splitter>

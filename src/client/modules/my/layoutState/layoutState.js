@@ -1,9 +1,11 @@
-// Pure helpers for the workspace layout (tree/source split, collapse state).
+// Pure helpers for the workspace layout (list/source split, collapse state).
+// Legacy storage keys: the 'tree' naming predates the flat component list.
+// Kept as-is so users' saved width/collapsed preferences keep working.
 export const WIDTH_KEY = 'lwci-tree-width';
 export const COLLAPSED_KEY = 'lwci-tree-collapsed';
-export const DEFAULT_TREE_WIDTH = 288;
-export const MIN_TREE_WIDTH = 200;
-export const MAX_TREE_WIDTH = 640;
+export const DEFAULT_LIST_WIDTH = 288;
+export const MIN_LIST_WIDTH = 200;
+export const MAX_LIST_WIDTH = 640;
 export const MIN_SOURCE_WIDTH = 320;
 export const SPLITTER_WIDTH = 20;
 export const KEY_STEP = 16;
@@ -16,15 +18,15 @@ export function clamp(value, min, max) {
     return Math.min(upper, Math.max(min, n));
 }
 
-// Widest the tree may be, leaving room for the source pane.
-export function maxTreeWidth(containerWidth) {
+// Widest the component list may be, leaving room for the source pane.
+export function maxListWidth(containerWidth) {
     if (!Number.isFinite(containerWidth) || containerWidth <= 0) {
-        return MAX_TREE_WIDTH;
+        return MAX_LIST_WIDTH;
     }
     return clamp(
         containerWidth - MIN_SOURCE_WIDTH - SPLITTER_WIDTH,
-        MIN_TREE_WIDTH,
-        MAX_TREE_WIDTH
+        MIN_LIST_WIDTH,
+        MAX_LIST_WIDTH
     );
 }
 
@@ -49,13 +51,13 @@ export function widthForKey(key, current, min, max, step = KEY_STEP) {
 export function loadWidth() {
     try {
         const raw = window.localStorage.getItem(WIDTH_KEY);
-        if (raw === null || raw.trim() === '') return DEFAULT_TREE_WIDTH;
+        if (raw === null || raw.trim() === '') return DEFAULT_LIST_WIDTH;
         const n = Number(raw);
         return Number.isFinite(n)
-            ? clamp(n, MIN_TREE_WIDTH, MAX_TREE_WIDTH)
-            : DEFAULT_TREE_WIDTH;
+            ? clamp(n, MIN_LIST_WIDTH, MAX_LIST_WIDTH)
+            : DEFAULT_LIST_WIDTH;
     } catch {
-        return DEFAULT_TREE_WIDTH;
+        return DEFAULT_LIST_WIDTH;
     }
 }
 
