@@ -1,5 +1,6 @@
 import { createElement } from 'lwc';
 import WebExplorer from 'my/webExplorer';
+import { clearCache } from 'data/dataService';
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -43,6 +44,8 @@ const mockApi = (bundles, files = FILES) => {
 
 describe('my-web-explorer flat component list', () => {
     beforeEach(() => {
+        // the data layer caches lists and files between tests otherwise
+        clearCache();
         localStorage.clear();
         window.history.replaceState(null, '', '/');
     });
