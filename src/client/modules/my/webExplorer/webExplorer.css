@@ -1,6 +1,6 @@
 .search-card {
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
 }
 .search-row {
     display: flex;
@@ -14,7 +14,7 @@
 .panes {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: flex-start;
 }
 .pane-tree {
@@ -29,10 +29,12 @@
     min-height: 20rem;
     max-height: calc(100vh - 16rem);
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c9d4 transparent;
 }
 .component-tree {
-    background-color: #ffffff;
-    padding: 0.5rem 0;
+    background-color: var(--lwci-surface, #ffffff);
+    padding: 0.75rem 0.5rem;
 }
 .source-header {
     position: sticky;
@@ -44,15 +46,19 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e5e5;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--lwci-border, #e3e6ec);
 }
 .source-title {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 700;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+    color: var(--lwci-brand-dark, #014486);
 }
 .source-actions {
     display: flex;
@@ -60,20 +66,27 @@
 }
 .sourceCode {
     margin: 0;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     overflow: auto;
-    background: #f3f3f3;
+    background: #0f1b2d;
+    color: #d6e2f3;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.8125rem;
-    line-height: 1.5;
+    line-height: 1.6;
     white-space: pre;
+    border-radius: 0 0 var(--lwci-radius, 0.75rem) var(--lwci-radius, 0.75rem);
+    tab-size: 4;
+}
+.sourceCode:focus {
+    outline: 2px solid #1b96ff;
+    outline-offset: -2px;
 }
 .empty-state {
-    padding: 3rem 1rem;
+    padding: 3.5rem 1rem;
     text-align: center;
 }
 .empty-title {
     margin-bottom: 0.25rem;
     font-size: 1.125rem;
-    font-weight: 700;
+    font-weight: 600;
 }
