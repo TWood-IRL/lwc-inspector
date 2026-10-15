@@ -12,7 +12,7 @@ const jsforce = require('jsforce');
 // OPTIONAL: Logging service. Alternately, can use console.error as well
 // In production, we should write to a file, not just console
 const winston = require('winston');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 const logger = winston.createLogger({
     level: 'info',
@@ -56,8 +56,11 @@ const oauth2Sandbox = new jsforce.OAuth2({
     redirectUri: SALESFORCE_CALLBACK_URL
 });
 // Initialize Auth Services
-let authService = new AuthenticationService(logger, oauth2Prod);
-let integrationService = new IntegrationService(logger, authService);
+const authService = new AuthenticationService(logger, {
+    PROD: oauth2Prod,
+    SANDBOX: oauth2Sandbox
+});
+const integrationService = new IntegrationService(logger, authService);
 const DIST_DIR = './dist';
 
 const app = express();
@@ -68,6 +71,7 @@ app.use(
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
             'script-src': [
+                "'self'",
                 "'unsafe-inline'",
                 "'unsafe-eval'",
                 'https://www.googletagmanager.com',
@@ -95,7 +99,7 @@ app.use(compression());
 app.use(
     session({
         secret: NODE_SESSION_SECRET_KEY,
-        cookie: { secure: 'auto' },
+        cookie: { secure: 'auto', httpOnly: true, sameSite: 'lax' },
         resave: false,
         saveUninitialized: false
     })
@@ -124,15 +128,7 @@ app.get('/api/v1/sessionId', (req, res) => {
 
 // Login to Salesforce ///http://localhost:3002/oauth2/login - WORKING
 app.get('/oauth2/login', (req, res) => {
-    let login_type = req.query.login_type;
-    if (login_type === 'SANDBOX') {
-        //reinitialize with test url .. .
-        authService = new AuthenticationService(logger, oauth2Sandbox);
-    } else {
-        authService = new AuthenticationService(logger, oauth2Prod);
-    }
-    integrationService = new IntegrationService(logger, authService);
-    authService.redirectToAuthUrl(res);
+    authService.redirectToAuthUrl(req, res);
 });
 
 // Callback function to get Auth Token

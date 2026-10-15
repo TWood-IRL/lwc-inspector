@@ -1,55 +1,59 @@
-// These tests are examples to get you started on how how to test
-// Lightning Web Components using the Jest testing framework.
-//
-// See the LWC Recipes Open Source sample application for many other
-// test scenarios and best practices.
-//
-// https://github.com/trailheadapps/lwc-recipes-oss
-
 import { createElement } from 'lwc';
 import MyApp from 'my/app';
 
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe('my-app', () => {
+    beforeEach(() => {
+        // The explorer fetches the component list on load; jsdom has no fetch
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({ data: [] })
+            })
+        );
+    });
+
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
         }
+        delete global.fetch;
     });
 
-    it('contains a link to the LWC documentation with target set to _blank', () => {
-        const element = createElement('my-app', {
-            is: MyApp
-        });
+    it('shows the web explorer when no component is selected', () => {
+        const element = createElement('my-app', { is: MyApp });
         document.body.appendChild(element);
 
-        // Get link
-        const linkEl = element.shadowRoot.querySelector('a');
-
-        expect(linkEl.target).toBe('_blank');
+        expect(
+            element.shadowRoot.querySelector('my-web-explorer')
+        ).not.toBeNull();
+        expect(element.shadowRoot.querySelector('my-web-component')).toBeNull();
     });
 
-    it('contains a link to the LWC documentation with https://', () => {
-        const element = createElement('my-app', {
-            is: MyApp
-        });
+    it('shows the selected component and returns to the explorer on back', async () => {
+        const element = createElement('my-app', { is: MyApp });
         document.body.appendChild(element);
 
-        // Get link
-        const linkEl = element.shadowRoot.querySelector('a');
+        element.shadowRoot
+            .querySelector('my-web-explorer')
+            .dispatchEvent(
+                new CustomEvent('selected', {
+                    detail: { id: '0Rb000000000001' }
+                })
+            );
+        await flushPromises();
 
-        expect(linkEl.href).toMatch(/^https:/);
-    });
+        expect(element.shadowRoot.querySelector('my-web-explorer')).toBeNull();
+        const detail = element.shadowRoot.querySelector('my-web-component');
+        expect(detail).not.toBeNull();
 
-    it('contains one active custom element my-greeting', () => {
-        const element = createElement('my-app', {
-            is: MyApp
-        });
-        document.body.appendChild(element);
+        detail.dispatchEvent(new CustomEvent('backselected'));
+        await flushPromises();
 
-        // Get array of my-greeting custom elements
-        const greetingEls = element.shadowRoot.querySelectorAll('my-greeting');
-
-        expect(greetingEls.length).toBe(1);
+        expect(
+            element.shadowRoot.querySelector('my-web-explorer')
+        ).not.toBeNull();
     });
 });

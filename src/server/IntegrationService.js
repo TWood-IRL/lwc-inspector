@@ -4,7 +4,11 @@ const axios = require('axios');
 //Possible query for contents.. would have to then check on the client
 //select id, Format , Source,  FilePath, LightningComponentBundle.DeveloperName from LightningComponentResource where ManageableState in ('unmanaged') and format in ('js', 'html') and (NOT FilePath like '%.js-meta.xml')
 const LIGHTNING_WEB_COMPONENT_QUERY = `SELECT ID, DeveloperName,ManageableState,ApiVersion from #SOBJECT# order by developername asc`;
-const VERSION_API = '49.0';
+const VERSION_API = '66.0';
+
+// Escape a value for use inside a single-quoted SOQL string literal
+const soqlEscape = (value) =>
+    String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 // eslint-disable-next-line inclusive-language/use-inclusive-words
 //good example -https://github.com/adityanaag3/lwc-oss-oauth/blob/master/src/server/integrationService.js
 module.exports = class IntegrationService {
@@ -14,16 +18,7 @@ module.exports = class IntegrationService {
     }
     _performGet(urlOptions) {
         //using https://github.com/axios/axios#features
-        return new Promise((resolve, reject) => {
-            axios
-                .request(urlOptions)
-                .then((response) => {
-                    resolve(response);
-                })
-                .catch((error) => {
-                    reject(error);
-                });
-        });
+        return axios.request(urlOptions);
     }
 
     getLightningComponentBundles(req, res) {
@@ -36,7 +31,7 @@ module.exports = class IntegrationService {
                 : 'LightningComponentBundle';
         let query = !queryTerm
             ? LIGHTNING_WEB_COMPONENT_QUERY.replace('#SOBJECT#', SObject)
-            : `SELECT ID, DeveloperName,ManageableState,ApiVersion from ${SObject} where DeveloperName like '%${queryTerm}%' order by developername asc`;
+            : `SELECT ID, DeveloperName,ManageableState,ApiVersion from ${SObject} where DeveloperName like '%${soqlEscape(queryTerm)}%' order by developername asc`;
         let session = this.authService.getSession(req, res);
         if (session === null) {
             res.status(401).send('Unauthorized');
@@ -78,15 +73,15 @@ module.exports = class IntegrationService {
                 res.json({ data: formattedData });
             })
             .catch((error) => {
-                res.status(500).send(error);
+                res.status(500).send(error.message);
             });
     }
 
     getLightningComponent(req, res) {
         let bundleId = req.params.id;
         let query = bundleId.includes('0Rb')
-            ? `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${bundleId}' `
-            : `select Id, IsDeleted, ManageableState, AuraDefinitionBundleId, AuraDefinitionBundle.DeveloperName , Format, Source, DefType from AuraDefinition where AuraDefinitionBundleId = '${bundleId}' `;
+            ? `select id, Source,  FilePath,Format , LightningComponentBundle.DeveloperName from LightningComponentResource where LightningComponentBundleId = '${soqlEscape(bundleId)}' `
+            : `select Id, IsDeleted, ManageableState, AuraDefinitionBundleId, AuraDefinitionBundle.DeveloperName , Format, Source, DefType from AuraDefinition where AuraDefinitionBundleId = '${soqlEscape(bundleId)}' `;
         //query the contents of the bundle
         //https://tomwoodhousegs0-dev-ed.my.salesforce.com/
         ///services/data/v49.0/tooling/query?q=SELECT+ID,+DeveloperName+from+LightningComponentBundle+order+by+lastmodifieddate+desc
@@ -135,7 +130,7 @@ module.exports = class IntegrationService {
                 res.json({ data: formattedData });
             })
             .catch((error) => {
-                res.status(500).send(error);
+                res.status(500).send(error.message);
             });
     }
 };

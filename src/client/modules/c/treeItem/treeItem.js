@@ -208,7 +208,6 @@ export default class cTreeItem extends LightningElement {
         if (item !== undefined) {
             eventObject.detail = { key: item };
         }
-        // eslint-disable-next-line lightning-global/no-custom-event-identifier-arguments
         this.dispatchEvent(new CustomEvent(eventName, eventObject));
     }
 

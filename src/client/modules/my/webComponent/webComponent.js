@@ -50,7 +50,7 @@ export default class WebComponent extends LightningElement {
             return ; 
         }
         //get the component name pass to the below function
-        var zipFile = new JSZip();
+        const zipFile = new JSZip();
         /*  if (this.componentBundle.length > 0) {
             console.log('Could not identify component');
             return;
