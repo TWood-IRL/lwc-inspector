@@ -18,6 +18,16 @@
                 --lwci-surface: #ffffff;
                 --lwci-border: #e3e6ec;
                 --lwci-radius: 0.75rem;
+                --lwci-font:
+                    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+                    'Helvetica Neue', Arial, sans-serif;
+                --lwci-mono:
+                    ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas,
+                    monospace;
+                --lwci-text-xs: 0.75rem;
+                --lwci-text-sm: 0.8125rem;
+                --lwci-text-md: 0.9375rem;
+                --lwci-text-lg: 1.125rem;
                 --lwci-shadow:
                     0 1px 2px rgba(16, 24, 40, 0.06),
                     0 4px 12px rgba(16, 24, 40, 0.06);
@@ -33,7 +43,60 @@
                         rgba(220, 236, 251, 0) 100%
                     ),
                     #f4f6fa;
+                font-family: var(--lwci-font);
+                font-size: var(--lwci-text-md);
+                line-height: 1.5;
+                text-rendering: optimizeLegibility;
                 -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                animation: lwci-fade-in 0.4s ease-out both;
+            }
+            @keyframes lwci-fade-in {
+                from {
+                    opacity: 0;
+                    transform: translateY(4px);
+                }
+                to {
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+            h1,
+            h2,
+            h3 {
+                letter-spacing: -0.01em;
+                text-wrap: balance;
+            }
+            code,
+            pre,
+            kbd {
+                font-family: var(--lwci-mono);
+            }
+            ::selection {
+                background: rgba(1, 118, 211, 0.22);
+                color: inherit;
+            }
+            html {
+                scroll-behavior: smooth;
+                scrollbar-width: thin;
+                scrollbar-color: #b7c0cf transparent;
+            }
+            ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #c3cad6;
+                border: 2px solid transparent;
+                background-clip: content-box;
+                border-radius: 999px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #9aa5b8;
+                background-clip: content-box;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
             }
             a:focus-visible,
             button:focus-visible {
