@@ -42,7 +42,7 @@
 }
 
 :host([aria-selected='true']) > .slds-tree__item .slds-tree__item-label {
-    color: var(--lwci-brand-dark, #014486);
+    color: var(--lwci-link, var(--lwci-brand-dark, #014486));
     font-weight: 600;
 }
 

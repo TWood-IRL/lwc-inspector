@@ -9,6 +9,34 @@
             content="View and download the source of Lightning Web Components in any Salesforce org."
         />
         <meta name="theme-color" content="#0176d3" />
+        <meta name="color-scheme" content="light dark" />
+        <script>
+            // Apply the theme before first paint (logic mirrors my/theme)
+            (function () {
+                var theme;
+                try {
+                    theme = localStorage.getItem('lwci-theme');
+                } catch (e) {}
+                if (theme !== 'light' && theme !== 'dark') {
+                    theme =
+                        window.matchMedia &&
+                        window.matchMedia('(prefers-color-scheme: dark)')
+                            .matches
+                            ? 'dark'
+                            : 'light';
+                }
+                var root = document.documentElement;
+                root.setAttribute('data-theme', theme);
+                root.style.colorScheme = theme;
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) {
+                    meta.setAttribute(
+                        'content',
+                        theme === 'dark' ? '#014486' : '#0176d3'
+                    );
+                }
+            })();
+        </script>
         <style>
             :root {
                 --lwci-brand: #0176d3;
@@ -16,7 +44,15 @@
                 --lwci-ink: #181818;
                 --lwci-ink-weak: #5c5c5c;
                 --lwci-surface: #ffffff;
+                --lwci-surface-alt: #f4f6fa;
+                --lwci-bg: #f4f6fa;
+                --lwci-bg-glow: #dcecfb;
+                --lwci-hover: #eef4fb;
+                --lwci-link: #014486;
                 --lwci-border: #e3e6ec;
+                --lwci-code-bg: #1e1e1e;
+                --lwci-focus: #1b96ff;
+                --lwci-scroll: #c1c9d4;
                 --lwci-radius: 0.75rem;
                 --lwci-font:
                     'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
@@ -32,6 +68,22 @@
                     0 1px 2px rgba(16, 24, 40, 0.06),
                     0 4px 12px rgba(16, 24, 40, 0.06);
             }
+            :root[data-theme='dark'] {
+                --lwci-ink: #e8ecf2;
+                --lwci-ink-weak: #a9b4c4;
+                --lwci-surface: #1a212b;
+                --lwci-surface-alt: #151b24;
+                --lwci-bg: #0f141b;
+                --lwci-bg-glow: #12304f;
+                --lwci-hover: #243044;
+                --lwci-link: #6cb7ff;
+                --lwci-border: #333f50;
+                --lwci-code-bg: #11151b;
+                --lwci-focus: #7cc0ff;
+                --lwci-scroll: #44505f;
+                --lwci-shadow:
+                    0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.35);
+            }
             body {
                 margin: 0;
                 min-height: 100vh;
@@ -39,10 +91,10 @@
                 background:
                     radial-gradient(
                         60rem 24rem at 50% -8rem,
-                        #dcecfb 0%,
-                        rgba(220, 236, 251, 0) 100%
+                        var(--lwci-bg-glow) 0%,
+                        transparent 100%
                     ),
-                    #f4f6fa;
+                    var(--lwci-bg);
                 font-family: var(--lwci-font);
                 font-size: var(--lwci-text-md);
                 line-height: 1.5;
@@ -73,26 +125,26 @@
                 font-family: var(--lwci-mono);
             }
             ::selection {
-                background: rgba(1, 118, 211, 0.22);
+                background: rgba(27, 150, 255, 0.3);
                 color: inherit;
             }
             html {
                 scroll-behavior: smooth;
                 scrollbar-width: thin;
-                scrollbar-color: #b7c0cf transparent;
+                scrollbar-color: var(--lwci-scroll) transparent;
             }
             ::-webkit-scrollbar {
                 width: 10px;
                 height: 10px;
             }
             ::-webkit-scrollbar-thumb {
-                background: #c3cad6;
+                background: var(--lwci-scroll);
                 border: 2px solid transparent;
                 background-clip: content-box;
                 border-radius: 999px;
             }
             ::-webkit-scrollbar-thumb:hover {
-                background: #9aa5b8;
+                background: var(--lwci-ink-weak);
                 background-clip: content-box;
             }
             ::-webkit-scrollbar-track {
@@ -100,7 +152,7 @@
             }
             a:focus-visible,
             button:focus-visible {
-                outline: 2px solid #1b96ff;
+                outline: 2px solid var(--lwci-focus);
                 outline-offset: 2px;
             }
             @media (prefers-reduced-motion: reduce) {
@@ -118,6 +170,85 @@
                 border: 1px solid var(--lwci-border);
                 border-radius: var(--lwci-radius);
                 box-shadow: var(--lwci-shadow);
+            }
+            /* Dark theme overrides for SLDS components */
+            [data-theme='dark'] .slds-card,
+            [data-theme='dark'] .slds-card__header-title,
+            [data-theme='dark'] .slds-text-heading_small,
+            [data-theme='dark'] .slds-text-heading_medium,
+            [data-theme='dark'] .slds-form-element__label,
+            [data-theme='dark'] .slds-radio .slds-form-element__label {
+                color: var(--lwci-ink);
+            }
+            [data-theme='dark'] .slds-card {
+                background: var(--lwci-surface);
+            }
+            [data-theme='dark'] .slds-tree__item,
+            [data-theme='dark'] .slds-tree__item a {
+                color: var(--lwci-ink);
+            }
+            [data-theme='dark'] .slds-text-color_weak,
+            [data-theme='dark'] .slds-form-element__help {
+                color: var(--lwci-ink-weak);
+            }
+            [data-theme='dark'] .slds-input,
+            [data-theme='dark'] .slds-textarea,
+            [data-theme='dark'] .slds-select {
+                background: var(--lwci-surface-alt);
+                border-color: #5b6879;
+                color: var(--lwci-ink);
+            }
+            [data-theme='dark'] .slds-input::placeholder {
+                color: var(--lwci-ink-weak);
+            }
+            [data-theme='dark'] .slds-input:focus,
+            [data-theme='dark'] .slds-input:active {
+                border-color: var(--lwci-focus);
+                box-shadow: 0 0 3px var(--lwci-focus);
+            }
+            [data-theme='dark'] .slds-radio .slds-radio_faux {
+                background: var(--lwci-surface-alt);
+                border-color: #5b6879;
+            }
+            [data-theme='dark']
+                .slds-radio
+                [type='radio']:checked
+                + .slds-radio__label
+                .slds-radio_faux,
+            [data-theme='dark']
+                .slds-radio
+                [type='radio']:checked
+                ~ .slds-radio__label
+                .slds-radio_faux {
+                background: var(--lwci-surface-alt);
+                border-color: var(--lwci-focus);
+            }
+            [data-theme='dark']
+                .slds-radio
+                [type='radio']:focus
+                + .slds-radio__label
+                .slds-radio_faux {
+                border-color: var(--lwci-focus);
+                box-shadow: 0 0 3px var(--lwci-focus);
+            }
+            [data-theme='dark'] .slds-button_neutral {
+                background: var(--lwci-surface-alt);
+                border-color: #5b6879;
+                color: var(--lwci-link);
+            }
+            [data-theme='dark'] .slds-button_neutral:hover,
+            [data-theme='dark'] .slds-button_neutral:focus {
+                background: var(--lwci-hover);
+            }
+            [data-theme='dark'] .slds-button_brand {
+                background: #0b5cab;
+                border-color: #0b5cab;
+                color: #ffffff;
+            }
+            [data-theme='dark'] .slds-button_brand:hover,
+            [data-theme='dark'] .slds-button_brand:focus {
+                background: #0a4f94;
+                border-color: #0a4f94;
             }
         </style>
         <link rel="shortcut icon" href="resources/favicon.ico" />
