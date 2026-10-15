@@ -6,12 +6,212 @@
     color: #d4d4d4;
 }
 
-.scroller {
+.viewer {
+    position: relative;
     display: flex;
     flex: 1;
     min-height: 0;
+}
+
+.scroller {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
     overflow: auto;
     outline-offset: -2px;
+}
+
+.code-area {
+    position: relative;
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.scroller.wrapped .code-area {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.scroller.wrapped .code {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Line numbers cannot line up with wrapped lines */
+.scroller.wrapped .gutter {
+    display: none;
+}
+
+/* Find / go-to-line bar */
+.overlay {
+    position: absolute;
+    top: 0.5rem;
+    right: 1.25rem;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    max-width: calc(100% - 1.5rem);
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.375rem;
+    background: #252526;
+    border: 1px solid #454545;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    font-size: 0.75rem;
+    color: #d4d4d4;
+}
+
+.bar-input {
+    width: 12rem;
+    min-width: 0;
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    color: #f3f3f3;
+    background: #3c3c3c;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.bar-input.narrow {
+    width: 6rem;
+}
+
+.bar-input[aria-invalid='true'] {
+    border-color: #f48771;
+}
+
+.bar-input:focus-visible {
+    outline: 2px solid #4fc1ff;
+    outline-offset: 0;
+}
+
+.count {
+    min-width: 4.5rem;
+    padding: 0 0.25rem;
+    text-align: center;
+    color: #b0b0b0;
+    white-space: nowrap;
+}
+
+.bar-btn {
+    padding: 0.125rem 0.4rem;
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #d4d4d4;
+    background: transparent;
+    border: 0;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.bar-btn:hover:not(:disabled) {
+    background: #4a4a4a;
+}
+
+.bar-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.bar-btn:focus-visible,
+.wrap-btn:focus-visible {
+    outline: 2px solid #4fc1ff;
+    outline-offset: 1px;
+}
+
+.status-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.wrap-btn {
+    padding: 0 0.5rem;
+    font: inherit;
+    color: #ffffff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.wrap-btn[aria-pressed='true'] {
+    color: #014486;
+    background: #ffffff;
+}
+
+/* Matches */
+.code .find-match {
+    color: inherit;
+    background: rgba(234, 194, 60, 0.4);
+    border-radius: 2px;
+    outline: 1px solid rgba(234, 194, 60, 0.6);
+}
+
+.code .find-match.active {
+    background: rgba(255, 140, 0, 0.7);
+    outline-color: #ff8c00;
+}
+
+/* Go-to-line flash */
+.line-flash {
+    position: absolute;
+    right: 0;
+    left: 0;
+    display: none;
+    pointer-events: none;
+    background: rgba(79, 193, 255, 0.28);
+}
+
+.line-flash.flash-a,
+.line-flash.flash-b {
+    display: block;
+}
+
+.line-flash.flash-a {
+    animation: flash-a 1.2s ease-out both;
+}
+
+.line-flash.flash-b {
+    animation: flash-b 1.2s ease-out both;
+}
+
+@keyframes flash-a {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes flash-b {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* No fade: a static highlight, removed by the component after a moment */
+@media (prefers-reduced-motion: reduce) {
+    .line-flash.flash-a,
+    .line-flash.flash-b {
+        animation: none;
+        opacity: 1;
+    }
 }
 
 .gutter,
