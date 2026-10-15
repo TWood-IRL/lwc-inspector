@@ -40,7 +40,7 @@ describe('my-web-explorer workspace layout', () => {
         return element;
     };
     const $ = (sel) => element.shadowRoot.querySelector(sel);
-    const treePane = () => $('.pane-tree');
+    const listPane = () => $('.pane-list');
     const toggleButton = () => $('button[aria-expanded]');
     const focusButton = () => $('button[aria-pressed]');
 
@@ -65,7 +65,7 @@ describe('my-web-explorer workspace layout', () => {
             const splitter = $('my-splitter');
             expect(splitter).not.toBeNull();
             expect(splitter.value).toBe(288);
-            expect(treePane().getAttribute('style')).toContain('288px');
+            expect(listPane().getAttribute('style')).toContain('288px');
         });
 
         it('restores a persisted width', async () => {
@@ -83,8 +83,8 @@ describe('my-web-explorer workspace layout', () => {
                 })
             );
             await flushPromises();
-            expect(treePane().getAttribute('style')).toContain('350px');
-            expect(treePane().className).toContain('pane-tree-resizing');
+            expect(listPane().getAttribute('style')).toContain('350px');
+            expect(listPane().className).toContain('pane-list-resizing');
             expect(window.localStorage.getItem('lwci-tree-width')).toBeNull();
 
             splitter.dispatchEvent(
@@ -93,7 +93,7 @@ describe('my-web-explorer workspace layout', () => {
                 })
             );
             await flushPromises();
-            expect(treePane().className).not.toContain('pane-tree-resizing');
+            expect(listPane().className).not.toContain('pane-list-resizing');
             expect(window.localStorage.getItem('lwci-tree-width')).toBe('360');
         });
 
@@ -105,7 +105,7 @@ describe('my-web-explorer workspace layout', () => {
                 })
             );
             await flushPromises();
-            expect(treePane().getAttribute('style')).toContain('200px');
+            expect(listPane().getAttribute('style')).toContain('200px');
         });
 
         it('resets to the default on double click', async () => {
@@ -122,7 +122,7 @@ describe('my-web-explorer workspace layout', () => {
             await create();
             expect($('my-splitter')).toBeNull();
             expect(toggleButton()).toBeNull();
-            expect(treePane().getAttribute('style') || '').toBe('');
+            expect(listPane().getAttribute('style') || '').toBe('');
         });
 
         it('reacts when the layout becomes stacked', async () => {
@@ -135,11 +135,11 @@ describe('my-web-explorer workspace layout', () => {
         });
     });
 
-    describe('tree collapse', () => {
+    describe('list collapse', () => {
         it('starts expanded', async () => {
             await create();
             expect(toggleButton().getAttribute('aria-expanded')).toBe('true');
-            expect(treePane().className).not.toContain('pane-tree-hidden');
+            expect(listPane().className).not.toContain('pane-list-hidden');
         });
 
         it('collapses, hides the splitter and persists', async () => {
@@ -148,10 +148,10 @@ describe('my-web-explorer workspace layout', () => {
             await flushPromises();
             expect(toggleButton().getAttribute('aria-expanded')).toBe('false');
             expect(toggleButton().getAttribute('aria-label')).toBe(
-                'Show component tree'
+                'Show component list'
             );
-            expect(treePane().className).toContain('pane-tree-hidden');
-            expect(treePane().getAttribute('style')).toContain('0px');
+            expect(listPane().className).toContain('pane-list-hidden');
+            expect(listPane().getAttribute('style')).toContain('0px');
             expect($('my-splitter')).toBeNull();
             expect(window.localStorage.getItem('lwci-tree-collapsed')).toBe(
                 'true'
@@ -164,8 +164,8 @@ describe('my-web-explorer workspace layout', () => {
             await flushPromises();
             toggleButton().click();
             await flushPromises();
-            expect(treePane().className).not.toContain('pane-tree-hidden');
-            expect(treePane().getAttribute('style')).toContain('288px');
+            expect(listPane().className).not.toContain('pane-list-hidden');
+            expect(listPane().getAttribute('style')).toContain('288px');
             expect(window.localStorage.getItem('lwci-tree-collapsed')).toBe(
                 'false'
             );
@@ -174,7 +174,7 @@ describe('my-web-explorer workspace layout', () => {
         it('restores a persisted collapsed state', async () => {
             window.localStorage.setItem('lwci-tree-collapsed', 'true');
             await create();
-            expect(treePane().className).toContain('pane-tree-hidden');
+            expect(listPane().className).toContain('pane-list-hidden');
         });
 
         it('works when storage throws', async () => {
@@ -187,7 +187,7 @@ describe('my-web-explorer workspace layout', () => {
             await create();
             toggleButton().click();
             await flushPromises();
-            expect(treePane().className).toContain('pane-tree-hidden');
+            expect(listPane().className).toContain('pane-list-hidden');
         });
     });
 
@@ -204,14 +204,14 @@ describe('my-web-explorer workspace layout', () => {
             expect($('section').className).toContain('explorer-focus');
             expect(focusButton().textContent.trim()).toBe('Exit focus');
             expect(focusButton().getAttribute('aria-pressed')).toBe('true');
-            expect(treePane().className).toContain('pane-tree-hidden');
+            expect(listPane().className).toContain('pane-list-hidden');
             expect($('my-splitter')).toBeNull();
             expect(toggleButton()).toBeNull();
 
             focusButton().click();
             await flushPromises();
             expect(root.hasAttribute('data-focus')).toBe(false);
-            expect(treePane().className).not.toContain('pane-tree-hidden');
+            expect(listPane().className).not.toContain('pane-list-hidden');
         });
 
         it('toggles via the lwci:toggle-focus event', async () => {

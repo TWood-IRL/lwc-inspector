@@ -25,10 +25,10 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
 import {
-    DEFAULT_TREE_WIDTH,
-    MIN_TREE_WIDTH,
+    DEFAULT_LIST_WIDTH,
+    MIN_LIST_WIDTH,
     clamp,
-    maxTreeWidth,
+    maxListWidth,
     loadWidth,
     saveWidth,
     clearWidth,
@@ -60,9 +60,9 @@ export default class WebExplorer extends LightningElement {
     compTypeValue = 'lwcComps';
 
     // Workspace layout (see "Workspace layout" at the end of the class)
-    treeWidth = DEFAULT_TREE_WIDTH;
-    minTreeWidth = MIN_TREE_WIDTH;
-    treeCollapsed = false;
+    listWidth = DEFAULT_LIST_WIDTH;
+    minListWidth = MIN_LIST_WIDTH;
+    listCollapsed = false;
     focusMode = false;
     stacked = false;
     resizing = false;
@@ -734,11 +734,11 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
-    // --- Workspace layout: splitter, tree collapse, focus mode --------
+    // --- Workspace layout: splitter, list collapse, focus mode --------
 
     initLayout() {
-        this.treeWidth = loadWidth();
-        this.treeCollapsed = loadCollapsed();
+        this.listWidth = loadWidth();
+        this.listCollapsed = loadCollapsed();
         if (typeof window.matchMedia === 'function') {
             this._mql = window.matchMedia(STACKED_QUERY);
             this.stacked = !!this._mql.matches;
@@ -759,11 +759,11 @@ export default class WebExplorer extends LightningElement {
             }
         };
         this._onLayoutResize = () => {
-            // Re-clamp so a shrunk window never leaves the tree too wide
-            this.treeWidth = clamp(
-                this.treeWidth,
-                MIN_TREE_WIDTH,
-                this.maxTreeWidthValue
+            // Re-clamp so a shrunk window never leaves the list too wide
+            this.listWidth = clamp(
+                this.listWidth,
+                MIN_LIST_WIDTH,
+                this.maxListWidthValue
             );
         };
         document.addEventListener('keydown', this._onLayoutKeydown);
@@ -777,39 +777,39 @@ export default class WebExplorer extends LightningElement {
         document.documentElement.removeAttribute('data-focus');
     }
 
-    get maxTreeWidthValue() {
+    get maxListWidthValue() {
         const panes = this.template.querySelector('.panes');
-        return maxTreeWidth(panes ? panes.getBoundingClientRect().width : 0);
+        return maxListWidth(panes ? panes.getBoundingClientRect().width : 0);
     }
-    get treeHidden() {
-        return this.treeCollapsed || this.focusMode;
+    get listHidden() {
+        return this.listCollapsed || this.focusMode;
     }
     get showSplitter() {
-        return !this.stacked && !this.treeHidden;
+        return !this.stacked && !this.listHidden;
     }
-    get showTreeToggle() {
+    get showListToggle() {
         return !this.stacked && !this.focusMode;
     }
-    get treeExpanded() {
-        return !this.treeCollapsed;
+    get listExpanded() {
+        return !this.listCollapsed;
     }
-    get treeToggleLabel() {
-        return this.treeCollapsed
-            ? 'Show component tree'
-            : 'Hide component tree';
+    get listToggleLabel() {
+        return this.listCollapsed
+            ? 'Show component list'
+            : 'Hide component list';
     }
     get chevronClass() {
-        return this.treeCollapsed ? 'chevron chevron-collapsed' : 'chevron';
+        return this.listCollapsed ? 'chevron chevron-collapsed' : 'chevron';
     }
-    get treeStyle() {
+    get listStyle() {
         if (this.stacked) return '';
-        const width = this.treeHidden ? 0 : this.treeWidth;
+        const width = this.listHidden ? 0 : this.listWidth;
         return `flex: 0 0 ${width}px; width: ${width}px;`;
     }
-    get treeClass() {
-        let cls = 'pane-tree';
-        if (!this.stacked && this.treeHidden) cls += ' pane-tree-hidden';
-        if (this.resizing) cls += ' pane-tree-resizing';
+    get listClass() {
+        let cls = 'pane-list';
+        if (!this.stacked && this.listHidden) cls += ' pane-list-hidden';
+        if (this.resizing) cls += ' pane-list-resizing';
         return cls;
     }
     get explorerClass() {
@@ -828,19 +828,19 @@ export default class WebExplorer extends LightningElement {
     handleSplitterResize(event) {
         const { value, final } = event.detail;
         this.resizing = !final;
-        this.treeWidth = clamp(value, MIN_TREE_WIDTH, this.maxTreeWidthValue);
-        if (final) saveWidth(this.treeWidth);
+        this.listWidth = clamp(value, MIN_LIST_WIDTH, this.maxListWidthValue);
+        if (final) saveWidth(this.listWidth);
     }
 
     handleSplitterReset() {
         this.resizing = false;
-        this.treeWidth = DEFAULT_TREE_WIDTH;
+        this.listWidth = DEFAULT_LIST_WIDTH;
         clearWidth();
     }
 
-    handleTreeToggle() {
-        this.treeCollapsed = !this.treeCollapsed;
-        saveCollapsed(this.treeCollapsed);
+    handleListToggle() {
+        this.listCollapsed = !this.listCollapsed;
+        saveCollapsed(this.listCollapsed);
     }
 
     handleFocusToggle() {

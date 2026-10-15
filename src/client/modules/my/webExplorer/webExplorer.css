@@ -17,7 +17,7 @@
     gap: 0;
     align-items: flex-start;
 }
-.pane-tree {
+.pane-list {
     flex: 1 1 18rem;
     min-width: 0;
 }
@@ -33,7 +33,7 @@
     scrollbar-width: thin;
     scrollbar-color: var(--lwci-scroll, #c1c9d4) transparent;
 }
-.component-tree {
+.component-pane {
     background-color: var(--lwci-surface, #ffffff);
     padding: 0.75rem 0.5rem;
 }
@@ -248,17 +248,17 @@ my-code-viewer {
 .chevron-collapsed {
     transform: rotate(180deg);
 }
-.pane-tree {
+.pane-list {
     overflow: hidden;
     transition:
         flex-basis 0.2s ease,
         width 0.2s ease,
         visibility 0s linear 0s;
 }
-.pane-tree-resizing {
+.pane-list-resizing {
     transition: none;
 }
-.pane-tree-hidden {
+.pane-list-hidden {
     visibility: hidden;
     transition:
         flex-basis 0.2s ease,
@@ -266,8 +266,8 @@ my-code-viewer {
         visibility 0s linear 0.2s;
 }
 @media (prefers-reduced-motion: reduce) {
-    .pane-tree,
-    .pane-tree-hidden,
+    .pane-list,
+    .pane-list-hidden,
     .chevron {
         transition: none;
     }
@@ -293,12 +293,12 @@ my-code-viewer {
         flex-wrap: nowrap;
         gap: 1.25rem;
     }
-    .pane-tree,
+    .pane-list,
     .pane-source {
         flex: none;
         width: 100%;
     }
-    .pane-tree .pane {
+    .pane-list .pane {
         max-height: 14rem;
         min-height: 0;
     }

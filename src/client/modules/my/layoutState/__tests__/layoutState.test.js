@@ -1,6 +1,6 @@
 import {
     clamp,
-    maxTreeWidth,
+    maxListWidth,
     widthForKey,
     loadWidth,
     saveWidth,
@@ -9,9 +9,9 @@ import {
     saveCollapsed,
     WIDTH_KEY,
     COLLAPSED_KEY,
-    DEFAULT_TREE_WIDTH,
-    MIN_TREE_WIDTH,
-    MAX_TREE_WIDTH
+    DEFAULT_LIST_WIDTH,
+    MIN_LIST_WIDTH,
+    MAX_LIST_WIDTH
 } from 'my/layoutState';
 
 describe('my/layoutState', () => {
@@ -34,17 +34,17 @@ describe('my/layoutState', () => {
         });
     });
 
-    describe('maxTreeWidth', () => {
+    describe('maxListWidth', () => {
         it('uses the absolute max for unknown containers', () => {
-            expect(maxTreeWidth(0)).toBe(MAX_TREE_WIDTH);
-            expect(maxTreeWidth(NaN)).toBe(MAX_TREE_WIDTH);
+            expect(maxListWidth(0)).toBe(MAX_LIST_WIDTH);
+            expect(maxListWidth(NaN)).toBe(MAX_LIST_WIDTH);
         });
         it('leaves room for the source pane', () => {
-            expect(maxTreeWidth(900)).toBe(900 - 320 - 20);
+            expect(maxListWidth(900)).toBe(900 - 320 - 20);
         });
         it('never goes below min or above max', () => {
-            expect(maxTreeWidth(400)).toBe(MIN_TREE_WIDTH);
-            expect(maxTreeWidth(5000)).toBe(MAX_TREE_WIDTH);
+            expect(maxListWidth(400)).toBe(MIN_LIST_WIDTH);
+            expect(maxListWidth(5000)).toBe(MAX_LIST_WIDTH);
         });
     });
 
@@ -66,7 +66,7 @@ describe('my/layoutState', () => {
 
     describe('width persistence', () => {
         it('defaults when nothing stored', () => {
-            expect(loadWidth()).toBe(DEFAULT_TREE_WIDTH);
+            expect(loadWidth()).toBe(DEFAULT_LIST_WIDTH);
         });
         it('round trips and rounds', () => {
             saveWidth(333.4);
@@ -75,20 +75,20 @@ describe('my/layoutState', () => {
         });
         it('clamps stored values', () => {
             window.localStorage.setItem(WIDTH_KEY, '5000');
-            expect(loadWidth()).toBe(MAX_TREE_WIDTH);
+            expect(loadWidth()).toBe(MAX_LIST_WIDTH);
             window.localStorage.setItem(WIDTH_KEY, '1');
-            expect(loadWidth()).toBe(MIN_TREE_WIDTH);
+            expect(loadWidth()).toBe(MIN_LIST_WIDTH);
         });
         it('defaults on garbage', () => {
             window.localStorage.setItem(WIDTH_KEY, 'abc');
-            expect(loadWidth()).toBe(DEFAULT_TREE_WIDTH);
+            expect(loadWidth()).toBe(DEFAULT_LIST_WIDTH);
             window.localStorage.setItem(WIDTH_KEY, ' ');
-            expect(loadWidth()).toBe(DEFAULT_TREE_WIDTH);
+            expect(loadWidth()).toBe(DEFAULT_LIST_WIDTH);
         });
         it('clearWidth removes the value', () => {
             saveWidth(400);
             clearWidth();
-            expect(loadWidth()).toBe(DEFAULT_TREE_WIDTH);
+            expect(loadWidth()).toBe(DEFAULT_LIST_WIDTH);
         });
         it('survives throwing storage', () => {
             const boom = () => {
@@ -99,7 +99,7 @@ describe('my/layoutState', () => {
             jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(
                 boom
             );
-            expect(loadWidth()).toBe(DEFAULT_TREE_WIDTH);
+            expect(loadWidth()).toBe(DEFAULT_LIST_WIDTH);
             expect(loadCollapsed()).toBe(false);
             expect(() => saveWidth(300)).not.toThrow();
             expect(() => clearWidth()).not.toThrow();
