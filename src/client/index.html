@@ -10,9 +10,51 @@
         />
         <meta name="theme-color" content="#0176d3" />
         <style>
+            :root {
+                --lwci-brand: #0176d3;
+                --lwci-brand-dark: #014486;
+                --lwci-ink: #181818;
+                --lwci-ink-weak: #5c5c5c;
+                --lwci-surface: #ffffff;
+                --lwci-border: #e3e6ec;
+                --lwci-radius: 0.75rem;
+                --lwci-shadow:
+                    0 1px 2px rgba(16, 24, 40, 0.06),
+                    0 4px 12px rgba(16, 24, 40, 0.06);
+            }
             body {
                 margin: 0;
-                background: #f3f3f3;
+                min-height: 100vh;
+                color: var(--lwci-ink);
+                background:
+                    radial-gradient(
+                        60rem 24rem at 50% -8rem,
+                        #dcecfb 0%,
+                        rgba(220, 236, 251, 0) 100%
+                    ),
+                    #f4f6fa;
+                -webkit-font-smoothing: antialiased;
+            }
+            a:focus-visible,
+            button:focus-visible {
+                outline: 2px solid #1b96ff;
+                outline-offset: 2px;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    animation-duration: 0.01ms !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .slds-card {
+                    border-radius: 0.5rem;
+                }
+            }
+            .slds-card {
+                border: 1px solid var(--lwci-border);
+                border-radius: var(--lwci-radius);
+                box-shadow: var(--lwci-shadow);
             }
         </style>
         <link rel="shortcut icon" href="resources/favicon.ico" />

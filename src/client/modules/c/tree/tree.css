@@ -1,0 +1,10 @@
+.slds-tree__group-header {
+    padding: 0.25rem 0.75rem 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5c5c5c;
+    border-bottom: 1px solid #e3e6ec;
+}

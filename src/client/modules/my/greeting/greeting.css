@@ -3,14 +3,17 @@
     margin: 0 auto;
 }
 .about-card {
-    padding: 1.5rem;
+    padding: 1.5rem 1.75rem;
     margin-bottom: 1rem;
+    border-left: 4px solid var(--lwci-brand, #0176d3);
 }
 .about-heading {
     margin: 0 0 0.75rem;
+    font-weight: 600;
+    color: var(--lwci-brand-dark, #014486);
 }
 .about-text {
-    line-height: 1.6;
+    line-height: 1.65;
     color: #3e3e3c;
 }
 .about-text + .about-text {
@@ -23,4 +26,13 @@
     gap: 0.5rem 1.5rem;
     margin-top: 1.5rem;
     font-size: 0.875rem;
+}
+.about-links a {
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease;
+}
+.about-links a:hover,
+.about-links a:focus {
+    border-bottom-color: currentColor;
 }

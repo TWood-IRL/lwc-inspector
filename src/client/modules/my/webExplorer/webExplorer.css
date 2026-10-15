@@ -1,6 +1,6 @@
 .search-card {
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
 }
 .search-row {
     display: flex;
@@ -14,7 +14,7 @@
 .panes {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: flex-start;
 }
 .pane-tree {
@@ -29,26 +29,28 @@
     min-height: 20rem;
     max-height: calc(100vh - 16rem);
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c9d4 transparent;
 }
 .component-tree {
-    background-color: #ffffff;
-    padding: 0.5rem 0;
+    background-color: var(--lwci-surface, #ffffff);
+    padding: 0.75rem 0.5rem;
 }
 .empty-state {
-    padding: 3rem 1rem;
+    padding: 3.5rem 1rem;
     text-align: center;
 }
 .empty-title {
     margin-bottom: 0.25rem;
     font-size: 1.125rem;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 /* Editor pane */
 .editor {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 16rem);
+    height: calc(100vh - 18.5rem);
     min-height: 20rem;
     overflow: hidden;
     border-radius: 0.25rem;
