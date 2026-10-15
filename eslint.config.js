@@ -18,6 +18,7 @@ module.exports = [
         files: [
             'src/server/**',
             'scripts/**',
+            'api/**',
             'jest.config.js',
             'rollup.config.mjs',
             'eslint.config.js'

@@ -14,14 +14,6 @@ Current features include:
 -Click to view the component source
 -Download the source directly to your machine
 
-# Live site.
-
-Production
-https://lwc-inspector.herokuapp.com/
-
-Staging
-https://lwc-inspector-staging.herokuapp.com/
-
 ## How to start?
 
 Requires Node 20 or newer.
@@ -33,6 +25,14 @@ Requires Node 20 or newer.
 Other scripts: `npm run build` (production bundle into `dist`), `npm start`-style serving via `npm run serve`, `npm run test:unit`, `npm run lint`.
 
 Web components live in [`src/client/modules`](./src/client/modules); the Express API is in [`src/server`](./src/server). The client is built with Rollup and `@lwc/rollup-plugin` (see `rollup.config.mjs`).
+
+## Deploying to Vercel
+
+1. Import the repo in Vercel. `vercel.json` already sets the install command, build command (`npm run build`) and output directory (`dist`).
+2. Add these environment variables: `NODE_SESSION_SECRET_KEY`, `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_CALLBACK_URL` (`https://<your-domain>/auth/callback`), `LOGIN_URL_PROD`, `LOGIN_URL_SANDBOX`.
+3. Set the same callback URL on your Salesforce Connected App.
+
+The Express app is exported from `src/server/app.js` and served as a serverless function through `api/index.js`. Sessions live in a signed cookie, so no database or Redis is needed.
 
 # License
 
