@@ -1,0 +1,32 @@
+<template>
+    <div class="error-state" role="alert">
+        <svg
+            class="error-icon"
+            viewBox="0 0 64 64"
+            width="48"
+            height="48"
+            aria-hidden="true"
+        >
+            <circle
+                cx="32"
+                cy="32"
+                r="24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+            />
+            <path
+                d="M32 20v16"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+            />
+            <circle cx="32" cy="44" r="2.5" fill="currentColor" />
+        </svg>
+        <p class="error-title">{title}</p>
+        <p lwc:if={message} class="error-message">{message}</p>
+        <button type="button" class="retry" onclick={handleRetry}>
+            {retryLabel}
+        </button>
+    </div>
+</template>

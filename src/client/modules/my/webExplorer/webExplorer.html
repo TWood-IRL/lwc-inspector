@@ -23,7 +23,39 @@
                     label="Search"
                     onclick={executeSearch}
                 ></lightning-button>
+                <lightning-button-icon
+                    class="refresh-button"
+                    icon-name="utility:refresh"
+                    alternative-text="Refresh components"
+                    title="Refresh (bypass cache)"
+                    disabled={refreshDisabled}
+                    onclick={handleRefresh}
+                ></lightning-button-icon>
             </div>
+            <p lwc:if={freshnessLabel} class="freshness" aria-live="polite">
+                {freshnessLabel}
+            </p>
+            <div lwc:if={offline} class="offline-banner" role="status">
+                You are offline. Showing cached data where available.
+            </div>
+        </div>
+
+        <div lwc:if={showSkeleton} class="panes">
+            <div class="pane-tree">
+                <div class="slds-card pane component-tree">
+                    <my-skeleton variant="tree" rows="10"></my-skeleton>
+                </div>
+            </div>
+            <div class="pane-source">
+                <my-skeleton variant="code" rows="12"></my-skeleton>
+            </div>
+        </div>
+        <div lwc:if={showLoadError} class="slds-card">
+            <my-error-state
+                title="Unable to load components"
+                message={loadError}
+                onretry={handleRetry}
+            ></my-error-state>
         </div>
 
         <my-recent-chips
@@ -92,7 +124,20 @@
                 onreset={handleSplitterReset}
             ></my-splitter>
             <div class="pane-source">
-                <div lwc:if={isTypeSource} class="editor">
+                <my-skeleton
+                    lwc:if={loadingItems}
+                    variant="code"
+                    rows="12"
+                    label="Loading component files"
+                ></my-skeleton>
+                <div lwc:elseif={itemError} class="slds-card pane">
+                    <my-error-state
+                        title="Unable to load component files"
+                        message={itemError}
+                        onretry={handleItemRetry}
+                    ></my-error-state>
+                </div>
+                <div lwc:elseif={isTypeSource} class="editor">
                     <div class="editor-bar">
                         <div
                             class="tabs"

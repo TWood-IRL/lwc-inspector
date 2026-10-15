@@ -2,8 +2,12 @@ import { LightningElement, api, track } from 'lwc';
 import {
     getLightningComponentBundles,
     searchLightningComponentBundle,
-    getLightningComponentBundleById
+    getLightningComponentBundleById,
+    getBundlesUpdatedAt,
+    refresh as refreshData,
+    isAbortError
 } from 'data/dataService';
+import { formatAge } from 'data/cache';
 
 import { fireLoading, showToast } from 'my/utils';
 import { LABELS } from 'data/labelService';
@@ -62,6 +66,30 @@ export default class WebExplorer extends LightningElement {
     resizing = false;
 
     LABELS = LABELS;
+
+    // Data loading state: errors, freshness and connectivity
+    loadError = null; // message when the bundle list failed to load
+    itemError = null; // message when a bundle's files failed to load
+    loadingItems = false;
+    refreshing = false;
+    offline = false;
+    updatedAt = null;
+    _now = Date.now();
+    _listRequest = 0; // guards against out-of-order list responses
+    _showingSearch = false;
+
+    get showSkeleton() {
+        return !this.loaded && !this.isComponents;
+    }
+    get showLoadError() {
+        return !!this.loadError && !this.isComponents;
+    }
+    get freshnessLabel() {
+        return formatAge(this.updatedAt, this._now);
+    }
+    get refreshDisabled() {
+        return this.refreshing;
+    }
 
     get isComponents() {
         return this._lightningComponentBundles.length > 0;
@@ -320,6 +348,7 @@ export default class WebExplorer extends LightningElement {
         window.addEventListener('hashchange', this.handleHashChange);
         this.addShortcutListeners();
         this.initLayout();
+        this.addConnectivityListeners();
         await this.getLightningComponents();
         if (target) {
             await this.openTarget(target);
@@ -386,25 +415,92 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
+    // Offline banner and "Updated x ago" ticker
+    addConnectivityListeners() {
+        this.offline = navigator.onLine === false;
+        window.addEventListener('online', this.handleOnline);
+        window.addEventListener('offline', this.handleOffline);
+        this._tick = setInterval(() => {
+            this._now = Date.now();
+        }, 30000);
+    }
+    handleOffline = () => {
+        this.offline = true;
+    };
+    handleOnline = () => {
+        this.offline = false;
+        if (this.loadError) {
+            this.getLightningComponents(true);
+        }
+    };
+
+    handleRefresh() {
+        this.getLightningComponents(true);
+    }
+    handleRetry() {
+        this.getLightningComponents(true);
+    }
+    handleItemRetry() {
+        this.loadSelectedComponentItems(true);
+    }
+
     showError(error) {
         this.dispatchEvent(showToast('Something went wrong', error.message));
     }
 
-    async getLightningComponents() {
-        this.dispatchEvent(fireLoading(true));
+    async getLightningComponents(force = false) {
+        const request = ++this._listRequest;
+        this.loadError = null;
+        this.refreshing = true;
+        this._showingSearch = false;
         try {
-            const resp = await getLightningComponentBundles(this.compTypeValue);
+            const resp = force
+                ? await refreshData(this.compTypeValue)
+                : await getLightningComponentBundles(this.compTypeValue, {
+                      onRevalidate: (fresh) =>
+                          this.applyRevalidated(request, fresh)
+                  });
+            if (request !== this._listRequest) {
+                return; // a newer request owns the result
+            }
             if (resp.data.length === 0) {
                 //we did not get any results
                 this.dispatchEvent(showToast('No Results Found'));
             }
+            if (force) {
+                this._selectedComponent = null;
+                this._selectedComponentResource = null;
+            }
             this._lightningComponentBundles = resp.data;
+            this.updatedAt = getBundlesUpdatedAt(this.compTypeValue);
+            this._now = Date.now();
         } catch (error) {
-            this.showError(error);
+            if (request === this._listRequest) {
+                this.loadError = error.message || 'Unable to load components';
+                if (this.isComponents) {
+                    this.showError(error);
+                }
+            }
         } finally {
-            this.loaded = true;
-            this.dispatchEvent(fireLoading(false));
+            if (request === this._listRequest) {
+                this.loaded = true;
+                this.refreshing = false;
+            }
         }
+    }
+
+    // Stale-while-revalidate: swap in fresh data unless the user is mid-task
+    applyRevalidated(request, fresh) {
+        if (
+            request !== this._listRequest ||
+            this._showingSearch ||
+            this._selectedComponent
+        ) {
+            return;
+        }
+        this._lightningComponentBundles = fresh.data;
+        this.updatedAt = getBundlesUpdatedAt(this.compTypeValue);
+        this._now = Date.now();
     }
 
     handleSearchKeyup(event) {
@@ -427,6 +523,9 @@ export default class WebExplorer extends LightningElement {
         this.teardownLayout();
         window.removeEventListener('hashchange', this.handleHashChange);
         clearTimeout(this.linkTimer);
+        clearInterval(this._tick);
+        window.removeEventListener('online', this.handleOnline);
+        window.removeEventListener('offline', this.handleOffline);
 
         Object.entries(this._shortcutHandlers ?? {}).forEach(([name, fn]) =>
             document.removeEventListener(name, fn)
@@ -478,10 +577,16 @@ export default class WebExplorer extends LightningElement {
                 this.dispatchEvent(showToast('No Results Found'));
                 await this.getLightningComponents();
             } else {
+                this._listRequest++; // supersedes any in-flight list load
+                this._showingSearch = true;
+                this.loadError = null;
                 this._lightningComponentBundles = resp.data;
             }
         } catch (error) {
-            this.showError(error);
+            // a superseded search is not an error, a newer one is running
+            if (!isAbortError(error)) {
+                this.showError(error);
+            }
         } finally {
             this.dispatchEvent(fireLoading(false));
         }
@@ -499,6 +604,8 @@ export default class WebExplorer extends LightningElement {
      */
     async handleOnselect(event) {
         const treeValue = event.detail.name;
+        this.itemError = null;
+        this.loadingItems = false;
         this.template.querySelector('c-tree').resetSelected();
         const indxPos = this.findId(this._lightningComponentBundles, treeValue);
         if (this._selectedComponent) {
@@ -531,19 +638,24 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
-    async loadSelectedComponentItems() {
+    async loadSelectedComponentItems(force = false) {
         const component = this._selectedComponent;
-        this.dispatchEvent(fireLoading(true));
+        this.itemError = null;
+        this.loadingItems = true;
         try {
-            const resp = await getLightningComponentBundleById(component.id);
+            const resp = await getLightningComponentBundleById(component.id, {
+                force
+            });
             component.items = resp.data;
             component.expanded = true;
             this._lightningComponentBundles[component.name] = component;
             this.refreshBundles();
         } catch (error) {
-            this.showError(error);
+            this.itemError = error.message || 'Unable to load files';
         } finally {
-            this.dispatchEvent(fireLoading(false));
+            if (component === this._selectedComponent) {
+                this.loadingItems = false;
+            }
         }
     }
 
