@@ -8,10 +8,23 @@ import {
     lineStartOffset,
     MAX_MATCHES
 } from './highlight';
+import {
+    SYNTAX_THEMES,
+    TAB_WIDTHS,
+    LINE_HEIGHTS,
+    FONT_SIZE_MIN,
+    FONT_SIZE_MAX,
+    getPrefs,
+    setPrefs,
+    resetPrefs,
+    stepFontSize,
+    resetFontSize,
+    subscribe,
+    lineHeightMultiplier
+} from 'my/viewerPrefs';
 
 const SEARCH_DEBOUNCE_MS = 150;
 const FLASH_MS = 1200;
-const FALLBACK_LINE_HEIGHT = 20.15; // 0.8125rem * 1.55 line-height
 const FALLBACK_PADDING_TOP = 12; // 0.75rem
 const SCROLL_MARGIN = 24;
 
@@ -36,7 +49,13 @@ export default class CodeViewer extends LightningElement {
     matchCount = 0;
     truncated = false;
     activeIndex = -1;
-    wrapped = false;
+    wrapped = getPrefs().wordWrap;
+    prefs = getPrefs();
+    prefsOpen = false;
+    siteTheme = 'dark';
+    currentLine = 0;
+    currentTop = 0;
+    currentHeight = 0;
     gotoValue = '';
     gotoInvalid = false;
     flashVisible = false;
@@ -51,6 +70,7 @@ export default class CodeViewer extends LightningElement {
     hovered = false;
     focused = false;
     pendingFocus;
+    prefsKey;
     debounceTimer;
     flashTimer;
 
@@ -89,7 +109,82 @@ export default class CodeViewer extends LightningElement {
         return `Source of ${this.fileName}`;
     }
     get scrollerClass() {
-        return this.wrapped ? 'scroller wrapped' : 'scroller';
+        const classes = ['scroller'];
+        if (this.wrapped) {
+            classes.push('wrapped');
+        }
+        if (!this.prefs.lineNumbers) {
+            classes.push('no-gutter');
+        }
+        return classes.join(' ');
+    }
+    get effectiveTheme() {
+        const theme = this.prefs.syntaxTheme;
+        if (theme === 'auto') {
+            return this.siteTheme === 'light' ? 'paper' : 'midnight';
+        }
+        return theme;
+    }
+    get fontSizeLabel() {
+        return `${this.prefs.fontSize} px`;
+    }
+    get atMinFont() {
+        return this.prefs.fontSize <= FONT_SIZE_MIN;
+    }
+    get atMaxFont() {
+        return this.prefs.fontSize >= FONT_SIZE_MAX;
+    }
+    get prefsExpanded() {
+        return this.prefsOpen ? 'true' : 'false';
+    }
+    get syntaxOptions() {
+        return this.radios(
+            'syntaxTheme',
+            SYNTAX_THEMES.map((t) => [t.value, t.label])
+        );
+    }
+    get tabOptions() {
+        return this.radios(
+            'tabWidth',
+            TAB_WIDTHS.map((w) => [w, `${w}`])
+        );
+    }
+    get lineHeightOptions() {
+        return this.radios(
+            'lineHeight',
+            Object.keys(LINE_HEIGHTS).map((k) => [
+                k,
+                k.charAt(0).toUpperCase() + k.slice(1)
+            ])
+        );
+    }
+    get lineNumbersChecked() {
+        return this.prefs.lineNumbers;
+    }
+    get wordWrapChecked() {
+        return this.prefs.wordWrap;
+    }
+    get highlightLineChecked() {
+        return this.prefs.highlightLine;
+    }
+    get currentLineClass() {
+        return this.currentLine && this.prefs.highlightLine
+            ? 'line-current visible'
+            : 'line-current';
+    }
+    get currentLineStyle() {
+        return `top: ${this.currentTop}px; height: ${this.currentHeight}px;`;
+    }
+
+    radios(pref, entries) {
+        const value = this.prefs[pref];
+        return entries.map(([v, label]) => ({
+            key: `${pref}-${v}`,
+            pref,
+            value: String(v),
+            label,
+            checked: v === value
+        }));
     }
     get wrapPressed() {
         return this.wrapped ? 'true' : 'false';
@@ -125,6 +220,14 @@ export default class CodeViewer extends LightningElement {
     }
 
     connectedCallback() {
+        this.prefs = getPrefs();
+        this.wrapped = this.prefs.wordWrap;
+        this.unsubscribePrefs = subscribe((next) =>
+            this.handlePrefsChange(next)
+        );
+        this.watchSiteTheme();
+        this.clickHandler = (event) => this.handleDocumentClick(event);
+        document.addEventListener('click', this.clickHandler);
         this.keyHandler = (event) => this.handleDocumentKeydown(event);
         document.addEventListener('keydown', this.keyHandler);
         this.template.addEventListener('focusin', () => {
@@ -146,11 +249,21 @@ export default class CodeViewer extends LightningElement {
 
     disconnectedCallback() {
         document.removeEventListener('keydown', this.keyHandler);
+        document.removeEventListener('click', this.clickHandler);
+        if (this.unsubscribePrefs) {
+            this.unsubscribePrefs();
+            this.unsubscribePrefs = undefined;
+        }
+        if (this.themeObserver) {
+            this.themeObserver.disconnect();
+            this.themeObserver = undefined;
+        }
         clearTimeout(this.debounceTimer);
         clearTimeout(this.flashTimer);
     }
 
     renderedCallback() {
+        this.applyHostPrefs();
         const code = this._code;
         const key = `${this.language}:${code}`;
         if (key !== this.renderedKey) {
@@ -164,12 +277,15 @@ export default class CodeViewer extends LightningElement {
                 this.runSearch(false);
             }
         }
+        this.syncCurrentLine();
         if (this.pendingFocus) {
             const input = this.refs[this.pendingFocus];
             this.pendingFocus = undefined;
             if (input) {
                 input.focus();
-                input.select();
+                if (typeof input.select === 'function') {
+                    input.select();
+                }
             }
         }
     }
@@ -181,6 +297,203 @@ export default class CodeViewer extends LightningElement {
             this.highlightedHtml = highlight(this._code, this.language);
         }
         return this.highlightedHtml;
+    }
+
+    // ---- preferences ----
+
+    watchSiteTheme() {
+        const root = document.documentElement;
+        const read = () => {
+            const theme =
+                root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            if (theme !== this.siteTheme) {
+                this.siteTheme = theme;
+            }
+        };
+        read();
+        if (typeof MutationObserver === 'function') {
+            this.themeObserver = new MutationObserver(read);
+            this.themeObserver.observe(root, {
+                attributes: true,
+                attributeFilter: ['data-theme']
+            });
+        }
+    }
+
+    // Palette, font metrics and tab width are CSS custom properties on the
+    // host (and a data-syntax attribute the palettes key off)
+    applyHostPrefs() {
+        const host = this.template.host;
+        const { fontSize, tabWidth, lineHeight } = this.prefs;
+        const values = {
+            '--cv-font-size': `${fontSize}px`,
+            '--cv-line-height': String(lineHeightMultiplier(lineHeight)),
+            '--cv-tab-size': String(tabWidth)
+        };
+        for (const name of Object.keys(values)) {
+            if (host.style.getPropertyValue(name) !== values[name]) {
+                host.style.setProperty(name, values[name]);
+            }
+        }
+        if (host.getAttribute('data-syntax') !== this.effectiveTheme) {
+            host.setAttribute('data-syntax', this.effectiveTheme);
+        }
+    }
+
+    handlePrefsChange(next) {
+        if (next.wordWrap !== this.prefs.wordWrap) {
+            this.wrapped = next.wordWrap;
+        }
+        this.prefs = next;
+    }
+
+    handleZoomKey(event) {
+        const key = event.key;
+        if (key === '+' || key === '=') {
+            stepFontSize(1);
+        } else if (key === '-' || key === '_') {
+            stepFontSize(-1);
+        } else if (key === '0') {
+            resetFontSize();
+        } else {
+            return false;
+        }
+        event.preventDefault();
+        return true;
+    }
+
+    togglePrefs() {
+        if (this.prefsOpen) {
+            this.closePrefs(true);
+        } else {
+            this.prefsOpen = true;
+            this.pendingFocus = 'fontDown';
+        }
+    }
+
+    closePrefs(restoreFocus) {
+        if (!this.prefsOpen) {
+            return;
+        }
+        this.prefsOpen = false;
+        if (restoreFocus && this.refs.prefsButton) {
+            this.refs.prefsButton.focus();
+        }
+    }
+
+    handlePrefsKeydown(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            this.closePrefs(true);
+        }
+    }
+
+    // Non-modal: clicking outside the popover and its button closes it
+    handleDocumentClick(event) {
+        if (!this.prefsOpen) {
+            return;
+        }
+        const path = event.composedPath ? event.composedPath() : [];
+        const inside = path.some(
+            (n) => n === this.refs.prefsPopover || n === this.refs.prefsButton
+        );
+        if (!inside) {
+            this.closePrefs(false);
+        }
+    }
+
+    handleFontDown() {
+        stepFontSize(-1);
+    }
+    handleFontUp() {
+        stepFontSize(1);
+    }
+    handleRadio(event) {
+        const { pref, value } = event.target.dataset;
+        setPrefs({ [pref]: pref === 'tabWidth' ? Number(value) : value });
+    }
+    handleToggle(event) {
+        setPrefs({ [event.target.dataset.pref]: event.target.checked });
+    }
+    handlePrefsReset() {
+        resetPrefs();
+    }
+
+    // ---- current line ----
+
+    handleCodeClick(event) {
+        if (!this.prefs.highlightLine) {
+            return;
+        }
+        const selection = window.getSelection && window.getSelection();
+        if (selection && !selection.isCollapsed) {
+            return; // selecting text, not placing the caret
+        }
+        const line =
+            this.lineFromSelection(selection) || this.lineFromPoint(event);
+        if (line) {
+            this.currentLine = Math.min(line, this.lineCount);
+            this.syncCurrentLine(true);
+        }
+    }
+
+    lineFromSelection(selection) {
+        const codeEl = this.refs.code;
+        const node = selection && selection.anchorNode;
+        if (!node || !codeEl || !codeEl.contains(node)) {
+            return 0;
+        }
+        const walker = document.createTreeWalker(codeEl, 4);
+        let offset = 0;
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+            if (n === node) {
+                const before = this._code.slice(
+                    0,
+                    offset + selection.anchorOffset
+                );
+                return before.split('\n').length;
+            }
+            offset += n.nodeValue.length;
+        }
+        return 0;
+    }
+
+    // Without a caret position, work the line out from the pointer (unwrapped
+    // text only, where every line is one row tall)
+    lineFromPoint(event) {
+        if (this.wrapped || !event || !this.refs.code) {
+            return 0;
+        }
+        const area = this.template.querySelector('.code-area');
+        const { top: first, height } = this.lineMetrics(1);
+        const y = event.clientY - area.getBoundingClientRect().top - first;
+        return Math.max(1, Math.floor(y / height) + 1);
+    }
+
+    // Reposition the current-line band when anything affecting metrics changed
+    syncCurrentLine(force) {
+        if (!this.currentLine || !this.refs.code) {
+            return;
+        }
+        const key = [
+            this.prefs.fontSize,
+            this.prefs.lineHeight,
+            this.prefs.tabWidth,
+            this.prefs.lineNumbers,
+            this.wrapped,
+            this.currentLine,
+            this._code.length
+        ].join('|');
+        if (!force && key === this.prefsKey) {
+            return;
+        }
+        this.prefsKey = key;
+        const { top, height } = this.lineMetrics(this.currentLine);
+        if (top !== this.currentTop || height !== this.currentHeight) {
+            this.currentTop = top;
+            this.currentHeight = height;
+        }
     }
 
     // ---- state ----
@@ -199,6 +512,8 @@ export default class CodeViewer extends LightningElement {
         this.gotoValue = '';
         this.gotoInvalid = false;
         this.flashVisible = false;
+        this.currentLine = 0;
+        this.prefsOpen = false;
     }
 
     // ---- keyboard ----
@@ -208,17 +523,25 @@ export default class CodeViewer extends LightningElement {
             return;
         }
         if (event.key === 'Escape') {
+            if (this.prefsOpen) {
+                event.preventDefault();
+                this.closePrefs(true);
+                return;
+            }
             if (this.findOpen || this.gotoOpen) {
                 event.preventDefault();
                 this.closeBars();
             }
             return;
         }
-        if (
-            !(event.ctrlKey || event.metaKey) ||
-            event.altKey ||
-            event.shiftKey
-        ) {
+        if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+            return;
+        }
+        // Shift is allowed here: "+" is Shift+= on most layouts
+        if (this.handleZoomKey(event)) {
+            return;
+        }
+        if (event.shiftKey) {
             return;
         }
         const key = (event.key || '').toLowerCase();
@@ -425,20 +748,7 @@ export default class CodeViewer extends LightningElement {
         if (!scroller || !codeEl || !area) {
             return;
         }
-        const pre = codeEl.parentNode;
-        const style = window.getComputedStyle(pre);
-        const lineHeight = px(style.lineHeight, FALLBACK_LINE_HEIGHT);
-        const paddingTop = px(style.paddingTop, FALLBACK_PADDING_TOP);
-        let top = paddingTop + (line - 1) * lineHeight;
-        let height = lineHeight;
-        if (this.wrapped) {
-            // Wrapped lines have variable height, so measure the real text
-            const rect = this.measureLine(line);
-            if (rect) {
-                top = rect.top - area.getBoundingClientRect().top;
-                height = rect.height || lineHeight;
-            }
-        }
+        const { top, height } = this.lineMetrics(line);
         this.flashTop = top;
         this.flashHeight = height;
         // Alternate between two identical animations so flashing the same
@@ -453,6 +763,30 @@ export default class CodeViewer extends LightningElement {
         const target = top - (box.height - height) / 3;
         scroller.scrollTop = Math.max(0, target);
         scroller.scrollLeft = 0;
+    }
+
+    // Top and height of a line inside .code-area. Line height is read from the
+    // rendered DOM (it depends on the font size and line height preferences),
+    // never from constants; the fallback only applies where there is no layout.
+    lineMetrics(line) {
+        const codeEl = this.refs.code;
+        const area = this.template.querySelector('.code-area');
+        const style = window.getComputedStyle(codeEl.parentNode);
+        const fallback =
+            this.prefs.fontSize * lineHeightMultiplier(this.prefs.lineHeight);
+        const lineHeight = px(style.lineHeight, fallback);
+        const paddingTop = px(style.paddingTop, FALLBACK_PADDING_TOP);
+        let top = paddingTop + (line - 1) * lineHeight;
+        let height = lineHeight;
+        if (this.wrapped) {
+            // Wrapped lines have variable height, so measure the real text
+            const rect = this.measureLine(line);
+            if (rect) {
+                top = rect.top - area.getBoundingClientRect().top;
+                height = rect.height || lineHeight;
+            }
+        }
+        return { top, height };
     }
 
     measureLine(line) {

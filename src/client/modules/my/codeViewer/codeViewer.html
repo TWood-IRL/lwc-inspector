@@ -1,5 +1,5 @@
 <template>
-    <div class="viewer">
+    <div class="viewer" data-palette={effectiveTheme}>
         <div class="overlay">
             <template lwc:if={findOpen}>
                 <div class="bar" role="search" aria-label="Find">
@@ -89,7 +89,12 @@
             aria-keyshortcuts="Control+F Control+G Meta+F Meta+G"
         >
             <pre class="gutter" aria-hidden="true">{lineNumbers}</pre>
-            <div class="code-area">
+            <div class="code-area" onclick={handleCodeClick}>
+                <div
+                    class={currentLineClass}
+                    style={currentLineStyle}
+                    aria-hidden="true"
+                ></div>
                 <div
                     class={flashClass}
                     style={flashStyle}
@@ -115,6 +120,163 @@
             >
                 Wrap
             </button>
+            <button
+                lwc:ref="prefsButton"
+                type="button"
+                class="gear-btn"
+                aria-haspopup="dialog"
+                aria-expanded={prefsExpanded}
+                aria-controls="viewer-prefs"
+                aria-label="Viewer preferences"
+                title="Viewer preferences"
+                onclick={togglePrefs}
+            >
+                &#x2699; Prefs
+            </button>
         </span>
     </div>
+    <template lwc:if={prefsOpen}>
+        <div
+            lwc:ref="prefsPopover"
+            id="viewer-prefs"
+            class="prefs"
+            role="dialog"
+            aria-label="Viewer preferences"
+            onkeydown={handlePrefsKeydown}
+        >
+            <div class="prefs-head">
+                <span class="prefs-title">Viewer preferences</span>
+                <button
+                    type="button"
+                    class="bar-btn"
+                    aria-label="Close preferences"
+                    title="Close (Esc)"
+                    onclick={togglePrefs}
+                >
+                    &#x2715;
+                </button>
+            </div>
+            <div class="prefs-row" role="group" aria-labelledby="pref-font">
+                <span id="pref-font" class="prefs-label">Font size</span>
+                <span class="stepper">
+                    <button
+                        lwc:ref="fontDown"
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Decrease font size"
+                        title="Decrease (Ctrl+-)"
+                        disabled={atMinFont}
+                        onclick={handleFontDown}
+                    >
+                        A&minus;
+                    </button>
+                    <output class="stepper-value" aria-live="polite">
+                        {fontSizeLabel}
+                    </output>
+                    <button
+                        type="button"
+                        class="bar-btn"
+                        aria-label="Increase font size"
+                        title="Increase (Ctrl++)"
+                        disabled={atMaxFont}
+                        onclick={handleFontUp}
+                    >
+                        A+
+                    </button>
+                </span>
+            </div>
+            <fieldset class="prefs-row">
+                <legend class="prefs-label">Tab width</legend>
+                <template for:each={tabOptions} for:item="opt">
+                    <label key={opt.key} class="choice">
+                        <input
+                            type="radio"
+                            name="tabWidth"
+                            data-pref={opt.pref}
+                            data-value={opt.value}
+                            checked={opt.checked}
+                            onchange={handleRadio}
+                        />
+                        {opt.label}
+                    </label>
+                </template>
+            </fieldset>
+            <fieldset class="prefs-row">
+                <legend class="prefs-label">Line height</legend>
+                <template for:each={lineHeightOptions} for:item="opt">
+                    <label key={opt.key} class="choice">
+                        <input
+                            type="radio"
+                            name="lineHeight"
+                            data-pref={opt.pref}
+                            data-value={opt.value}
+                            checked={opt.checked}
+                            onchange={handleRadio}
+                        />
+                        {opt.label}
+                    </label>
+                </template>
+            </fieldset>
+            <fieldset class="prefs-row">
+                <legend class="prefs-label">Syntax theme</legend>
+                <template for:each={syntaxOptions} for:item="opt">
+                    <label key={opt.key} class="choice">
+                        <input
+                            type="radio"
+                            name="syntaxTheme"
+                            data-pref={opt.pref}
+                            data-value={opt.value}
+                            checked={opt.checked}
+                            onchange={handleRadio}
+                        />
+                        {opt.label}
+                    </label>
+                </template>
+            </fieldset>
+            <fieldset class="prefs-row">
+                <legend class="prefs-label">Display</legend>
+                <label class="choice">
+                    <input
+                        type="checkbox"
+                        data-pref="lineNumbers"
+                        checked={lineNumbersChecked}
+                        onchange={handleToggle}
+                    />
+                    Line numbers
+                </label>
+                <label class="choice">
+                    <input
+                        type="checkbox"
+                        data-pref="wordWrap"
+                        checked={wordWrapChecked}
+                        onchange={handleToggle}
+                    />
+                    Wrap long lines by default
+                </label>
+                <label class="choice">
+                    <input
+                        type="checkbox"
+                        data-pref="highlightLine"
+                        checked={highlightLineChecked}
+                        onchange={handleToggle}
+                    />
+                    Highlight current line on click
+                </label>
+            </fieldset>
+            <pre
+                class="preview"
+                aria-hidden="true"
+            ><span class="hljs-keyword">function</span> <span class="hljs-title function_">greet</span>(<span class="hljs-params">name</span>) {
+&#9;<span class="hljs-comment">// tab</span>
+&#9;<span class="hljs-keyword">return</span> <span class="hljs-string">'Hi '</span> + name + <span class="hljs-number">1</span>;
+}</pre>
+            <button
+                type="button"
+                class="prefs-reset"
+                onclick={handlePrefsReset}
+            >
+                Reset to defaults
+            </button>
+        </div>
+    </template>
 </template>
