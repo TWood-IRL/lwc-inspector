@@ -1,23 +1,79 @@
-lightning-layout-item lightning-card.fileCard .slds-card:hover {
-    outline: 0;
-    border-color: #0288d1;
-    /* background-color: #1589ee; */
-    -webkit-box-shadow: 0 0 3px #0288d1;
-    box-shadow: 0 0 3px #0288d1;
-    cursor: pointer;
+.search-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
-lightning-layout:last-child {
-    padding-bottom: 80px; /*offset the footer*/
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
 }
-div.sourceCode {
-    white-space: pre-wrap;
-    background-color: blanchedalmond;
-    border-radius: 5px;
+.search-input {
+    flex: 1 1 16rem;
+}
+.panes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+}
+.pane-tree {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+.pane-source {
+    flex: 3 1 24rem;
+    min-width: 0;
+}
+.pane {
+    min-height: 20rem;
+    max-height: calc(100vh - 16rem);
+    overflow: auto;
 }
 .component-tree {
-    background-color: white;
+    background-color: #ffffff;
+    padding: 0.5rem 0;
 }
-.source-viewer {
-    max-height: 80vh;
-    overflow-y: auto;
+.source-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+}
+.source-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+.source-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.sourceCode {
+    margin: 0;
+    padding: 1rem;
+    overflow: auto;
+    background: #f3f3f3;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    white-space: pre;
+}
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-title {
+    margin-bottom: 0.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
 }

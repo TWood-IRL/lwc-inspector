@@ -1,12 +1,42 @@
 .main-html {
-    padding-top: 10px;
-    max-width: 1080px;
-    width: 96%;
-    margin: 1rem auto;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
 }
-.img-lwc-icon {
-    max-width: 150px;
+.account-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
-.loginSection {
+.account-text {
+    margin: 0;
+}
+.login-card {
+    max-width: 42rem;
+    margin: 1.5rem auto;
+    padding: 1.5rem 1rem;
     text-align: center;
+}
+.tagline {
+    max-width: 32rem;
+    margin: 0 auto 1.5rem;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: #3e3e3c;
+}
+.login-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.session-form {
+    max-width: 28rem;
+    margin: 1.5rem auto 0;
+    text-align: left;
 }

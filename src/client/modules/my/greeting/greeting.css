@@ -1,37 +1,26 @@
-.greet {
-    font-size: xx-large;
+.about {
+    max-width: 42rem;
+    margin: 0 auto;
 }
-
-.fade-fast {
-    opacity: 0;
-    animation: fade-in 1s;
+.about-card {
+    padding: 1.5rem;
+    margin-bottom: 1rem;
 }
-
-.fade-slow {
-    opacity: 0;
-    animation: fade-in 5s;
+.about-heading {
+    margin: 0 0 0.75rem;
 }
-
-.fade-medium {
-    opacity: 0;
-    animation: fade-in 2s;
+.about-text {
+    line-height: 1.6;
+    color: #3e3e3c;
 }
-
-@keyframes fade-in {
-    0% {
-        opacity: 0;
-    }
-    35% {
-        opacity: 1;
-    }
-    65% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
+.about-text + .about-text {
+    margin-top: 0.5rem;
 }
-
-.hide {
-    opacity: 0;
+.about-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
 }

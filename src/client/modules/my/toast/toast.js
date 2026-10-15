@@ -29,6 +29,10 @@ export default class Toast extends LightningElement {
             }, TOAST_DURATION_MS);
         }
     }
+    handleClose() {
+        clearTimeout(this.hideTimer);
+        this.toastNotification = {};
+    }
     disconnectedCallback() {
         clearTimeout(this.hideTimer);
     }

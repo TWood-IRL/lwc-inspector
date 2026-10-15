@@ -7,57 +7,70 @@
         size="large"
         variant="brand"
     ></lightning-spinner>
-    <div class="main-html">
+    <main class="main-html">
         <template lwc:if={isLoggedIn}>
-            <div>
-                {LABEL.LOGGED_IN_AS} <br />
-                <a href="/oauth2/logout" title="Logout">
-                    {getName}<br />{getUsername}<br />Logout</a
+            <div class="account-bar">
+                <p class="account-text">
+                    {LABEL.LOGGED_IN_AS} <strong>{getName}</strong>
+                    <span lwc:if={getUsername} class="slds-text-color_weak">
+                        ({getUsername})</span
+                    >
+                </p>
+                <a class="slds-button slds-button_neutral" href="/oauth2/logout"
+                    >Log out</a
                 >
             </div>
-        </template>
-        <template lwc:else>
-            <div class="loginSection">
-                <a href="/oauth2/login?login_type=PRODUCTION">
-                    {LABEL.LOGIN_PROD}</a
-                >
-                <br />
-                <a href="/oauth2/login?login_type=SANDBOX">
-                    {LABEL.LOGIN_SANDBOX}</a
-                >
-                <br />
-                <a onclick={setDisplayInputs} target="_blank">
-                    {LABEL.LOGIN_SESSIONID}</a
-                >
-                <br />
-                <template lwc:if={displayInputs}>
-                    <lightning-input
-                        type="text"
-                        data-id="sessionId"
-                        label={LABEL.ENTER_SESSION}
-                        placeholder={LABEL.PLACEHOLDER_SESSION}
-                        value=""
-                    ></lightning-input>
-                    <lightning-input
-                        type="text"
-                        data-id="myDomainURL"
-                        placeholder={LABEL.PLACEHOLDER_MYDOMAIN}
-                        label={LABEL.ENTER_MY_DOMAIN}
-                        value=""
-                    ></lightning-input>
-                    <br />
-                    <lightning-button
-                        label={LABEL.SET_SESSION}
-                        onclick={setSessionInfo}
-                    ></lightning-button>
-                </template>
-            </div>
-            <br />
-            <my-greeting lwc:if={showGreeting}></my-greeting>
-        </template>
-
-        <template lwc:if={isLoggedIn}>
             <my-app onloading={toggleLoading}></my-app>
         </template>
-    </div>
+        <template lwc:else>
+            <section class="slds-card login-card">
+                <div class="slds-card__body slds-card__body_inner">
+                    <p class="tagline">{LABEL.TAGLINE}</p>
+                    <div class="login-actions">
+                        <a
+                            class="slds-button slds-button_brand"
+                            href="/oauth2/login?login_type=PRODUCTION"
+                            >{LABEL.LOGIN_PROD}</a
+                        >
+                        <a
+                            class="slds-button slds-button_neutral"
+                            href="/oauth2/login?login_type=SANDBOX"
+                            >{LABEL.LOGIN_SANDBOX}</a
+                        >
+                        <button
+                            type="button"
+                            class="slds-button slds-button_neutral"
+                            aria-expanded={displayInputs}
+                            onclick={setDisplayInputs}
+                        >
+                            {LABEL.LOGIN_SESSIONID}
+                        </button>
+                    </div>
+                    <div lwc:if={displayInputs} class="session-form">
+                        <lightning-input
+                            type="text"
+                            data-id="sessionId"
+                            label={LABEL.ENTER_SESSION}
+                            placeholder={LABEL.PLACEHOLDER_SESSION}
+                            value=""
+                        ></lightning-input>
+                        <lightning-input
+                            type="text"
+                            data-id="myDomainURL"
+                            placeholder={LABEL.PLACEHOLDER_MYDOMAIN}
+                            label={LABEL.ENTER_MY_DOMAIN}
+                            value=""
+                        ></lightning-input>
+                        <lightning-button
+                            class="slds-m-top_small"
+                            variant="brand"
+                            label={LABEL.SET_SESSION}
+                            onclick={setSessionInfo}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </section>
+            <my-greeting lwc:if={showGreeting}></my-greeting>
+        </template>
+    </main>
 </template>
