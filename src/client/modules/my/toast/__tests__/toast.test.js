@@ -45,4 +45,20 @@ describe('my-toast', () => {
         expect(element.shadowRoot.querySelector('h2')).not.toBeNull();
         expect(element.shadowRoot.querySelector('p')).toBeNull();
     });
+
+    it('picks the variant theme', async () => {
+        const element = create();
+
+        element.showToast({ title: 'Unable to load component' });
+        await flushPromises();
+        expect(
+            element.shadowRoot.querySelector('.slds-notify').className
+        ).toContain('slds-theme_error');
+
+        element.showToast({ title: 'Done', variant: 'success' });
+        await flushPromises();
+        expect(
+            element.shadowRoot.querySelector('.slds-notify').className
+        ).toContain('slds-theme_success');
+    });
 });

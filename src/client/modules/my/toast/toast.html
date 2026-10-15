@@ -1,20 +1,18 @@
 <template>
     <div class={getComputedClass} lwc:if={isDisplayed}>
         <div class="slds-notify_container">
-            <!--slds-is-relative-->
             <div
-                class="slds-notify slds-notify_toast slds-theme_info"
+                class={toastClass}
                 role="status"
+                onmouseenter={handlePause}
+                onmouseleave={handleResume}
             >
-                <span class="slds-assistive-text">info</span>
+                <span class="slds-assistive-text">{variantLabel}</span>
                 <span
-                    class="slds-icon_container slds-icon-utility-info slds-m-right_small slds-no-flex slds-align-top"
-                    title="Description of icon when needed"
+                    class="slds-icon_container slds-m-right_small slds-no-flex slds-align-top toast-icon"
                 >
                     <svg class="slds-icon slds-icon_small" aria-hidden="true">
-                        <use
-                            xlink:href="/resources/slds/icons/utility-sprite/svg/symbols.svg#info"
-                        ></use>
+                        <use xlink:href={iconHref}></use>
                     </svg>
                 </span>
                 <div class="slds-notify__content">
@@ -40,6 +38,7 @@
                         <span class="slds-assistive-text">Close</span>
                     </button>
                 </div>
+                <span class="toast-progress" style={progressStyle}></span>
             </div>
         </div>
     </div>
