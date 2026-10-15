@@ -48,17 +48,9 @@ module.exports = class AuthenticationService {
     redirectToAuthUrl(req, res) {
         req.session.loginType =
             req.query.login_type === 'SANDBOX' ? 'SANDBOX' : 'PROD';
-        // Make sure the session is persisted before leaving for Salesforce
-        req.session.save((err) => {
-            if (err) {
-                this.logger.error('Failed to save server session', err);
-                res.status(500).send('Failed to save server session');
-                return;
-            }
-            res.redirect(
-                this._getOauth2(req).getAuthorizationUrl({ scope: 'api' })
-            );
-        });
+        res.redirect(
+            this._getOauth2(req).getAuthorizationUrl({ scope: 'api' })
+        );
     }
 
     /**
@@ -152,13 +144,8 @@ module.exports = class AuthenticationService {
                 return;
             }
         }
-        req.session.destroy((err) => {
-            if (err) {
-                this.logger.error('Failed to destroy server session', err);
-                res.status(500).send('Failed to destroy server session');
-            } else {
-                res.redirect('/');
-            }
-        });
+        // cookie-session: clearing the session removes the cookie
+        req.session = null;
+        res.redirect('/');
     }
 };
