@@ -261,6 +261,17 @@
                 background: #0a4f94;
                 border-color: #0a4f94;
             }
+            /* Focus mode (set on <html> by my-web-explorer) hides the chrome.
+               Synthetic shadow lets these global rules reach component DOM. */
+            html[data-focus='true'] .app-header,
+            html[data-focus='true'] .account-bar {
+                display: none;
+            }
+            html[data-focus='true'] .main-html {
+                max-width: none;
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+            }
         </style>
         <link rel="shortcut icon" href="resources/favicon.ico" />
         <link

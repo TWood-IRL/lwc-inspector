@@ -1,0 +1,46 @@
+:host {
+    display: block;
+    flex: none;
+    align-self: stretch;
+}
+.splitter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 100%;
+    min-height: 3rem;
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+    outline: none;
+}
+.grip {
+    width: 0.25rem;
+    height: 2.5rem;
+    border-radius: 0.125rem;
+    background: var(--lwci-border, #c9ced6);
+    transition:
+        background-color 0.15s ease,
+        height 0.15s ease;
+}
+.splitter:hover .grip,
+.splitter:focus-visible .grip,
+.splitter.dragging .grip {
+    height: 4rem;
+    background: var(--lwci-brand, #0176d3);
+}
+.splitter:focus-visible .grip {
+    box-shadow:
+        0 0 0 2px var(--lwci-surface, #ffffff),
+        0 0 0 4px var(--lwci-brand, #0176d3);
+}
+.splitter.disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+@media (prefers-reduced-motion: reduce) {
+    .grip {
+        transition: none;
+    }
+}

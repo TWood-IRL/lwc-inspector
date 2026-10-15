@@ -19,7 +19,20 @@ import {
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
+import {
+    DEFAULT_TREE_WIDTH,
+    MIN_TREE_WIDTH,
+    clamp,
+    maxTreeWidth,
+    loadWidth,
+    saveWidth,
+    clearWidth,
+    loadCollapsed,
+    saveCollapsed
+} from 'my/layoutState';
+
 const SEARCH_DEBOUNCE_MS = 300;
+const STACKED_QUERY = '(max-width: 48rem)';
 
 export default class WebExplorer extends LightningElement {
     // @track: nodes are mutated in place (expanded, items) and the tree must re-render
@@ -38,6 +51,14 @@ export default class WebExplorer extends LightningElement {
         { label: 'Aura Components', value: 'auraComps' }
     ];
     compTypeValue = 'lwcComps';
+
+    // Workspace layout (see "Workspace layout" at the end of the class)
+    treeWidth = DEFAULT_TREE_WIDTH;
+    minTreeWidth = MIN_TREE_WIDTH;
+    treeCollapsed = false;
+    focusMode = false;
+    stacked = false;
+    resizing = false;
 
     LABELS = LABELS;
 
@@ -268,6 +289,7 @@ export default class WebExplorer extends LightningElement {
         }
         window.addEventListener('hashchange', this.handleHashChange);
         this.addShortcutListeners();
+        this.initLayout();
         await this.getLightningComponents();
         if (target) {
             await this.openTarget(target);
@@ -283,7 +305,8 @@ export default class WebExplorer extends LightningElement {
             'lwci:focus-search': () => this.focusSearch(),
             'lwci:copy-source': () => this.isTypeSource && this.handleCopy(),
             'lwci:prev-tab': () => this.stepTab(-1),
-            'lwci:next-tab': () => this.stepTab(1)
+            'lwci:next-tab': () => this.stepTab(1),
+            'lwci:toggle-focus': () => this.toggleFocus()
         };
         Object.entries(this._shortcutHandlers).forEach(([name, fn]) =>
             document.addEventListener(name, fn)
@@ -350,6 +373,7 @@ export default class WebExplorer extends LightningElement {
     }
 
     disconnectedCallback() {
+        this.teardownLayout();
         window.removeEventListener('hashchange', this.handleHashChange);
         clearTimeout(this.linkTimer);
 
@@ -504,5 +528,129 @@ export default class WebExplorer extends LightningElement {
             console.error('error generating zip', error);
             this.dispatchEvent(showToast('Unable to create zip file'));
         }
+    }
+
+    // --- Workspace layout: splitter, tree collapse, focus mode --------
+
+    initLayout() {
+        this.treeWidth = loadWidth();
+        this.treeCollapsed = loadCollapsed();
+        if (typeof window.matchMedia === 'function') {
+            this._mql = window.matchMedia(STACKED_QUERY);
+            this.stacked = !!this._mql.matches;
+            this._onMql = (event) => {
+                this.stacked = !!event.matches;
+            };
+            if (this._mql.addEventListener) {
+                this._mql.addEventListener('change', this._onMql);
+            }
+        }
+        this._onLayoutKeydown = (event) => {
+            if (
+                event.key === 'Escape' &&
+                this.focusMode &&
+                !event.defaultPrevented
+            ) {
+                this.setFocusMode(false);
+            }
+        };
+        this._onLayoutResize = () => {
+            // Re-clamp so a shrunk window never leaves the tree too wide
+            this.treeWidth = clamp(
+                this.treeWidth,
+                MIN_TREE_WIDTH,
+                this.maxTreeWidthValue
+            );
+        };
+        document.addEventListener('keydown', this._onLayoutKeydown);
+        window.addEventListener('resize', this._onLayoutResize);
+    }
+
+    teardownLayout() {
+        document.removeEventListener('keydown', this._onLayoutKeydown);
+        window.removeEventListener('resize', this._onLayoutResize);
+        this._mql?.removeEventListener?.('change', this._onMql);
+        document.documentElement.removeAttribute('data-focus');
+    }
+
+    get maxTreeWidthValue() {
+        const panes = this.template.querySelector('.panes');
+        return maxTreeWidth(panes ? panes.getBoundingClientRect().width : 0);
+    }
+    get treeHidden() {
+        return this.treeCollapsed || this.focusMode;
+    }
+    get showSplitter() {
+        return !this.stacked && !this.treeHidden;
+    }
+    get showTreeToggle() {
+        return !this.stacked && !this.focusMode;
+    }
+    get treeExpanded() {
+        return !this.treeCollapsed;
+    }
+    get treeToggleLabel() {
+        return this.treeCollapsed
+            ? 'Show component tree'
+            : 'Hide component tree';
+    }
+    get chevronClass() {
+        return this.treeCollapsed ? 'chevron chevron-collapsed' : 'chevron';
+    }
+    get treeStyle() {
+        if (this.stacked) return '';
+        const width = this.treeHidden ? 0 : this.treeWidth;
+        return `flex: 0 0 ${width}px; width: ${width}px;`;
+    }
+    get treeClass() {
+        let cls = 'pane-tree';
+        if (!this.stacked && this.treeHidden) cls += ' pane-tree-hidden';
+        if (this.resizing) cls += ' pane-tree-resizing';
+        return cls;
+    }
+    get explorerClass() {
+        return this.focusMode ? 'explorer explorer-focus' : 'explorer';
+    }
+    get isFocusMode() {
+        return this.focusMode;
+    }
+    get focusLabel() {
+        return this.focusMode ? 'Exit focus' : 'Focus';
+    }
+    get focusTitle() {
+        return this.focusMode ? 'Exit focus mode (Esc)' : 'Focus mode (f)';
+    }
+
+    handleSplitterResize(event) {
+        const { value, final } = event.detail;
+        this.resizing = !final;
+        this.treeWidth = clamp(value, MIN_TREE_WIDTH, this.maxTreeWidthValue);
+        if (final) saveWidth(this.treeWidth);
+    }
+
+    handleSplitterReset() {
+        this.resizing = false;
+        this.treeWidth = DEFAULT_TREE_WIDTH;
+        clearWidth();
+    }
+
+    handleTreeToggle() {
+        this.treeCollapsed = !this.treeCollapsed;
+        saveCollapsed(this.treeCollapsed);
+    }
+
+    handleFocusToggle() {
+        this.toggleFocus();
+    }
+
+    toggleFocus() {
+        this.setFocusMode(!this.focusMode);
+    }
+
+    setFocusMode(on) {
+        this.focusMode = !!on;
+        const root = document.documentElement;
+        if (this.focusMode) root.setAttribute('data-focus', 'true');
+        else root.removeAttribute('data-focus');
     }
 }
