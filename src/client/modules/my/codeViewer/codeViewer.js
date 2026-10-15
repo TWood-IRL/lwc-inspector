@@ -416,6 +416,8 @@ export default class CodeViewer extends LightningElement {
         this.goToLine(line);
     }
 
+    // Public so the insights panel can jump to a line (see webExplorer)
+    @api
     goToLine(line) {
         const scroller = this.refs.scroller;
         const codeEl = this.refs.code;
