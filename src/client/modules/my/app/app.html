@@ -1,6 +1,7 @@
 <template>
     <div ontoastfired={handleToast}>
         <my-toast></my-toast>
+        <my-shortcuts></my-shortcuts>
         <template lwc:if={isDisplayComp}>
             <my-web-component
                 id={displayCompId}

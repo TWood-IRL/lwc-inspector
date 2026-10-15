@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import {
     getLightningComponentBundles,
     searchLightningComponentBundle,
@@ -247,10 +247,36 @@ export default class WebExplorer extends LightningElement {
             this.compTypeValue = target.type;
         }
         window.addEventListener('hashchange', this.handleHashChange);
+        this.addShortcutListeners();
         await this.getLightningComponents();
         if (target) {
             await this.openTarget(target);
         }
+    }
+
+    // Keyboard shortcuts: events are dispatched on document by my-shortcuts
+    @api focusSearch() {
+        this.template.querySelector('lightning-input')?.focus();
+    }
+    addShortcutListeners() {
+        this._shortcutHandlers = {
+            'lwci:focus-search': () => this.focusSearch(),
+            'lwci:copy-source': () => this.isTypeSource && this.handleCopy(),
+            'lwci:prev-tab': () => this.stepTab(-1),
+            'lwci:next-tab': () => this.stepTab(1)
+        };
+        Object.entries(this._shortcutHandlers).forEach(([name, fn]) =>
+            document.addEventListener(name, fn)
+        );
+    }
+    stepTab(delta) {
+        const tabs = this.fileTabs;
+        const i = tabs.findIndex((tab) => tab.selected);
+        if (tabs.length < 2 || i < 0) return;
+        const next = tabs[(i + delta + tabs.length) % tabs.length];
+        this.handleTabClick({
+            currentTarget: { dataset: { name: next.name } }
+        });
     }
 
     compSelected(event) {
@@ -306,6 +332,10 @@ export default class WebExplorer extends LightningElement {
     disconnectedCallback() {
         window.removeEventListener('hashchange', this.handleHashChange);
         clearTimeout(this.linkTimer);
+
+        Object.entries(this._shortcutHandlers ?? {}).forEach(([name, fn]) =>
+            document.removeEventListener(name, fn)
+        );
         clearTimeout(this.copyTimer);
     }
 
