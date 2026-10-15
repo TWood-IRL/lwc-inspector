@@ -6,9 +6,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.625rem 1.5rem;
-    background: #0176d3;
+    background: linear-gradient(
+        120deg,
+        var(--lwci-brand-dark, #014486) 0%,
+        var(--lwci-brand, #0176d3) 100%
+    );
     color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 12px rgba(1, 68, 134, 0.35);
 }
 .brand {
     display: flex;
@@ -21,22 +25,30 @@
     height: 2.25rem;
     padding: 0.25rem;
     background: #ffffff;
-    border-radius: 0.5rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s ease;
+}
+.brand:hover .brand-logo {
+    transform: rotate(-4deg) scale(1.05);
 }
 .brand-title {
     margin: 0;
     font-size: 1.25rem;
-    font-weight: 400;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     line-height: 1.25;
 }
 .gh-link {
     display: inline-flex;
+    padding: 0.25rem;
     color: #ffffff;
     border-radius: 50%;
+    transition: background-color 0.2s ease;
 }
 .gh-link:hover,
 .gh-link:focus {
-    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.18);
 }
 @media (max-width: 480px) {
     .app-header {
