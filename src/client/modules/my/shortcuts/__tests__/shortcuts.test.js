@@ -97,4 +97,15 @@ describe('my-shortcuts', () => {
         await flush();
         expect(el.shadowRoot.querySelector('[role="dialog"]')).toBeNull();
     });
+
+    it('opens the help on lwci:show-shortcuts and lists Ctrl/Cmd+K', async () => {
+        document.dispatchEvent(new CustomEvent('lwci:show-shortcuts'));
+        await flush();
+        const dialog = el.shadowRoot.querySelector('[role=dialog]');
+        expect(dialog).not.toBeNull();
+        expect(dialog.textContent).toContain('Ctrl/Cmd+K');
+        document.dispatchEvent(new CustomEvent('lwci:show-shortcuts'));
+        await flush();
+        expect(el.shadowRoot.querySelector('[role=dialog]')).not.toBeNull();
+    });
 });

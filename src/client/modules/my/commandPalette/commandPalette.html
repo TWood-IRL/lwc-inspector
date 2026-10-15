@@ -1,0 +1,85 @@
+<template>
+    <template lwc:if={open}>
+        <div class="backdrop" onmousedown={handleBackdropMousedown}>
+            <div
+                class="dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Command palette"
+                onkeydown={handleKeydown}
+            >
+                <input
+                    class="search"
+                    type="text"
+                    role="combobox"
+                    placeholder="Search components, files and actions"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    aria-label="Search commands"
+                    aria-expanded="true"
+                    aria-controls="palette-listbox"
+                    aria-autocomplete="list"
+                    aria-activedescendant={activeDescendant}
+                    value={query}
+                    oninput={handleInput}
+                />
+                <div class="status" role="status" aria-live="polite">
+                    {statusText}
+                </div>
+                <div
+                    id="palette-listbox"
+                    class="results"
+                    role="listbox"
+                    aria-label="Results"
+                >
+                    <template for:each={groups} for:item="group">
+                        <div
+                            key={group.id}
+                            role="group"
+                            aria-label={group.label}
+                        >
+                            <div class="section" aria-hidden="true">
+                                {group.label}
+                            </div>
+                            <template for:each={group.items} for:item="item">
+                                <div
+                                    key={item.domId}
+                                    id={item.domId}
+                                    class={item.className}
+                                    role="option"
+                                    aria-selected={item.selected}
+                                    data-index={item.index}
+                                    onmousemove={handleOptionMove}
+                                    onclick={handleOptionClick}
+                                >
+                                    <span class="label">
+                                        <template
+                                            for:each={item.segments}
+                                            for:item="seg"
+                                        >
+                                            <span
+                                                key={seg.key}
+                                                class={seg.className}
+                                                >{seg.text}</span
+                                            >
+                                        </template>
+                                    </span>
+                                    <span class="detail">{item.detail}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:if={noResults}>
+                        <div class="empty">{emptyText}</div>
+                    </template>
+                </div>
+                <div class="footer" aria-hidden="true">
+                    <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+                    <span><kbd>Enter</kbd> select</span>
+                    <span><kbd>Esc</kbd> close</span>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

@@ -306,11 +306,32 @@ export default class WebExplorer extends LightningElement {
             'lwci:copy-source': () => this.isTypeSource && this.handleCopy(),
             'lwci:prev-tab': () => this.stepTab(-1),
             'lwci:next-tab': () => this.stepTab(1),
-            'lwci:toggle-focus': () => this.toggleFocus()
+            'lwci:toggle-focus': () => this.toggleFocus(),
+            'lwci:copy-link': () => this.handleCopyLink(),
+            'lwci:open-target': (event) => this.openTarget(event.detail),
+            'lwci:palette-request': (event) =>
+                event.detail?.respond?.(this.paletteData())
         };
         Object.entries(this._shortcutHandlers).forEach(([name, fn]) =>
             document.addEventListener(name, fn)
         );
+    }
+    // Answers the command palette (see my/commandPalette)
+    paletteData() {
+        const type = this.compTypeValue;
+        const bundle = this._selectedComponent?.label;
+        return {
+            bundles: this._lightningComponentBundles.map((entry) => ({
+                label: entry.label,
+                type
+            })),
+            files: this.fileTabs.map((tab) => ({
+                type,
+                bundle,
+                file: tab.label
+            })),
+            canCopySource: this.isTypeSource
+        };
     }
     stepTab(delta) {
         const tabs = this.fileTabs;

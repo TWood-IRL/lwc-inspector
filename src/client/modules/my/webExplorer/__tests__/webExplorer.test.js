@@ -185,5 +185,67 @@ describe('my-web-explorer', () => {
                 element.shadowRoot.querySelector('my-code-viewer').code
             ).toBe('a');
         });
+
+        describe('command palette bridge', () => {
+            it('answers lwci:palette-request with bundles and open files', async () => {
+                mockApi([bundle('accountCard', 0), bundle('caseTimeline', 1)]);
+                window.history.replaceState(
+                    null,
+                    '',
+                    '/#/lwc/accountCard/accountCard.html'
+                );
+                const element = await create();
+                await flushPromises();
+                const respond = jest.fn();
+
+                document.dispatchEvent(
+                    new CustomEvent('lwci:palette-request', {
+                        detail: { respond }
+                    })
+                );
+
+                expect(respond).toHaveBeenCalledWith({
+                    bundles: [
+                        { label: 'accountCard', type: 'lwcComps' },
+                        { label: 'caseTimeline', type: 'lwcComps' }
+                    ],
+                    files: [
+                        {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.js'
+                        },
+                        {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.html'
+                        }
+                    ],
+                    canCopySource: true
+                });
+                document.body.removeChild(element);
+            });
+
+            it('opens a target on lwci:open-target', async () => {
+                mockApi([bundle('accountCard', 0)]);
+                const element = await create();
+
+                document.dispatchEvent(
+                    new CustomEvent('lwci:open-target', {
+                        detail: {
+                            type: 'lwcComps',
+                            bundle: 'accountCard',
+                            file: 'accountCard.html'
+                        }
+                    })
+                );
+                await flushPromises();
+                await flushPromises();
+
+                expect(
+                    element.shadowRoot.querySelector('my-code-viewer').code
+                ).toBe('b');
+            });
+        });
     });
 });
