@@ -62,11 +62,11 @@
                         <div class="editor-actions">
                             <button
                                 type="button"
-                                class="editor-button"
+                                class={copyClass}
                                 title="Copy source to clipboard"
                                 onclick={handleCopy}
                             >
-                                Copy
+                                {copyLabel}
                             </button>
                             <button
                                 type="button"
@@ -86,6 +86,37 @@
                 </div>
                 <div lwc:else class="slds-card pane">
                     <div class="empty-state">
+                        <svg
+                            class="empty-icon"
+                            viewBox="0 0 64 64"
+                            width="56"
+                            height="56"
+                            aria-hidden="true"
+                        >
+                            <rect
+                                x="8"
+                                y="10"
+                                width="48"
+                                height="44"
+                                rx="6"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                            />
+                            <path
+                                d="M8 22h48"
+                                stroke="currentColor"
+                                stroke-width="3"
+                            />
+                            <path
+                                d="M26 33l-6 6 6 6M38 33l6 6-6 6"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
                         <p class="empty-title">No file selected</p>
                         <p class="slds-text-color_weak">
                             Choose a component in the tree, then pick a file to
@@ -96,6 +127,34 @@
             </div>
         </div>
         <div lwc:if={showEmptyState} class="slds-card empty-state">
+            <svg
+                class="empty-icon"
+                viewBox="0 0 64 64"
+                width="56"
+                height="56"
+                aria-hidden="true"
+            >
+                <circle
+                    cx="28"
+                    cy="28"
+                    r="16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                />
+                <path
+                    d="M40 40l14 14"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+                <path
+                    d="M22 28h12"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                />
+            </svg>
             <p class="empty-title">No components found</p>
             <p class="slds-text-color_weak">
                 Try a different search term or component type.

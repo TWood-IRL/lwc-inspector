@@ -21,6 +21,7 @@ export default class WebExplorer extends LightningElement {
     searchKey = '';
     searchContents = false;
     isSearching = false;
+    copied = false;
     loaded = false; // true once the first request has finished, drives the empty state
     compTypes = [
         { label: 'Lightning Web Components', value: 'lwcComps' },
@@ -129,9 +130,28 @@ export default class WebExplorer extends LightningElement {
         }
     }
 
+    get copyLabel() {
+        return this.copied ? 'Copied!' : 'Copy';
+    }
+
+    get copyClass() {
+        return this.copied
+            ? 'editor-button editor-button-done'
+            : 'editor-button';
+    }
+
+    disconnectedCallback() {
+        clearTimeout(this.copyTimer);
+    }
+
     async handleCopy() {
         try {
             await navigator.clipboard.writeText(this.getSource);
+            this.copied = true;
+            clearTimeout(this.copyTimer);
+            this.copyTimer = setTimeout(() => {
+                this.copied = false;
+            }, 1500);
             this.dispatchEvent(showToast('Copied to clipboard'));
         } catch {
             this.dispatchEvent(showToast('Unable to copy to clipboard'));
