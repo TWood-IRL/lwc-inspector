@@ -12,7 +12,20 @@
         var(--lwci-brand, #0176d3) 100%
     );
     color: #ffffff;
-    box-shadow: 0 2px 12px rgba(1, 68, 134, 0.35);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 2px 12px rgba(1, 68, 134, 0.35);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    backdrop-filter: saturate(1.4) blur(10px);
+}
+@supports (backdrop-filter: blur(1px)) {
+    .app-header {
+        background: linear-gradient(
+            120deg,
+            rgba(1, 68, 134, 0.92) 0%,
+            rgba(1, 118, 211, 0.9) 100%
+        );
+    }
 }
 .brand {
     display: flex;
@@ -35,16 +48,47 @@
 .brand-title {
     margin: 0;
     font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-weight: 650;
+    letter-spacing: -0.01em;
     line-height: 1.25;
 }
 .gh-link {
+    position: relative;
     display: inline-flex;
     padding: 0.25rem;
     color: #ffffff;
     border-radius: 50%;
-    transition: background-color 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+.gh-link:hover {
+    transform: scale(1.08);
+}
+.gh-link::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: #ffffff;
+    background: #181818;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+}
+.gh-link:hover::after,
+.gh-link:focus-visible::after {
+    opacity: 1;
+    transform: none;
 }
 .gh-link:hover,
 .gh-link:focus {
